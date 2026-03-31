@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
+        <SpaRoot>ClientApp\</SpaRoot>
+        <SpaProxyServerUrl>https://localhost:4200</SpaProxyServerUrl>
+        <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
         <RootNamespace>MainApi.Web</RootNamespace>
         <AssemblyName>MainApi.Web</AssemblyName>
     </PropertyGroup>
