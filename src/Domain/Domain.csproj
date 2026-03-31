@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>MainApi.Domain</RootNamespace>
+        <AssemblyName>MainApi.Domain</AssemblyName>
+    </PropertyGroup>
+
+</Project>
