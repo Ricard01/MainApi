@@ -11,14 +11,14 @@ public class Rol : BaseEntity<Guid>
     private readonly List<User> _users = new();
     public IReadOnlyCollection<User> Users => _users.AsReadOnly();
     
-    private readonly List<RolPermiso> _rolPermisos = new();
-    public IReadOnlyCollection<RolPermiso> RolPermisos => _rolPermisos.AsReadOnly();
+    private readonly List<PermisoRol> _permisosRol = new();
+    public IReadOnlyCollection<PermisoRol> PermisosRol => _permisosRol.AsReadOnly();
     
     public void AsignarPermiso(int idPermiso)
     {
-        if (!_rolPermisos.Any(rp => rp.IdPermiso == idPermiso))
+        if (!_permisosRol.Any(rp => rp.IdPermiso == idPermiso))
         {
-            _rolPermisos.Add(new RolPermiso(this.Id, idPermiso));
+            _permisosRol.Add(new PermisoRol(this.Id, idPermiso));
         }
     }
 

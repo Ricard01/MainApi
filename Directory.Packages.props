@@ -6,9 +6,16 @@
         <MicrosoftExtensionsVersion>9.0.0</MicrosoftExtensionsVersion>
     </PropertyGroup>
     <ItemGroup>
+        <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0"/>
         <PackageVersion Include="MediatR" Version="14.1.0"/>
         <PackageVersion Include="FluentValidation" Version="12.1.1"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfcoreVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfcoreVersion)" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EfcoreVersion)" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfcoreVersion)" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfcoreVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspnetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspnetVersion)"/>
         <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspnetVersion)"/>
         <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="$(AspnetVersion)"/>
     </ItemGroup>
