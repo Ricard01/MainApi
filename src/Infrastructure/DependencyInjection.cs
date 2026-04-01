@@ -1,5 +1,7 @@
 ﻿using MainApi.Application.Common.Interfaces;
 using MainApi.Infrastructure.Data;
+using MainApi.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -22,5 +24,11 @@ public static class DependencyInjection
         });
         
         builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        builder.Services.AddScoped<AppDbContextInitialiser>();
+        
+        builder.Services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
+        builder.Services.AddScoped<IPasswordService, PasswordService>();
+        builder.Services.AddScoped<IIdentityService, IdentityService>();
+        
     }
 }

@@ -9,10 +9,11 @@ public interface IAppDbContext
     
     DbSet<Rol> Roles { get; }
     
-    DbSet<PermisoRol> RolPermisos  { get; }
+    DbSet<PermisosRol> PermisosRol  { get; }
     
     DbSet<Permiso> Permisos { get; }
     
+    DbSet<Empresa> Empresa { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

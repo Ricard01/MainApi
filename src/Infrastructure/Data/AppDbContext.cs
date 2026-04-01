@@ -11,8 +11,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<User> Usuarios => Set<User>();
     public DbSet<Rol> Roles => Set<Rol>();
-    public DbSet<PermisoRol> RolPermisos  => Set<PermisoRol>();
+    public DbSet<PermisosRol> PermisosRol  => Set<PermisosRol>();
     public DbSet<Permiso> Permisos  => Set<Permiso>();
+    public DbSet<Empresa> Empresa => Set<Empresa>();
 
 
     protected override void OnModelCreating(ModelBuilder builder)

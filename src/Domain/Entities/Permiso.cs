@@ -1,10 +1,12 @@
-using MainApi.Domain.Common;
-
 namespace MainApi.Domain.Entities;
 
-public class Permiso : BaseEntity
+/// <summary>
+/// Todos los permisos que se pueden otorgar a un usuario
+/// </summary>
+public class Permiso
 {
-    public required string Nombre { get; set; } // Ej: "Usuarios.Ver"
+    public int Id { get; set; }
+    public required string Nombre { get; set; } // Ej: "User.Ver"
     public required string Modulo { get; set; } // Ej: "Usuarios"
     public string? Descripcion { get; set; }
 }

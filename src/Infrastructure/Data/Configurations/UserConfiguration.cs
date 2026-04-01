@@ -17,7 +17,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(x => x.Email).IsUnique();
         builder.Property(x => x.Email).IsRequired().HasMaxLength(200);
         builder.Property(x => x.Telefono).HasMaxLength(20);
-        builder.Property(x => x.ImagenPerfilUrl).HasDefaultValue("../../../assets/images/avatars/user.png");
+        builder.Property(x => x.ImagenPerfilUrl).HasDefaultValue("../../../assets/imgs/user-placeholder.png");
         builder.Property(x => x.PasswordHash).IsRequired();
         builder.Property(x => x.IdRol).IsRequired();
 

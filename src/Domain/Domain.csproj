@@ -4,10 +4,9 @@
         <RootNamespace>MainApi.Domain</RootNamespace>
         <AssemblyName>MainApi.Domain</AssemblyName>
     </PropertyGroup>
-
-
+    
     <ItemGroup>
         <PackageReference Include="MediatR"/>
     </ItemGroup>
-
+    
 </Project>

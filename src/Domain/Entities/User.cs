@@ -24,13 +24,11 @@ public class User : BaseAuditableEntity<Guid>
     // Método de fábrica
     public static User Create(
         string userName,
-        string matricula,
         string nombre,
         string apellidoPaterno,
         string? apellidoMaterno,
         string email,
         string telefono,
-        string? telefono2,
         string? imagenPerfilUrl,
         string passwordHash,
         Guid idRol
