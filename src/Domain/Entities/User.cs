@@ -8,7 +8,7 @@ namespace MainApi.Domain.Entities;
 public class User : BaseAuditableEntity<Guid>
 {
     public required string UserName { get; init; } 
-    public required string Nombre { get; init; } 
+    public required string Nombre { get; set; } 
     public string ApellidoPaterno { get; private set; } = default!;
     public string? ApellidoMaterno { get; private set; } 
     public string Email { get; private set; } = default!;
@@ -28,7 +28,7 @@ public class User : BaseAuditableEntity<Guid>
         string apellidoPaterno,
         string? apellidoMaterno,
         string email,
-        string telefono,
+        string? telefono,
         string? imagenPerfilUrl,
         string passwordHash,
         Guid idRol
@@ -48,6 +48,18 @@ public class User : BaseAuditableEntity<Guid>
         };
 
         return user;
+    }
+    
+    public void Update(string nombre, string apellidoPaterno, string? apellidoMaterno, string email, string? telefono, string? imagenPerfilUrl, Guid idRol)
+    {
+        Nombre = nombre;
+        ApellidoPaterno = apellidoPaterno;
+        ApellidoMaterno = apellidoMaterno;
+        Email = email;
+        Telefono = telefono;
+        ImagenPerfilUrl = imagenPerfilUrl;
+        IdRol = idRol;
+ 
     }
     
     /// <summary>

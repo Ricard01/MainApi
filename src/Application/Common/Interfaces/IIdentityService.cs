@@ -6,7 +6,6 @@ namespace MainApi.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    
     /// <summary>
     /// Autentica un usuario y genera la cookie de sesión.
     /// </summary>
@@ -14,11 +13,16 @@ public interface IIdentityService
     /// <param name="password">Contraseña en texto plano</param>
     /// <param name="rememberMe">Indica si la sesión es persistente</param>
     /// <returns>Información del usuario autenticado</returns>
-    Task<AuthUser> SignInAsync(string userName, string password, bool rememberMe,  CancellationToken cancellationToken); // emite cookie
+    Task<AuthUser> SignInAsync(string userName, string password, bool rememberMe,
+        CancellationToken cancellationToken); // emite cookie
+
     Task SignOutAsync(CancellationToken cancellationToken);
 
-    
+
     Task<IdentityResult> CreateUserAsync(UserModel user, CancellationToken cancellationToken);
+    Task<IdentityResult> UpdateUserAsync(UserUpdateModel user, CancellationToken cancellationToken);
+
+    Task<IdentityResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken);
 
 
 //     // Task<UserDto?> FindByUserNameAsync(string email);

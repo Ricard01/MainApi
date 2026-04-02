@@ -121,6 +121,47 @@ public class IdentityService : IIdentityService
         return IdentityResult.Ok();
     }
 
+    public async Task<IdentityResult> UpdateUserAsync(UserUpdateModel model, CancellationToken cancellationToken)
+    {
+        // 1. El usuario existe?
+        var user = await _context.Usuarios
+            .FirstOrDefaultAsync(u => u.Id == model.Id, cancellationToken);
+
+        if (user == null)
+            return IdentityResult.Fail("El usuario no existe.");
+
+        // 2. El rol existe?
+        if (!await _context.Roles.AnyAsync(r => r.Id == model.IdRol, cancellationToken))
+            return IdentityResult.Fail("El rol especificado no existe.");
+        
+        user.Update(
+            nombre: model.Nombre,
+            apellidoPaterno: model.ApellidoPaterno,
+            apellidoMaterno: model.ApellidoMaterno,
+            email: model.Email,
+            telefono: model.Telefono,
+            imagenPerfilUrl: model.ImagenPerfilUrl,
+            idRol: model.IdRol
+        );
+        
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return IdentityResult.Ok();
+    }
+
+    public async Task<IdentityResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var user = await _context.Usuarios.FirstOrDefaultAsync( u => u.Id == id, cancellationToken);
+        
+        if (user == null)
+            return IdentityResult.Fail("El usuario no existe.");
+        
+        _context.Usuarios.Remove(user);
+        await _context.SaveChangesAsync(cancellationToken);
+        
+        return IdentityResult.Ok();
+    }
+    
     public async Task<string?> GetUserNameAsync(string userId)
     {
         if (!Guid.TryParse(userId, out Guid userGuid))
