@@ -18,6 +18,7 @@
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
             <Publish>false</Publish>
         </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore"/>
     </ItemGroup>
 
 </Project>

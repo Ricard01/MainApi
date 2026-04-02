@@ -7,15 +7,13 @@ public class Auth : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        // ".AllowAnonymous"
-        var authBase = app.MapGroup(this)
-            .WithTags(nameof(Auth))
-            .WithOpenApi();
+
+        var authBase = app.MapGroup(this);
 
         authBase.MapPost(Login, "login");
 
-        // Subgrupo PROTEGIDO "RequireAuthorization"
-        var authPrivate = authBase.MapGroup(string.Empty).RequireAuthorization();
+        // authPrivate "RequireAuthorization"
+        var authPrivate = authBase.RequireAuthorization();
 
         // authPrivate.MapGet(GetCurrentUser, "getCurrentUser");
         authPrivate.MapPost(Logout, "logOut");
