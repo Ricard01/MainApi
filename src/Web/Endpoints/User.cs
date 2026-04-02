@@ -3,6 +3,7 @@ using MainApi.Application.Features.Users.Commands.ChangePassword;
 using MainApi.Application.Features.Users.Commands.CreateUser;
 using MainApi.Application.Features.Users.Commands.DeleteUser;
 using MainApi.Application.Features.Users.Commands.UpdateUser;
+using MainApi.Application.Features.Users.Queries.GetUserById;
 
 namespace MainApi.Web.Endpoints;
 
@@ -11,10 +12,16 @@ public class User : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
+            .MapGet(GetUserById, "{id:guid}")
             .MapPost(CreateUser)
             .MapPut(UpdateUser, "{id:guid}")
             .MapDelete(DeleteUser, "{id:guid}")
             .MapPatch("{id:guid}/change-password", ChangeUserPassword);
+    }
+
+    private Task<UserModel> GetUserById(ISender sender, Guid id)
+    {
+        return sender.Send(new GetUserByIdQuery{Id = id});
     }
 
     private async Task<IdentityResult> ChangeUserPassword(ISender sender, Guid id, ChangePasswordCommand command)

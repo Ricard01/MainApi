@@ -93,40 +93,61 @@ public class IdentityService : IIdentityService
             await _http.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
     }
-    
+
     //***** USER *****//
-    public async Task<IdentityResult> ChangePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken)
+    public async Task<UserModel?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var user = await _context.Usuarios
+            .AsNoTracking()
+            .Select(u => new UserModel
+        {
+            Id = u.Id,
+            UserName = u.UserName,
+            Nombre = u.Nombre,
+            ApellidoPaterno = u.ApellidoPaterno,
+            ApellidoMaterno = u.ApellidoMaterno,
+            Telefono = u.Telefono,
+            Email = u.Email,
+            ImagenPerfilUrl = u.ImagenPerfilUrl,
+            IdRol = u.IdRol,
+        }).FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+        return user;
+    }
+
+    public async Task<IdentityResult> ChangePasswordAsync(Guid userId, string newPassword,
+        CancellationToken cancellationToken)
     {
         var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
         if (user == null)
             return IdentityResult.Fail("El usuario no existe.");
-        
+
         var hash = _passwordService.Hash(newPassword);
         user.SetPasswordHash(hash);
-        
+
         await _context.SaveChangesAsync(cancellationToken);
         return IdentityResult.Ok();
     }
-    
-    public async Task<IdentityResult> CreateUserAsync(UserModel model, CancellationToken cancellationToken)
+
+    public async Task<IdentityResult> CreateUserAsync(UserCreateModel createModel, CancellationToken cancellationToken)
     {
-        if (!await _context.Roles.AnyAsync(r => r.Id == model.IdRol, cancellationToken))
+        if (!await _context.Roles.AnyAsync(r => r.Id == createModel.IdRol, cancellationToken))
             return IdentityResult.Fail("El rol no existe.");
 
 
-        var hash = _passwordService.Hash(model.Password);
+        var hash = _passwordService.Hash(createModel.Password);
 
         var user = User.Create(
-            userName: model.UserName,
-            nombre: model.Nombre,
-            apellidoPaterno: model.ApellidoPaterno,
-            apellidoMaterno: model.ApellidoMaterno,
-            email: model.Email,
-            telefono: model.Telefono,
-            imagenPerfilUrl: model.ImagenPerfilUrl,
+            userName: createModel.UserName,
+            nombre: createModel.Nombre,
+            apellidoPaterno: createModel.ApellidoPaterno,
+            apellidoMaterno: createModel.ApellidoMaterno,
+            email: createModel.Email,
+            telefono: createModel.Telefono,
+            imagenPerfilUrl: createModel.ImagenPerfilUrl,
             passwordHash: hash,
-            idRol: model.IdRol
+            idRol: createModel.IdRol
         );
 
         _context.Usuarios.Add(user);
@@ -142,10 +163,10 @@ public class IdentityService : IIdentityService
 
         if (user == null)
             return IdentityResult.Fail("El usuario no existe.");
-        
+
         if (!await _context.Roles.AnyAsync(r => r.Id == model.IdRol, cancellationToken))
             return IdentityResult.Fail("El rol especificado no existe.");
-        
+
         user.Update(
             nombre: model.Nombre,
             apellidoPaterno: model.ApellidoPaterno,
@@ -155,7 +176,7 @@ public class IdentityService : IIdentityService
             imagenPerfilUrl: model.ImagenPerfilUrl,
             idRol: model.IdRol
         );
-        
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return IdentityResult.Ok();
@@ -163,17 +184,17 @@ public class IdentityService : IIdentityService
 
     public async Task<IdentityResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken)
     {
-        var user = await _context.Usuarios.FirstOrDefaultAsync( u => u.Id == id, cancellationToken);
-        
+        var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
         if (user == null)
             return IdentityResult.Fail("El usuario no existe.");
-        
+
         _context.Usuarios.Remove(user);
         await _context.SaveChangesAsync(cancellationToken);
-        
+
         return IdentityResult.Ok();
     }
-    
+
     public async Task<string?> GetUserNameAsync(string userId)
     {
         if (!Guid.TryParse(userId, out Guid userGuid))
