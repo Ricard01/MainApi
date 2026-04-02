@@ -18,6 +18,8 @@ public interface IIdentityService
 
     Task SignOutAsync(CancellationToken cancellationToken);
 
+    Task<IEnumerable<UserListModel>> GetAllUsersAsync(CancellationToken cancellationToken);
+
     Task<UserModel?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<IdentityResult> ChangePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken);

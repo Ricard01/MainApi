@@ -95,6 +95,22 @@ public class IdentityService : IIdentityService
     }
 
     //***** USER *****//
+    public async Task<IEnumerable<UserListModel>> GetAllUsersAsync(CancellationToken cancellationToken)
+    {
+        var users = await _context.Usuarios
+            .AsNoTracking()
+            .Select( u => new UserListModel
+            {
+                UserName = u.UserName,
+                Nombre = u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
+                Email = u.Email,
+                Telefono = u.Telefono,
+                ImagenPerfilUrl = u.ImagenPerfilUrl,
+                RolName = u.Rol.Nombre
+            }).ToListAsync(cancellationToken);
+
+        return users; 
+    }
     public async Task<UserModel?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await _context.Usuarios
@@ -110,6 +126,7 @@ public class IdentityService : IIdentityService
             Email = u.Email,
             ImagenPerfilUrl = u.ImagenPerfilUrl,
             IdRol = u.IdRol,
+            RolName = u.Rol.Nombre
         }).FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
         return user;

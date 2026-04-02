@@ -11,6 +11,18 @@ public class UserModel
     public string? Telefono { get; init; }
     public string? ImagenPerfilUrl { get; init; }
     public required Guid IdRol { get; init; }
+    public required string RolName { get; set; }
+}
+
+public class UserListModel
+{
+    public Guid Id { get; set; }
+    public required string UserName { get; init; }
+    public required string Nombre { get; init; }
+    public required string Email { get; init; }
+    public string? Telefono { get; init; }
+    public string? ImagenPerfilUrl { get; init; }
+    public required string RolName { get; set; }
 }
 
 public class UserCreateModel
