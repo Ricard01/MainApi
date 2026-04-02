@@ -7,16 +7,13 @@ public class Auth : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-
         var authBase = app.MapGroup(this);
+        authBase.MapPost("login", Login).AllowAnonymous();
 
-        authBase.MapPost(Login, "login");
 
-        // authPrivate "RequireAuthorization"
         var authPrivate = authBase.RequireAuthorization();
-
         // authPrivate.MapGet(GetCurrentUser, "getCurrentUser");
-        authPrivate.MapPost(Logout, "logOut");
+        authPrivate.MapPost("logout", Logout);
     }
 
     private static async Task<IResult> Login(HttpContext http, ISender sender, LoginCommand command,
@@ -36,7 +33,7 @@ public class Auth : EndpointGroupBase
             );
         }
     }
-    
+
 
     private async Task<IResult> Logout(HttpContext http, ISender sender, CancellationToken ct)
     {

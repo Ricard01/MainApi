@@ -1,7 +1,7 @@
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.Common.Models;
 
-namespace MainApi.Application.Features.Auth.Commands.CreateUser;
+namespace MainApi.Application.Features.Users.CreateUser;
 
 public record CreateUserCommand : IRequest<IdentityResult>
 {

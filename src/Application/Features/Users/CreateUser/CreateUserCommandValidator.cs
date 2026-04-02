@@ -1,7 +1,7 @@
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.Common.Validation;
 
-namespace MainApi.Application.Features.Auth.Commands.CreateUser;
+namespace MainApi.Application.Features.Users.CreateUser;
 
 public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
@@ -10,6 +10,7 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     {
         _context = context;
         RuleFor(u => u.UserName).RuleRequiredMax(100)
+            .MinimumLength(4).WithMessage("El nombre de usuario debe tener al menos 4 caracteres")
             .MustAsync(BeUniqueUserName)
             .WithMessage( u => $"'{u.UserName}'el nombre de usuario ya existe.")
             .WithErrorCode("Unique");
@@ -34,13 +35,13 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 
     private async Task<bool> BeUniqueUserName(string userName, CancellationToken cancellationToken)
     {
-        return await _context.Usuarios.AnyAsync(u => u.UserName == userName, cancellationToken);
+        return !await _context.Usuarios.AnyAsync(u => u.UserName == userName, cancellationToken);
     }
     
     
     private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
     {
-        return await _context.Usuarios.AnyAsync(u => u.Email == email, cancellationToken);
+        return !await _context.Usuarios.AnyAsync(u => u.Email == email, cancellationToken);
     }
     
     
