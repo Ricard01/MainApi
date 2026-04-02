@@ -1,8 +1,8 @@
 using MainApi.Application.Common.Models;
-using MainApi.Application.Features.Users.ChangePassword;
-using MainApi.Application.Features.Users.CreateUser;
-using MainApi.Application.Features.Users.DeleteUser;
-using MainApi.Application.Features.Users.UpdateUser;
+using MainApi.Application.Features.Users.Commands.ChangePassword;
+using MainApi.Application.Features.Users.Commands.CreateUser;
+using MainApi.Application.Features.Users.Commands.DeleteUser;
+using MainApi.Application.Features.Users.Commands.UpdateUser;
 
 namespace MainApi.Web.Endpoints;
 

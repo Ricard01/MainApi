@@ -1,7 +1,7 @@
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.Common.Validation;
 
-namespace MainApi.Application.Features.Users.CreateUser;
+namespace MainApi.Application.Features.Users.Commands.CreateUser;
 
 public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {

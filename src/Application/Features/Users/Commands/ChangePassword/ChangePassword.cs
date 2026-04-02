@@ -1,7 +1,7 @@
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.Common.Models;
 
-namespace MainApi.Application.Features.Users.ChangePassword;
+namespace MainApi.Application.Features.Users.Commands.ChangePassword;
 
 public record ChangePasswordCommand(Guid Id, string NewPassword) : IRequest<IdentityResult>;
 

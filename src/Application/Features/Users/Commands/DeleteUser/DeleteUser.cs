@@ -1,7 +1,7 @@
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.Common.Models;
 
-namespace MainApi.Application.Features.Users.DeleteUser;
+namespace MainApi.Application.Features.Users.Commands.DeleteUser;
 
 public record DeleteUserCommand(Guid Id) : IRequest<IdentityResult>;
 
