@@ -93,8 +93,22 @@ public class IdentityService : IIdentityService
             await _http.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
     }
+    
+    //***** USER *****//
+    public async Task<IdentityResult> ChangePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken)
+    {
+        var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
-
+        if (user == null)
+            return IdentityResult.Fail("El usuario no existe.");
+        
+        var hash = _passwordService.Hash(newPassword);
+        user.SetPasswordHash(hash);
+        
+        await _context.SaveChangesAsync(cancellationToken);
+        return IdentityResult.Ok();
+    }
+    
     public async Task<IdentityResult> CreateUserAsync(UserModel model, CancellationToken cancellationToken)
     {
         if (!await _context.Roles.AnyAsync(r => r.Id == model.IdRol, cancellationToken))
@@ -123,14 +137,12 @@ public class IdentityService : IIdentityService
 
     public async Task<IdentityResult> UpdateUserAsync(UserUpdateModel model, CancellationToken cancellationToken)
     {
-        // 1. El usuario existe?
         var user = await _context.Usuarios
             .FirstOrDefaultAsync(u => u.Id == model.Id, cancellationToken);
 
         if (user == null)
             return IdentityResult.Fail("El usuario no existe.");
-
-        // 2. El rol existe?
+        
         if (!await _context.Roles.AnyAsync(r => r.Id == model.IdRol, cancellationToken))
             return IdentityResult.Fail("El rol especificado no existe.");
         

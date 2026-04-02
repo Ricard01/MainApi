@@ -6,29 +6,30 @@ namespace MainApi.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
+    
     /// <summary>
     /// Autentica un usuario y genera la cookie de sesión.
     /// </summary>
-    /// <param name="username">Nombre de usuario</param>
+    /// <param name="userName">Nombre de usuario</param>
     /// <param name="password">Contraseña en texto plano</param>
     /// <param name="rememberMe">Indica si la sesión es persistente</param>
     /// <returns>Información del usuario autenticado</returns>
-    Task<AuthUser> SignInAsync(string userName, string password, bool rememberMe,
-        CancellationToken cancellationToken); // emite cookie
+    Task<AuthUser> SignInAsync(string userName, string password, bool rememberMe, CancellationToken cancellationToken); // emite cookie
 
     Task SignOutAsync(CancellationToken cancellationToken);
 
+    Task<IdentityResult> ChangePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken);
 
     Task<IdentityResult> CreateUserAsync(UserModel user, CancellationToken cancellationToken);
+    
     Task<IdentityResult> UpdateUserAsync(UserUpdateModel user, CancellationToken cancellationToken);
 
     Task<IdentityResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken);
+    
+    // Task<UserDto?> FindByUserNameAsync(string email);
 
+    // Task<bool> CheckPasswordAsync(string userId, string password);
 
-//     // Task<UserDto?> FindByUserNameAsync(string email);
-//     //
-//     // Task<bool> CheckPasswordAsync(string userId, string password);
-//
     Task<string?> GetUserNameAsync(string userId);
 
     /// <summary>
@@ -47,11 +48,8 @@ public interface IIdentityService
     /// <param name="name">Nombre del rol a verificar.</param>
     /// <returns>True si existe, False caso contrario.</returns>
     Task<bool> RolExistsAsync(string name);
-//
-//     Task<bool> IsInRoleAsync(string userId, string role);
-//
+
+    // Task<bool> IsInRoleAsync(string userId, string role);
     // Task<bool> AuthorizeAsync(string userId, string policyName);
-//
-//
-//     Task<IdentityResult> DeleteUserAsync(string userId);
+    // Task<IdentityResult> DeleteUserAsync(string userId);
 }

@@ -1,4 +1,5 @@
 using MainApi.Application.Common.Models;
+using MainApi.Application.Features.Users.ChangePassword;
 using MainApi.Application.Features.Users.CreateUser;
 using MainApi.Application.Features.Users.DeleteUser;
 using MainApi.Application.Features.Users.UpdateUser;
@@ -12,7 +13,18 @@ public class User : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(CreateUser)
             .MapPut(UpdateUser, "{id:guid}")
-            .MapDelete(DeleteUser, "{id:guid}");
+            .MapDelete(DeleteUser, "{id:guid}")
+            .MapPatch("{id:guid}/change-password", ChangeUserPassword);
+    }
+
+    private async Task<IdentityResult> ChangeUserPassword(ISender sender, Guid id, ChangePasswordCommand command)
+    {
+        if (id != command.Id)
+        {
+            return IdentityResult.Fail("El ID del usuario no coincide.");
+        }
+
+        return await sender.Send(command);
     }
 
     private Task<IdentityResult> CreateUser(ISender sender, CreateUserCommand command)
