@@ -5,8 +5,8 @@ namespace MainApi.Domain.Entities;
 
 public class Rol : BaseEntity<Guid>
 {
-    public required string Nombre { get; init; }
-    public required string Descripcion { get; init; }
+    public required string Nombre { get; set; }
+    public required string Descripcion { get; set; }
 
     private readonly List<User> _users = new();
     public IReadOnlyCollection<User> Users => _users.AsReadOnly();

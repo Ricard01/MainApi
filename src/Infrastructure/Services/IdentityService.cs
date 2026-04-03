@@ -293,6 +293,9 @@ public class IdentityService : IIdentityService
         if (rol == null)
             return IdentityResult.Fail("El rol no existe.");
 
+        rol.Nombre = model.Nombre;
+        rol.Descripcion = model.Descripcion;
+
         var permisosIdsValidos = await _context.Permisos
             .Where(p => model.PermisosIds.Contains(p.Id))
             .Select(p => p.Id)
