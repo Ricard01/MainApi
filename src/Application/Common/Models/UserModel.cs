@@ -38,8 +38,6 @@ public class UserCreateModel
     public required Guid IdRol { get; init; }
 }
 
-
-
 public class UserUpdateModel
 {
     public required Guid Id { get; init; }

@@ -6,7 +6,6 @@ namespace MainApi.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    
     /// <summary>
     /// Autentica un usuario y genera la cookie de sesión.
     /// </summary>
@@ -14,7 +13,8 @@ public interface IIdentityService
     /// <param name="password">Contraseña en texto plano</param>
     /// <param name="rememberMe">Indica si la sesión es persistente</param>
     /// <returns>Información del usuario autenticado</returns>
-    Task<AuthUser> SignInAsync(string userName, string password, bool rememberMe, CancellationToken cancellationToken); // emite cookie
+    Task<AuthUser> SignInAsync(string userName, string password, bool rememberMe,
+        CancellationToken cancellationToken); // emite cookie
 
     Task SignOutAsync(CancellationToken cancellationToken);
 
@@ -25,11 +25,19 @@ public interface IIdentityService
     Task<IdentityResult> ChangePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken);
 
     Task<IdentityResult> CreateUserAsync(UserCreateModel userCreate, CancellationToken cancellationToken);
-    
+
     Task<IdentityResult> UpdateUserAsync(UserUpdateModel user, CancellationToken cancellationToken);
 
     Task<IdentityResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken);
-    
+
+    Task<RolModel?> GetRolByIdAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<IEnumerable<RolListModel>> GetAllRolesAsync(CancellationToken cancellationToken);
+
+    Task<IdentityResult> CreateRoleAsync(RolCreateModel model, CancellationToken cancellationToken);
+    Task<IdentityResult> UpdateRoleAsync(RolUpdateModel model, CancellationToken cancellationToken);
+    Task<IdentityResult> DeleteRoleAsync(Guid Id, CancellationToken cancellationToken);
+
     // Task<UserDto?> FindByUserNameAsync(string email);
 
     // Task<bool> CheckPasswordAsync(string userId, string password);
@@ -44,7 +52,7 @@ public interface IIdentityService
     /// <returns>
     /// Devuelve un <see cref="IdentityResult"/> indicando si la operación fue exitosa o si falló.
     /// </returns>
-    Task<IdentityResult> CreateRoleAsync(RolModel model, CancellationToken cancellationToken);
+    Task<IdentityResult> CreateInitialRoleAsync(RolCreateModel model, CancellationToken cancellationToken);
 
     /// <summary>
     /// Verifica si existe un rol con el nombre especificado.

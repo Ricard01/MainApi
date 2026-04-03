@@ -45,8 +45,7 @@ public class User : EndpointGroupBase
     {
         return sender.Send(command);
     }
-
-
+    
     private async Task<IdentityResult> UpdateUser(ISender sender, Guid id, UpdateUserCommand command)
     {
         if (id != command.Id)

@@ -94,40 +94,43 @@ public class IdentityService : IIdentityService
         }
     }
 
-    //***** USER *****//
+    //***** USERS *****//
     public async Task<IEnumerable<UserListModel>> GetAllUsersAsync(CancellationToken cancellationToken)
     {
         var users = await _context.Usuarios
             .AsNoTracking()
-            .Select( u => new UserListModel
+            .Select(u => new UserListModel
             {
                 UserName = u.UserName,
-                Nombre = u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
+                Nombre =
+                    u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
                 Email = u.Email,
                 Telefono = u.Telefono,
                 ImagenPerfilUrl = u.ImagenPerfilUrl,
                 RolName = u.Rol.Nombre
             }).ToListAsync(cancellationToken);
 
-        return users; 
+        return users;
     }
+
     public async Task<UserModel?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await _context.Usuarios
             .AsNoTracking()
+            .Where(r => r.Id == id)
             .Select(u => new UserModel
-        {
-            Id = u.Id,
-            UserName = u.UserName,
-            Nombre = u.Nombre,
-            ApellidoPaterno = u.ApellidoPaterno,
-            ApellidoMaterno = u.ApellidoMaterno,
-            Telefono = u.Telefono,
-            Email = u.Email,
-            ImagenPerfilUrl = u.ImagenPerfilUrl,
-            IdRol = u.IdRol,
-            RolName = u.Rol.Nombre
-        }).FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                Nombre = u.Nombre,
+                ApellidoPaterno = u.ApellidoPaterno,
+                ApellidoMaterno = u.ApellidoMaterno,
+                Telefono = u.Telefono,
+                Email = u.Email,
+                ImagenPerfilUrl = u.ImagenPerfilUrl,
+                IdRol = u.IdRol,
+                RolName = u.Rol.Nombre
+            }).FirstOrDefaultAsync(cancellationToken);
 
         return user;
     }
@@ -147,24 +150,24 @@ public class IdentityService : IIdentityService
         return IdentityResult.Ok();
     }
 
-    public async Task<IdentityResult> CreateUserAsync(UserCreateModel createModel, CancellationToken cancellationToken)
+    public async Task<IdentityResult> CreateUserAsync(UserCreateModel model, CancellationToken cancellationToken)
     {
-        if (!await _context.Roles.AnyAsync(r => r.Id == createModel.IdRol, cancellationToken))
+        if (!await _context.Roles.AnyAsync(r => r.Id == model.IdRol, cancellationToken))
             return IdentityResult.Fail("El rol no existe.");
 
 
-        var hash = _passwordService.Hash(createModel.Password);
+        var hash = _passwordService.Hash(model.Password);
 
         var user = User.Create(
-            userName: createModel.UserName,
-            nombre: createModel.Nombre,
-            apellidoPaterno: createModel.ApellidoPaterno,
-            apellidoMaterno: createModel.ApellidoMaterno,
-            email: createModel.Email,
-            telefono: createModel.Telefono,
-            imagenPerfilUrl: createModel.ImagenPerfilUrl,
+            userName: model.UserName,
+            nombre: model.Nombre,
+            apellidoPaterno: model.ApellidoPaterno,
+            apellidoMaterno: model.ApellidoMaterno,
+            email: model.Email,
+            telefono: model.Telefono,
+            imagenPerfilUrl: model.ImagenPerfilUrl,
             passwordHash: hash,
-            idRol: createModel.IdRol
+            idRol: model.IdRol
         );
 
         _context.Usuarios.Add(user);
@@ -223,7 +226,110 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
-    public async Task<IdentityResult> CreateRoleAsync(RolModel model, CancellationToken cancellationToken)
+    //ROLES
+    public async Task<RolModel?> GetRolByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _context.Roles
+            .AsNoTracking()
+            .Where(r => r.Id == id)
+            .Select(r => new RolModel
+            {
+                Id = r.Id,
+                Nombre = r.Nombre,
+                Descripcion = r.Descripcion,
+                Permisos = r.PermisosRol.Select(rp => new PermisoModel
+                {
+                    Id = rp.Permiso.Id,
+                    Nombre = rp.Permiso.Nombre,
+                    Modulo = rp.Permiso.Modulo,
+                    Descripcion = rp.Permiso.Descripcion
+                }).ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<RolListModel>> GetAllRolesAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Roles
+            .AsNoTracking()
+            .Select(r => new RolListModel
+            {
+                Id = r.Id,
+                Nombre = r.Nombre,
+                Descripcion = r.Descripcion
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IdentityResult> CreateRoleAsync(RolCreateModel model, CancellationToken cancellationToken)
+    {
+        var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Nombre == model.Nombre, cancellationToken);
+        if (rol != null)
+            return IdentityResult.Fail("El rol ya existe.");
+
+        rol = new Rol { Nombre = model.Nombre, Descripcion = model.Descripcion };
+
+        var permisosValidos = await _context.Permisos
+            .Where(p => model.PermisosIds.Contains(p.Id))
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var permisoId in permisosValidos)
+        {
+            rol.AsignarPermiso(permisoId);
+        }
+
+        await _context.Roles.AddAsync(rol, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return IdentityResult.Ok();
+    }
+
+    public async Task<IdentityResult> UpdateRoleAsync(RolUpdateModel model, CancellationToken cancellationToken)
+    {
+        var rol = await _context.Roles
+            .Include(r => r.PermisosRol)
+            .FirstOrDefaultAsync(r => r.Id == model.Id, cancellationToken);
+
+        if (rol == null)
+            return IdentityResult.Fail("El rol no existe.");
+
+        var permisosIdsValidos = await _context.Permisos
+            .Where(p => model.PermisosIds.Contains(p.Id))
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+
+        var permisosParaEliminar = rol.PermisosRol
+            .Where(pr => !permisosIdsValidos.Contains(pr.IdPermiso))
+            .ToList();
+
+        foreach (var permisoRol in permisosParaEliminar)
+        {
+            _context.PermisosRol.Remove(permisoRol);
+        }
+
+        var idsActuales = rol.PermisosRol.Select(pr => pr.IdPermiso).ToList();
+        var idsParaAgregar = permisosIdsValidos.Except(idsActuales);
+
+        foreach (var permisoId in idsParaAgregar)
+        {
+            rol.AsignarPermiso(permisoId);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return IdentityResult.Ok();
+    }
+
+    public async Task<IdentityResult> DeleteRoleAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+        if (rol == null)
+            return IdentityResult.Fail("El rol no existe.");
+        _context.Roles.Remove(rol);
+        await _context.SaveChangesAsync(cancellationToken);
+        return IdentityResult.Ok();
+    }
+
+    public async Task<IdentityResult> CreateInitialRoleAsync(RolCreateModel model, CancellationToken cancellationToken)
     {
         if (await _context.Roles.AnyAsync(r => r.Nombre == model.Nombre, cancellationToken))
             return IdentityResult.Fail("El rol ya existe.");
