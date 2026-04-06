@@ -65,7 +65,7 @@ public class IdentityService : IIdentityService
         foreach (var permiso in nombresPermisos)
         {
             // Usamos el mismo nombre de Claim ("perm") que debe leer AuthorizationBehaviour
-            claims.Add(new Claim("perm", permiso));
+            claims.Add(new Claim(ClaimConstants.Permiso, permiso));
         }
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -101,6 +101,7 @@ public class IdentityService : IIdentityService
             .AsNoTracking()
             .Select(u => new UserListModel
             {
+                Id = u.Id,
                 UserName = u.UserName,
                 Nombre =
                     u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),

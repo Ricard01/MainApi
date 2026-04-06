@@ -32,9 +32,10 @@ app.MapStaticAssets(); // app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapFallbackToFile("index.html");
+app.UseExceptionHandler(options => { });
+
 app.MapEndpoints();
 
-app.MapFallbackToFile("index.html");
 
 app.Run();
-
