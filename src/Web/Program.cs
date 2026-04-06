@@ -33,7 +33,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapFallbackToFile("index.html");
-app.UseExceptionHandler(options => { });
+app.UseExceptionHandler(options => { }); // Web/Infrastructure/CustomExceptionHandler 
 
 app.MapEndpoints();
 
