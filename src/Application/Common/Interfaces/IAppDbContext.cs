@@ -1,5 +1,4 @@
 using MainApi.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainApi.Application.Common.Interfaces;
 

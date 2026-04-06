@@ -1,5 +1,6 @@
 ﻿using MainApi.Application.Common.Interfaces;
 using MainApi.Infrastructure.Data;
+using MainApi.Infrastructure.Data.Interceptors;
 using MainApi.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("MainConnection");
         Guard.Against.Null(connectionString, message: "Connection string 'MainConnection' not found.");
 
+        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+
         services.AddDbContext<AppDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
@@ -32,7 +35,7 @@ public static class DependencyInjection
                 PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IIdentityService, IdentityService>();
-        
+
         return services;
     }
 }
