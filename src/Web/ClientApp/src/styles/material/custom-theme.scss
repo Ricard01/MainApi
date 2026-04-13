@@ -1,0 +1,80 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+@use 'green-palette' as my-theme;
+
+
+html {
+
+  @include mat.theme((
+    color: (
+      primary: my-theme.$primary-palette,
+      tertiary: my-theme.$tertiary-palette,
+    ),
+    typography: Roboto,
+    density: -2,
+    //  The density value determines the spacing within components, such as the padding around a button’s text or the height of form fields.
+    // It accepts integers from 0 to -5, where 0 represents the default spacing and -5 provides the most dense and compact layout.
+  ));
+
+
+  &.theme-light {
+    color-scheme: light;
+
+    .nav-section {
+      @include mat.list-overrides((
+        list-item-label-text-color:var(--mat-sys-primary), //default text-color
+        active-indicator-color: var(--mat-sys-secondary-container), //background when item selected
+        list-item-focus-label-text-color:#24514C, //color when item selected active
+        list-item-focus-state-layer-color: var(--mat-sys-secondary-container), // background color when item selected active
+        list-item-leading-icon-color: var(--mat-sys-primary), // color icon except with focus
+        list-item-hover-label-text-color:#4FB0A5, // text-color when hover
+        list-item-hover-state-layer-color: var(--mat-sys-secondary-container),
+        list-item-hover-leading-icon-color: #4FB0A5,
+        list-item-hover-state-layer-opacity: 0.2
+      ));
+    }
+
+  }
+
+  /* Define styles for dark theme */
+  &.theme-dark {
+    color-scheme: dark;
+  }
+}
+
+
+:root {
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+
+  mat-sidenav {
+    @include mat.sidenav-overrides((
+      container-background-color:#21282D
+    ));
+  }
+}
+
+
+mat-toolbar {
+  border-bottom: 1px solid var(--mat-sys-primary);
+  @include mat.toolbar-overrides((
+    container-background-color: #21282D,
+    container-text-color: var(--mat-sys-primary),
+    title-text-size: var(--mat-sys-label-large),
+    standard-height: 60px,
+  ));
+  // solo afecta los colores de iconos en mat-toolbar por eso no lo pongo en html o :root
+  @include mat.icon-button-overrides((
+    icon-color: var(--mat-sys-primary),
+  ));
+}
+
+
