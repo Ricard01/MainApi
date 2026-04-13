@@ -1,12 +1,12 @@
-import { Component, computed, input, signal } from '@angular/core';
-import { RouterLinkActive, RouterModule } from '@angular/router';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MenuItem } from '../menu-items';
+import {Component, computed, input, signal} from '@angular/core';
+import {RouterLinkActive, RouterModule} from '@angular/router';
+import {MatListModule} from '@angular/material/list';
+import {MatIconModule} from '@angular/material/icon';
+import {MenuItem} from './menu-items';
+
 
 @Component({
-  selector: 'app-menu-item',
-  standalone: true,
+  selector: 'app-menu',
   imports: [RouterModule, RouterLinkActive, MatListModule, MatIconModule],
   template: `
     <a
@@ -18,10 +18,7 @@ import { MenuItem } from '../menu-items';
       #rla="routerLinkActive"
       [activated]="rla.isActive"
     >
-      <mat-icon
-        [svgIcon]="rla.isActive ? item().icon + '_filled' : item().icon "
-        matListItemIcon
-      ></mat-icon>
+      <mat-icon [svgIcon]="rla.isActive ? item().icon + '_filled' : item().icon " matListItemIcon></mat-icon>
 
       @if (!collapsed()) {
         <span matListItemTitle>{{ item().label }}</span>
@@ -29,9 +26,7 @@ import { MenuItem } from '../menu-items';
 
       @if (item().subItems) {
         <span matListItemMeta>
-          <mat-icon
-            [fontIcon]="nestedItemOpen() ? 'expand_less' : 'expand_more'"
-          ></mat-icon>
+          <mat-icon [fontIcon]="nestedItemOpen() ? 'expand_less' : 'expand_more'"></mat-icon>
         </span>
       }
     </a>
@@ -40,10 +35,9 @@ import { MenuItem } from '../menu-items';
       <div class="submenu" [class.open]="nestedItemOpen()">
         <div class="submenu-content">
           @for (subItem of item().subItems; track subItem.route) {
-            <app-menu-item
-              [item]="subItem"
-              [routeHistory]="fullRoute()"
-              [collapsed]="collapsed()"
+            <app-menu [item]="subItem"
+                      [routeHistory]="fullRoute()"
+                      [collapsed]="collapsed()"
             />
           }
         </div>
@@ -54,7 +48,6 @@ import { MenuItem } from '../menu-items';
     :host * {
       transition: margin-inline-start 300ms ease, opacity 300ms ease;
     }
-
 
     .submenu {
       display: grid;
@@ -73,7 +66,7 @@ import { MenuItem } from '../menu-items';
     }
   `,
 })
-export class MenuItemComponent {
+export class AppMenu {
 
   item = input.required<MenuItem>();
   collapsed = input.required<boolean>();

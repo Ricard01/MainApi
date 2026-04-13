@@ -8,7 +8,7 @@ import {ThemeService} from "../../core/services/theme.service";
 
 @Component({
   selector: 'app-header',
-  standalone: true,
+
   imports: [CommonModule, MatToolbar, MatIconModule, MatButtonModule, MatMenuModule,],
   template: `
     <mat-toolbar class="shadow-sm">
@@ -51,7 +51,7 @@ import {ThemeService} from "../../core/services/theme.service";
 
   `,
 })
-export class HeaderComponent {
+export class Header {
 
   readonly theme = inject(ThemeService);
 

@@ -1,21 +1,20 @@
 import {Component, computed, signal} from '@angular/core';
-import {HeaderComponent} from "./header/header.component";
+import {Header} from "./header/header";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {RouterModule} from "@angular/router";
-import {SidenavComponent} from "./sidenav/sidenav.component";
+import {Sidenav} from "./sidenav/sidenav";
 
 
 @Component({
-  selector: 'app-layout',
-  standalone: true,
-  imports: [RouterModule, HeaderComponent, SidenavComponent, MatSidenavModule, MatButtonModule, MatProgressBarModule],
+  selector: 'layout',
+  imports: [RouterModule, Header, Sidenav, MatSidenavModule, MatButtonModule, MatProgressBarModule],
   template: `
     <mat-sidenav-container>
 
       <mat-sidenav opened mode="side" [style.width]="sidenavWidth()" class="nav-section">
-        <app-sidenav [collapsed]="collapsed()"/>
+        <sidenav [collapsed]="collapsed()"/>
       </mat-sidenav>
 
       <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
@@ -48,7 +47,7 @@ import {SidenavComponent} from "./sidenav/sidenav.component";
 
   `,
 })
-export class LayoutComponent {
+export class Layout {
   collapsed = signal(false);
 
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));

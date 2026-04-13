@@ -1,15 +1,15 @@
-import { Component, computed,  input } from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 
 
 @Component({
-  selector: 'app-sidenav-header',
+  selector: 'logo',
   imports: [],
   template: `
     <div class="container">
       <img
         src="assets/imgs/logo.png"
-        alt="Profile picture"
-        class="avatar"
+        alt="Logo"
+        class="logo"
         [class.small]="collapsed()"/>
 
       <div
@@ -26,14 +26,14 @@ import { Component, computed,  input } from '@angular/core';
       align-items: center;
     }
 
-    .avatar {
+    .logo {
       width: 100px;
       height: 100px;
       border-radius: 999px;
       transition: all 300ms ease;
     }
 
-    .avatar.small {
+    .logo.small {
       width: 32px;
       height: 32px;
     }
@@ -51,7 +51,7 @@ import { Component, computed,  input } from '@angular/core';
 
   `,
 })
-export default class SidenavHeaderComponent {
+export default class Logo {
   collapsed = input(false);
 
   // appStore = inject(AppStore);

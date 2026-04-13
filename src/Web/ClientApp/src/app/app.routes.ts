@@ -7,7 +7,7 @@ export const routes: Routes = [
   {
     path: '',
 
-    loadComponent: () => import('./layout/layout.component').then(m => m.LayoutComponent),
+    loadComponent: () => import('./layout/layout').then(m => m.Layout),
     children: [
       {path: '', pathMatch: 'full', redirectTo: 'dashboard'},
       {path: 'home', component: HomeComponent},
