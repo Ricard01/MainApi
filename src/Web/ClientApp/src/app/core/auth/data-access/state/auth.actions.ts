@@ -17,7 +17,7 @@ export const AuthActions = createActionGroup({
 
     // Logout explícito (clic en "Cerrar sesión") o por inactividad (efectos distintos lo disparan)
     'Logout Requested': props<{ reason?: 'Manual' | 'Inactivity' | 'Unknown' }>(),
-    'Logout Succeeded': emptyProps(),
+    'Logout Succeeded': props<{ reason?: 'Manual' | 'Inactivity' | 'Unknown' }>(),
 
     // Multi-pestaña: otra tab escribió AUTH_SYNC_KEY con LOGOUT
     'External Logout Detected': props<{ reason: 'External' }>(),

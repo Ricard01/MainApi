@@ -1,17 +1,16 @@
-import {Injectable, NgZone, inject} from '@angular/core';
+import {Injectable,  inject} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {Router} from '@angular/router';
 import {AuthActions} from './auth.actions';
 import {AuthApi} from '../auth.api';
 import {catchError, filter, map, mergeMap, Observable, of, switchMap, tap} from 'rxjs';
-import {AUTH_SYNC_KEY, AUTH_USER_KEY} from "../auth.models";
+import {AUTH_SYNC_KEY} from "../auth.models";
 
 @Injectable()
 export class AuthEffects {
   private actions$ = inject(Actions);
   private api = inject(AuthApi);
   private router = inject(Router);
-  private zone = inject(NgZone);
 
 
   checkSession$ = createEffect(() =>
@@ -68,31 +67,40 @@ export class AuthEffects {
       ofType(AuthActions.logoutRequested),
       mergeMap(({reason}) =>
         this.api.logout().pipe(
-          tap(() => {
-            // 1) Limpiar snapshot local
-            localStorage.removeItem(AUTH_USER_KEY);
-            // 2) Avisar a otras pestañas (broadcast)
-            localStorage.setItem(
-              AUTH_SYNC_KEY,
-              JSON.stringify({type: 'LOGOUT', ts: Date.now(), reason: reason ?? 'Manual'})
-            );
-            // 3) Redirigir a /login
-            this.zone.run(() => this.router.navigate(['/login']));
-          }),
-          map(() => AuthActions.logoutSucceeded()),
-          // Idempotente: si el endpoint falla, limpiamos igual y cerramos sesión local
+          map(() => AuthActions.logoutSucceeded({reason})),
           catchError(() => {
-            localStorage.removeItem(AUTH_USER_KEY);
-            localStorage.setItem(
-              AUTH_SYNC_KEY,
-              JSON.stringify({type: 'LOGOUT', ts: Date.now(), reason: 'Unknown'})
-            );
-            this.zone.run(() => this.router.navigate(['/login']));
-            return of(AuthActions.logoutSucceeded());
+            return of(AuthActions.logoutSucceeded({reason: 'Unknown'}))
           })
         )
       )
     )
+  );
+
+  logoutBroadcast$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.logoutSucceeded),
+        tap(({reason}) => {
+          localStorage.setItem(
+            AUTH_SYNC_KEY,
+            JSON.stringify({
+              type: 'LOGOUT',
+              ts: Date.now(),
+              reason: reason ?? 'Manual'
+            })
+          );
+        })
+      ),
+    {dispatch: false}
+  );
+
+  logoutRedirect$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.logoutSucceeded),
+        tap(() => this.router.navigate(['/login']))
+      ),
+    {dispatch: false}
   );
 
   // ====== MULTI-PESTAÑA: escuchar cierres de sesión de otras pestañas ======
@@ -122,12 +130,9 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.externalLogoutDetected),
-        tap(() => {
-          // Aseguro limpiar snapshot local por si esta tab era la "rezagada"
-          localStorage.removeItem(AUTH_USER_KEY);
-          this.zone.run(() => this.router.navigate(['/login']));
-        })
+        tap(() => this.router.navigate(['/login']))
       ),
     {dispatch: false}
   );
+
 }

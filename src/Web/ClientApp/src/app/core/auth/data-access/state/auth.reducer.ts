@@ -61,14 +61,22 @@ export const authReducer = createReducer(
 
   // ========== LOGOUT ==========
   on(AuthActions.logoutRequested, (state): AuthState => ({...state, loading: true, error: null})),
-  on(AuthActions.logoutSucceeded, (state): AuthState => ({
-    ...initialState, //  Dejamos sessionReady en true para que guards ¿Por qué? Porque ya sabemos con certeza que NO hay sesión.No queremos que los Guards se queden esperando eternamente.
+  on(AuthActions.logoutSucceeded, (state): AuthState => ({ // cuando se cierra sesion el sessionStatus queda como anonymous para que el auth.guard funcione correctamente
+    ...state,
+    user: null,
+    sessionStatus: 'anonymous',
+    loading: false,
+    error: null,
   })),
 
   // ========== MULTI-TAB ==========
   // Si otra pestaña disparó LOGOUT, aquí  limpiamos estado local.
   on(AuthActions.externalLogoutDetected, (state): AuthState => ({
-    ...initialState,
+    ...state,
+    user: null,
+    sessionStatus: 'anonymous',
+    loading: false,
+    error: null,
   })),
 
   // ========== UX ==========

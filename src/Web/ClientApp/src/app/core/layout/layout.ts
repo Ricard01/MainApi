@@ -1,10 +1,11 @@
-import {Component, computed, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {Header} from "./header/header";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {RouterModule} from "@angular/router";
 import {Sidenav} from "./sidenav/sidenav";
+import {AuthFacade} from '../auth/data-access/state/auth.facade';
 
 
 @Component({
@@ -19,7 +20,9 @@ import {Sidenav} from "./sidenav/sidenav";
 
       <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
 
-        <app-header [(collapsed)]="collapsed"/>
+        <app-header
+          (logout)="onLogout()"
+          [(collapsed)]="collapsed"/>
 
         <div class="p-4">
           <router-outlet></router-outlet>
@@ -48,8 +51,14 @@ import {Sidenav} from "./sidenav/sidenav";
   `,
 })
 export class Layout {
+  private auth = inject(AuthFacade);
+
   collapsed = signal(false);
 
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));
+
+  onLogout() {
+    this.auth.logout('Manual');
+  }
 
 }
