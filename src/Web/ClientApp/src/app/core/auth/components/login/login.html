@@ -1,6 +1,6 @@
-<div class="relative bg-white light">
+<div class="relative  ">
 
-  <img src="/assets/imgs/logoImss.png" alt="IMSS" class="absolute top-3 left-3 h-6 w-auto select-none"/>
+  <img src="/assets/imgs/logo.png" alt="logo" class="absolute top-3 left-3 h-6 w-auto select-none"/>
 
   <!-- Grid 50/50. Usamos min-h ajustada para que no aparezca scroll y se vean los bordes -->
   <main class="grid md:grid-cols-2 gap-4 sm:gap-6 px-3 sm:px-4 py-3 min-h-[calc(100svh-0px)]">
@@ -17,9 +17,9 @@
         </div>
 
         <h1 class="text-2xl md:text-[28px] font-semibold text-neutral-800 text-center">
-          Servicios Generales
+          Main App
         </h1>
-        <p class="mt-2 text-neutral-500 text-center"> Ingresa tus credenciales para entrar. </p>
+        <p class="mt-2 text-neutral-500 text-center"> Bienvendo! Ingresa tus datos para entrar. </p>
 
         <!-- Form -->
         <form class="mt-8 space-y-5" [formGroup]="form" (ngSubmit)="submit()">
@@ -101,9 +101,11 @@
             </div>
 
           </div>
+
           @if (error) {
             <mat-error class="text-red-600 text-sm mt-1">{{ error }}</mat-error>
           }
+
           <!-- Remember -->
           <label class="flex items-center gap-2 text-sm text-neutral-700">
             <input type="checkbox" formControlName="remember"
@@ -122,34 +124,84 @@
 
         <!-- Footer -->
         <div class="mt-8 text-[12px] text-neutral-400">
-          © 2025 • Design By Ricardo Chavez
+          © 2026 • Design By Ricardo Chavez
         </div>
       </div>
     </section>
 
     <!-- Columna derecha: Imagen (SVG), casi pegada a borde sup/inf/derecho -->
     <!-- Usamos h-full para que iguale la altura del grid y se vea sin scroll -->
-    <aside class="hidden md:block rounded-3xl overflow-hidden ring-1 ring-black/5 shadow-sm h-full ml-auto w-full">
+    <aside class="hidden md:block rounded-3xl overflow-hidden ring-1 ring-black/20 shadow-2xl h-full ml-auto w-full">
       <svg viewBox="0 0 1200 1400" class="w-full h-full block" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <radialGradient id="rg3" cx="50%" cy="45%" r="70%">
-            <stop offset="0%" stop-color="#f3f9f6"/>
-            <stop offset="65%" stop-color="#d9eee4"/>
-            <stop offset="100%" stop-color="#e6f2ec"/>
+          <radialGradient id="bg1" cx="50%" cy="50%" r="75%">
+            <stop offset="0%" stop-color="#2a363e"/>
+            <stop offset="100%" stop-color="#1a2026"/>
           </radialGradient>
-          <filter id="blur3" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="28"/>
+          <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4"/>
           </filter>
         </defs>
-        <rect width="1200" height="1400" fill="url(#rg3)"/>
-        <!-- Siluetas de plantas -->
-        <g filter="url(#blur3)" opacity="0.5">
-          <path d="M100 1200 q60 -120 120 0 q50 -100 100 -20" fill="#a5d0b7"/>
-          <path d="M980 200 q-60 80 -120 0 q-40 50 -80 0" fill="#cfe7db"/>
+        <rect width="1200" height="1400" fill="url(#bg1)"/>
+
+        <!-- Estrellas pequeñas distribuidas aleatoriamente -->
+        <g fill="white" opacity="0.6">
+          <!-- Generadas con patrón repetitivo pero variado -->
+          <circle cx="100" cy="150" r="1.5"/>
+          <circle cx="250" cy="80" r="1"/>
+          <circle cx="400" cy="200" r="2"/>
+          <circle cx="550" cy="120" r="1.5"/>
+          <circle cx="700" cy="60" r="1"/>
+          <circle cx="850" cy="190" r="2"/>
+          <circle cx="1000" cy="110" r="1.5"/>
+          <circle cx="1100" cy="170" r="1"/>
+          <!-- más -->
+          <circle cx="80" cy="400" r="1"/>
+          <circle cx="220" cy="350" r="2"/>
+          <circle cx="370" cy="500" r="1.5"/>
+          <circle cx="520" cy="420" r="1"/>
+          <circle cx="680" cy="550" r="2"/>
+          <circle cx="830" cy="480" r="1.5"/>
+          <circle cx="980" cy="600" r="1"/>
+          <circle cx="1130" cy="520" r="2"/>
+          <!-- más -->
+          <circle cx="150" cy="700" r="1.5"/>
+          <circle cx="300" cy="800" r="1"/>
+          <circle cx="450" cy="750" r="2"/>
+          <circle cx="600" cy="900" r="1.5"/>
+          <circle cx="750" cy="820" r="1"/>
+          <circle cx="900" cy="950" r="2"/>
+          <circle cx="1050" cy="880" r="1.5"/>
+          <circle cx="1150" cy="1000" r="1"/>
+          <!-- más -->
+          <circle cx="120" cy="1050" r="1"/>
+          <circle cx="280" cy="1150" r="2"/>
+          <circle cx="440" cy="1100" r="1.5"/>
+          <circle cx="600" cy="1250" r="1"/>
+          <circle cx="760" cy="1180" r="2"/>
+          <circle cx="920" cy="1300" r="1.5"/>
+          <circle cx="1080" cy="1220" r="1"/>
         </g>
-        <!-- Logo centrado -->
-        <image href="/assets/imgs/logoImss.png" width="300" height="360" x="50%" y="50%"
-               transform="translate(-150,-180)" opacity="0.98"/>
+
+        <!-- Líneas geométricas abstractas (minimalista) -->
+        <g stroke="#66D0D0" stroke-width="1.5" opacity="0.2" fill="none">
+          <polyline points="100,700 300,500 500,800 700,600 900,900"/>
+          <polyline points="200,400 400,300 600,500 800,400 1000,600"/>
+          <line x1="300" y1="200" x2="500" y2="800" stroke-dasharray="3 6" opacity="0.3"/>
+          <line x1="800" y1="300" x2="1000" y2="900" stroke-dasharray="2 5" opacity="0.3"/>
+        </g>
+
+        <!-- Círculos concéntricos sutiles -->
+        <g transform="translate(850, 750)" opacity="0.15" fill="none" stroke="#66D0D0" stroke-width="1">
+          <circle cx="0" cy="0" r="100"/>
+          <circle cx="0" cy="0" r="140" stroke-dasharray="4 8"/>
+          <circle cx="0" cy="0" r="180" stroke-width="0.5"/>
+        </g>
+
+        <!-- Logo -->
+        <image href="/assets/imgs/logo.png" width="300" height="360" x="50%" y="50%"
+               transform="translate(-150,-180)" opacity="0.95"
+               style="filter: drop-shadow(0 0 15px rgba(102,208,208,0.4));"/>
       </svg>
     </aside>
 

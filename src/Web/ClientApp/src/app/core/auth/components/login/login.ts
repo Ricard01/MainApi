@@ -14,12 +14,7 @@ import {LoginCommand} from "../../data-access/auth.models";
 export class Login {
   private fb = inject(FormBuilder);
 
-  // Entradas de estado/control (propias de un componente de presentación)
-  @Input() loading = false;
   @Input() error: string | null = null;
-  @Input() logoSrc = '/assets/imgs/logoImss.png';
-
-
   @Output() login = new EventEmitter<LoginCommand>();
 
   showPassword = false;

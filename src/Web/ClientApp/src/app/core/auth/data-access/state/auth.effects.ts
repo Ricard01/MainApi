@@ -1,11 +1,9 @@
-// auth.effects.ts
-// ------------------------------------------------------------
-import { Injectable, NgZone, inject } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Router } from '@angular/router';
-import { AuthActions } from './auth.actions';
-import { AuthApi } from '../auth.api';
-import {catchError, filter, map, mergeMap, Observable, of, tap} from 'rxjs';
+import {Injectable, NgZone, inject} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {Router} from '@angular/router';
+import {AuthActions} from './auth.actions';
+import {AuthApi} from '../auth.api';
+import {catchError, filter, map, mergeMap, Observable, of, switchMap, tap} from 'rxjs';
 import {AUTH_SYNC_KEY, AUTH_USER_KEY} from "../auth.models";
 
 @Injectable()
@@ -15,62 +13,60 @@ export class AuthEffects {
   private router = inject(Router);
   private zone = inject(NgZone);
 
-  // ====== CHECK SESSION: solo lee localStorage y establece sesión ======
+
   checkSession$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.checkSessionRequested),
-      mergeMap(() => {
-        // TODO validar con authMe en el API
-        try {
-          const raw = localStorage.getItem(AUTH_USER_KEY);
-          const user = raw ? JSON.parse(raw) : null;
-          return of(AuthActions.checkSessionSucceeded({ user }));
-        } catch {
-          localStorage.removeItem(AUTH_USER_KEY);
-          return of(AuthActions.checkSessionSucceeded({ user: null }));
-        }
-      })
-    )
-  );
-
-  // ====== LOGIN ======
-  // Comentario: tras login OK ya traes AuthUser. Guardamos snapshot y navegamos.
-  login$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.loginRequested),
-      mergeMap(({ command, returnUrl }) =>
-        this.api.login(command).pipe(
-          tap((user) => {
-            // 1) Guardar snapshot para pintar header al reiniciar
-            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+      switchMap(() =>
+        this.api.me().pipe(
+          map(user => {
+            return AuthActions.checkSessionSucceeded({user});
           }),
-          tap(() => {
-            // 2) Redirigir a ruta solicitada o dashboard
-            const target = returnUrl ?? '/';
-            this.zone.run(() => this.router.navigateByUrl(target));
-          }),
-          map((user) => AuthActions.loginSucceeded({ user })),
-          catchError((err) =>
-            of(
-              AuthActions.loginFailed({
-                message:
-                  err?.error?.message ??
-                  (err?.status === 401 ? 'Credenciales inválidas' : 'No se pudo iniciar sesión'),
-                code: err?.error?.code,
-                status: err?.status,
-              })
-            )
+          catchError(() =>
+            of(AuthActions.checkSessionFailed())
           )
         )
       )
     )
   );
 
+
+  login$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loginRequested),
+      mergeMap(({command, returnUrl}) =>
+        this.api.login(command).pipe(
+          map((user) =>
+            AuthActions.loginSucceeded({user, returnUrl})),
+          catchError((err) => {
+            return of(
+              AuthActions.loginFailed({
+                error: err?.error.detail ?? 'No se pudo iniciar sesión',
+              }))
+          })
+        )
+      )
+    )
+  );
+
+
+  loginRedirect$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loginSucceeded),
+        tap(({returnUrl}) => {
+          const target = returnUrl ?? '/';
+          this.router.navigateByUrl(target);
+        })
+      ),
+    {dispatch: false}
+  );
+
   // ====== LOGOUT (manual, inactividad, desconocido) ======
   logout$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.logoutRequested),
-      mergeMap(({ reason }) =>
+      mergeMap(({reason}) =>
         this.api.logout().pipe(
           tap(() => {
             // 1) Limpiar snapshot local
@@ -78,7 +74,7 @@ export class AuthEffects {
             // 2) Avisar a otras pestañas (broadcast)
             localStorage.setItem(
               AUTH_SYNC_KEY,
-              JSON.stringify({ type: 'LOGOUT', ts: Date.now(), reason: reason ?? 'Manual' })
+              JSON.stringify({type: 'LOGOUT', ts: Date.now(), reason: reason ?? 'Manual'})
             );
             // 3) Redirigir a /login
             this.zone.run(() => this.router.navigate(['/login']));
@@ -89,7 +85,7 @@ export class AuthEffects {
             localStorage.removeItem(AUTH_USER_KEY);
             localStorage.setItem(
               AUTH_SYNC_KEY,
-              JSON.stringify({ type: 'LOGOUT', ts: Date.now(), reason: 'Unknown' })
+              JSON.stringify({type: 'LOGOUT', ts: Date.now(), reason: 'Unknown'})
             );
             this.zone.run(() => this.router.navigate(['/login']));
             return of(AuthActions.logoutSucceeded());
@@ -111,7 +107,7 @@ export class AuthEffects {
         try {
           const payload = JSON.parse(e.newValue);
           return payload?.type === 'LOGOUT'
-            ? AuthActions.externalLogoutDetected({ reason: 'External' })
+            ? AuthActions.externalLogoutDetected({reason: 'External'})
             : null;
         } catch {
           return null as any;
@@ -132,6 +128,6 @@ export class AuthEffects {
           this.zone.run(() => this.router.navigate(['/login']));
         })
       ),
-    { dispatch: false }
+    {dispatch: false}
   );
 }

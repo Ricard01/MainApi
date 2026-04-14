@@ -7,8 +7,8 @@ export const selectAuthState = createFeatureSelector<AuthState>(AUTH_FEATURE_KEY
 
 // === Básicos ===
 export const selectUser = createSelector(selectAuthState, s => s.user);
-export const selectIsAuthenticated = createSelector(selectAuthState, s => s.isAuthenticated);
-export const selectSessionReady = createSelector(selectAuthState, s => s.sessionReady);
+export const selectSessionStatus = createSelector(selectAuthState, s => s.sessionStatus);
+
 export const selectLoading = createSelector(selectAuthState, s => s.loading);
 export const selectError = createSelector(selectAuthState, s => s.error);
 
