@@ -1,0 +1,11 @@
+/* Esto obliga a que cualquier input dentro de este componente tenga texto negro */
+input {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important; /* Para Safari/Chrome en iOS/macOS */
+}
+
+/* Opcional: Asegúrate de que el placeholder mantenga su gris */
+input::placeholder {
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+}

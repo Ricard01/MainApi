@@ -1,5 +1,7 @@
 using MainApi.Application.Features.Auth.Commands.Login;
 using MainApi.Application.Features.Auth.Commands.LogOut;
+using MainApi.Application.Features.Auth.Queries.Me;
+
 
 namespace MainApi.Web.Endpoints;
 
@@ -12,7 +14,7 @@ public class Auth : EndpointGroupBase
 
 
         var authPrivate = authBase.RequireAuthorization();
-        // authPrivate.MapGet(GetCurrentUser, "getCurrentUser");
+        authPrivate.MapGet("me", Me);
         authPrivate.MapPost("logout", Logout);
     }
 
@@ -32,6 +34,12 @@ public class Auth : EndpointGroupBase
                 statusCode: StatusCodes.Status401Unauthorized
             );
         }
+    }
+
+    private static async Task<IResult> Me(ISender sender, CancellationToken ct)
+    {
+        var user = await sender.Send(new MeQuery(), ct); 
+        return Results.Ok(user);
     }
 
 

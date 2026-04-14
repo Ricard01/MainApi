@@ -17,6 +17,8 @@ public interface IIdentityService
         CancellationToken cancellationToken); // emite cookie
 
     Task SignOutAsync(CancellationToken cancellationToken);
+    
+    Task<AuthUser?> Me();
 
     Task<IEnumerable<UserListModel>> GetAllUsersAsync(CancellationToken cancellationToken);
 

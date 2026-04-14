@@ -4,7 +4,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from "@angular/material/button";
 import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
-import {ThemeService} from "../../core/services/theme.service";
+import {ThemeService} from "../../services/theme.service";
 
 @Component({
   selector: 'app-header',

@@ -25,6 +25,36 @@ public class IdentityService : IIdentityService
         _http = http;
     }
 
+    public Task<AuthUser?> Me()
+    {
+        var userClaims = _http.HttpContext?.User;
+
+        // 1) Validar si el usuario está autenticado (la cookie es válida y no ha expirado)
+        if (userClaims?.Identity?.IsAuthenticated != true)
+        {
+            return Task.FromResult<AuthUser?>(null); 
+        }
+
+        // 2) Extraer los datos directamente de los Claims de la cookie
+        var nombre = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
+        var imagenUrl = userClaims.FindFirst(ClaimConstants.ImagenUrl)?.Value;
+        var rol = userClaims.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+
+        var permisos = userClaims.FindAll(ClaimConstants.Permiso)
+            .Select(c => c.Value)
+            .ToList();
+
+        // 3) Retornar el objeto AuthUser
+        var authUser = new AuthUser(
+            Nombre: nombre, 
+            ImagenUrl: string.IsNullOrEmpty(imagenUrl) ? null : imagenUrl, 
+            Rol: rol, 
+            Permisos: permisos
+        );
+
+        return Task.FromResult<AuthUser?>(authUser);
+    }
+    
     public async Task<AuthUser> SignInAsync(string username, string password, bool rememberMe,
         CancellationToken cancellationToken)
     {
