@@ -1,12 +1,11 @@
 import {Routes} from '@angular/router';
 import {HomeComponent} from './features/home/home.component';
-import {Empleado} from './features/empleado/empleado';
 import {LoginPage} from './core/auth/pages/login.page';
 import {authGuard} from './core/guards/auth-guard';
 import {guestGuard} from './core/guards/guest-guard';
 
 export const routes: Routes = [
-  {path: 'login', canActivate:[guestGuard], component: LoginPage},
+  {path: 'login', canActivate: [guestGuard], component: LoginPage},
   {
     path: '',
     canActivate: [authGuard],
@@ -14,7 +13,7 @@ export const routes: Routes = [
     children: [
       {path: '', pathMatch: 'full', redirectTo: 'home'},
       {path: 'home', component: HomeComponent},
-      {path: 'empleados', component: Empleado},
+      {path: 'usuarios', loadChildren: () => import('./features/usuarios/usuarios.routes').then(m => m.usuariosRoutes)},
     ]
   },
   {path: '**', redirectTo: 'home'}

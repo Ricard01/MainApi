@@ -1,5 +1,5 @@
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import {MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
 
 // material iCons Color #42454
 export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer) {
@@ -21,8 +21,8 @@ export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer
   registry.addSvgIcon('logout', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/logout.svg'));
   registry.addSvgIcon('add', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/add.svg'));
   registry.addSvgIcon('save', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/save.svg'));
-  registry.addSvgIcon('edit', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/edit_filled.svg'));
+  registry.addSvgIcon('edit', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/edit.svg'));
+  registry.addSvgIcon('delete', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/delete.svg'));
   registry.addSvgIcon('xls', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/xls.svg'));
-  registry.addSvgIcon('directions_car', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/directions_car.svg'));
-  registry.addSvgIcon('delete_forever', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/delete_forever.svg'));
+
 }

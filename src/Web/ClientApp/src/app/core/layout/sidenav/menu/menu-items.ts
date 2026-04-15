@@ -14,7 +14,7 @@ export const items: MenuItem[] = [
   {
     icon: 'user',
     label: 'Usuarios',
-    route: 'empleados',
+    route: 'usuarios',
   },
   {
     icon: 'rol',

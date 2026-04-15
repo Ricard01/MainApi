@@ -18,13 +18,13 @@ import {AuthFacade} from '../auth/data-access/state/auth.facade';
         <sidenav [collapsed]="collapsed()"/>
       </mat-sidenav>
 
-      <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
+      <mat-sidenav-content class="flex flex-col h-full" [style.margin-left]="sidenavWidth()">
 
         <app-header
           (logout)="onLogout()"
           [(collapsed)]="collapsed"/>
 
-        <div class="p-4">
+        <div class="p-4 flex-1">
           <router-outlet></router-outlet>
         </div>
 
@@ -46,8 +46,6 @@ import {AuthFacade} from '../auth/data-access/state/auth.facade';
       --mat-sidenav-container-divider-color: var(--mat-sys-outline-variant);
       --mat-sidenav-container-shape: 0px;
     }
-
-
   `,
 })
 export class Layout {

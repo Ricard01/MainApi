@@ -1,5 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* Material Tailwind Fixes */
+.mdc-notched-outline__notch {
+  border-style: none;
+}
+
+.mat-mdc-icon-button {
+  line-height: normal;
+}
+
+.page-container {
+  @apply flex flex-col min-h-[calc(100vh-180px)];
+}
+
+.table-container {
+  @apply flex flex-col flex-1 overflow-hidden;
+}
+
+.table-scroll {
+  @apply flex-1 overflow-auto;
+}
+
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

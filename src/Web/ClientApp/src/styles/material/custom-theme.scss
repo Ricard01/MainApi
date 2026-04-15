@@ -8,6 +8,26 @@
 
 
 html {
+  @include mat.form-field-overrides((
+    outlined-outline-color:var(--mat-sys-primary),
+  ));
+
+  /* 1. Reducimos el padding del contenedor interno (infix) */
+  .compact-input .mat-mdc-form-field-infix {
+    padding-top: 8px !important; /* Ajusta este valor (ej. 4px o 6px) para hacerlo más delgado */
+    padding-bottom: 8px !important;
+    min-height: auto !important;
+  }
+
+  .compact-input .mdc-floating-label {
+    top: 18px !important; /* Ajusta este valor (ej. 12px o 16px) hasta que quede justo en el centro */
+  }
+
+  ///* 3. NUEVO: Asegurarnos de que cuando el label "flote" hacia arriba (al escribir) quede en el borde correctamente */
+  .compact-input .mdc-floating-label--float-above {
+    top: 22px !important; /* Ajusta este valor para centrar el texto pequeño en la línea del borde */
+  }
+
 
   @include mat.theme((
     color: (
@@ -60,6 +80,15 @@ html {
       container-background-color:#21282D
     ));
   }
+
+  @include mat.table-overrides((
+    header-headline-size: var(--mat-sys-title-medium-size),
+    header-headline-weight: 500,
+    header-headline-color: var(--mat-sys-on-primary-container),
+    row-item-outline-color: #24514C,
+    header-container-height: 0,
+    row-item-container-height:30px
+  ));
 }
 
 
@@ -76,5 +105,44 @@ mat-toolbar {
     icon-color: var(--mat-sys-primary),
   ));
 }
+.accent {
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mat-sys-tertiary),
+      filled-label-text-color: var(--mat-sys-on-tertiary),
+      protected-label-text-color: var(--mat-sys-tertiary),
+      outlined-label-text-color: var(--mat-sys-tertiary),
+      text-label-text-color: var(--mat-sys-tertiary),
+      outlined-state-layer-color: var(--mat-sys-tertiary),
+      text-state-layer-color: var(--mat-sys-tertiary),
+      protected-state-layer-color: var(--mat-sys-tertiary),
+    )
+  );
+}
+
+[matIconButton].secondary {
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-secondary),
+    )
+  );
+}
+
+[matIconButton].accent {
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-tertiary),
+    )
+  );
+}
+
+[matIconButton].primary {
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+}
+
 
 
