@@ -24,7 +24,7 @@ public static class DependencyInjection
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Lax; //mismo origen 
 
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Expira por inactividad
+                options.ExpireTimeSpan = TimeSpan.FromDays(6); // Expira por inactividad
                 options.SlidingExpiration = true;
                 options.LoginPath = "/login";
 

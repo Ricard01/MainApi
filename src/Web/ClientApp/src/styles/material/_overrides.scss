@@ -1,0 +1,57 @@
+@use '@angular/material' as mat;
+
+// --- SIDENAV
+mat-sidenav {
+  @include mat.sidenav-overrides((
+    container-background-color: #21282D
+  ));
+}
+
+// Solo dentro del modo claro, aplicamos colores específicos a las listas del menú de navegación
+html.theme-light .nav-section {
+  @include mat.list-overrides((
+    list-item-label-text-color: var(--mat-sys-primary),             // Color del texto normal
+    active-indicator-color: var(--mat-sys-secondary-container),     // Fondo de la píldora cuando está seleccionada
+    list-item-focus-label-text-color: #24514C,                      // Color del texto cuando tiene el foco (teclado)
+    list-item-focus-state-layer-color: var(--mat-sys-secondary-container), // Fondo cuando tiene el foco
+    list-item-leading-icon-color: var(--mat-sys-primary),           // Color del icono normal
+    list-item-hover-label-text-color: #4FB0A5,                      // Color del texto al pasar el ratón (hover)
+    list-item-hover-state-layer-color: var(--mat-sys-secondary-container), // Fondo al pasar el ratón
+    list-item-hover-leading-icon-color: #4FB0A5,                    // Color del icono al pasar el ratón
+    list-item-hover-state-layer-opacity: 0.2                        // Transparencia del fondo al pasar el ratón
+  ));
+}
+
+// --- TABLAS ---
+:root {
+  @include mat.table-overrides((
+    header-headline-size: var(--mat-sys-title-medium-size),       // Tamaño del texto de las cabeceras
+    header-headline-weight: 500,                                  // Grosor de la fuente de las cabeceras (Semi-bold)
+    header-headline-color: var(--mat-sys-on-primary-container),   // Color de texto oscuro para cabeceras
+    row-item-outline-color: #24514C,                              // Color de la línea que divide cada fila
+    header-container-height: 0,                                   // Elimina el alto extra de la cabecera (usa el density global)
+    row-item-container-height: 30px                               // Fuerza a que las filas midan exactamente 30px
+  ));
+
+  // Efecto visual al pasar el ratón por encima de una fila de la tabla
+  .mat-mdc-table .mat-mdc-row:hover {
+    background-color: rgba(128, 128, 128, 0.08); // Un gris muy tenue (funciona en modo claro y oscuro)
+  }
+}
+
+// --- TOOLBAR
+mat-toolbar {
+  border-bottom: 1px solid var(--mat-sys-primary); // Agrega una línea divisoria debajo de la barra
+
+  @include mat.toolbar-overrides((
+    container-background-color: #21282D,           // Fondo oscuro específico de la barra
+    container-text-color: var(--mat-sys-primary),  // Color del texto primario dentro de la barra
+    title-text-size: var(--mat-sys-label-large),   // Tamaño del título
+    standard-height: 60px,                         // Fija la altura total de la barra en 60px
+  ));
+
+  // Sobrescribe el color de los botones de icono (ej. el menú hamburguesa) SOLO cuando están dentro del toolbar
+  @include mat.icon-button-overrides((
+    icon-color: var(--mat-sys-primary),
+  ));
+}

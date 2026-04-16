@@ -11,7 +11,7 @@ import {ActivatedRoute} from '@angular/router';
   imports: [CommonModule, Login],
   template: `
     <app-login
-      [error]="(facade.error$ | async) ?? null"
+      [error]="(facade.error() ?? null)"
       (login)="onLogin($event)">
     </app-login>
   `,

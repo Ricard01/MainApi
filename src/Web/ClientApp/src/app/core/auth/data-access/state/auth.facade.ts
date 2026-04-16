@@ -9,17 +9,14 @@ export class AuthFacade {
   private store = inject(Store);
 
   // FACADE es uso exclusivo de los componentes
-  user$ = this.store.select(AuthSelectors.selectUser);
-  loading$ = this.store.select(AuthSelectors.selectLoading);
-  error$ = this.store.select(AuthSelectors.selectError);
+  user = this.store.selectSignal(AuthSelectors.selectUser);
+  loading = this.store.selectSignal(AuthSelectors.selectLoading);
+  error = this.store.selectSignal(AuthSelectors.selectError);
 
-  nombre$ = this.store.select(AuthSelectors.selectUserNombre);
-  rol$ = this.store.select(AuthSelectors.selectUserRol);
-  avatar$ = this.store.select(AuthSelectors.selectUserAvatar);
 
   // Helpers de permisos
   hasPermission$(mask: number) {
-    return this.store.select(AuthSelectors.selectHasPermission(mask));
+    return this.store.selectSignal(AuthSelectors.selectHasPermission(mask));
   }
 
   // Triggers

@@ -12,10 +12,7 @@ export const selectSessionStatus = createSelector(selectAuthState, s => s.sessio
 export const selectLoading = createSelector(selectAuthState, s => s.loading);
 export const selectError = createSelector(selectAuthState, s => s.error);
 
-// === Derivados para header/UI ===
-export const selectUserNombre = createSelector(selectUser, u => u?.nombre ?? '');
-export const selectUserRol = createSelector(selectUser, u => u?.rol ?? '');
-export const selectUserAvatar = createSelector(selectUser, u => u?.imagenUrl ?? null);
+
 export const selectUserPermisos = createSelector(selectUser, u => u?.permisos ?? 0);
 
 // === Helpers de permisos (bitmask) ===
