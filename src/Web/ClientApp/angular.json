@@ -5,7 +5,15 @@
   "projects": {
     "MainApi.Web": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "changeDetection": "OnPush",
+          "skipTests": true,
+          "inlineStyle": true,
+          "flat": false,
+          "displayBlock": true
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
