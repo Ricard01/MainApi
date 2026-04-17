@@ -1,5 +1,4 @@
 export interface User {
-  id: string;
   userName: string;
   nombre: string;
   apellidoPaterno: string;
@@ -9,6 +8,7 @@ export interface User {
   imagenPerfilUrl?: string | null;
   idRol: string;
   rolName: string;
+  isActive: boolean;
 }
 
 export interface UserList {
@@ -19,7 +19,9 @@ export interface UserList {
   telefono?: string | null;
   imagenPerfilUrl?: string | null;
   rolName: string;
+  isActive: boolean;
 }
+
 export interface CreateUserCommand {
   userName: string;
   nombre: string;
@@ -32,7 +34,6 @@ export interface CreateUserCommand {
   idRol: string;
 }
 
-
 export interface UpdateUserCommand {
   id: string;
   nombre: string;
@@ -42,4 +43,5 @@ export interface UpdateUserCommand {
   telefono?: string | null;
   imagenPerfilUrl?: string | null;
   idRol: string;
+  isActive: boolean;
 }

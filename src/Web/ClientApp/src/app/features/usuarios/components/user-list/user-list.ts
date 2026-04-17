@@ -44,7 +44,7 @@ export class UserList {
   private sort = viewChild.required(MatSort);
   private paginator = viewChild.required(MatPaginator);
   private usersRaw = toSignal(this.userApi.getAll(), {initialValue: []});
-  displayedColumns: string[] = ['userName', 'nombre', 'rol', 'telefono', 'email','opciones'];
+  displayedColumns: string[] = ['userName', 'nombre', 'rol', 'telefono', 'email','estatus','opciones'];
 
   readonly DEFAULT_IMAGE = 'assets/imgs/user.png';
 

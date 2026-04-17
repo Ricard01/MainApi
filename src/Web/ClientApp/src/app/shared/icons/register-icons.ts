@@ -23,6 +23,8 @@ export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer
   registry.addSvgIcon('save', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/save.svg'));
   registry.addSvgIcon('edit', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/edit.svg'));
   registry.addSvgIcon('delete', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/delete.svg'));
+  registry.addSvgIcon('check_circle', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/check_circle.svg'));
+  registry.addSvgIcon('cancel', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/cancel.svg'));
   registry.addSvgIcon('xls', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/xls.svg'));
 
 }

@@ -20,6 +20,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.ImagenPerfilUrl).HasDefaultValue("../../../assets/imgs/user-placeholder.png");
         builder.Property(x => x.PasswordHash).IsRequired();
         builder.Property(x => x.IdRol).IsRequired();
+        builder.Property(x => x.IsActive).IsRequired();
 
         builder.HasOne(x => x.Rol)
             .WithMany(r => r.Users)

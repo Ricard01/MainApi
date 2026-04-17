@@ -47,13 +47,32 @@
         </ng-container>
 
         <ng-container matColumnDef="telefono">
-          <th mat-header-cell *matHeaderCellDef>Telefono</th>
+          <th mat-header-cell *matHeaderCellDef>Teléfono</th>
           <td mat-cell *matCellDef="let user">{{ user.telefono }}</td>
         </ng-container>
 
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>Email</th>
           <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="estatus">
+          <th mat-header-cell *matHeaderCellDef>Estatus</th>
+          <td mat-cell *matCellDef="let user">
+
+            @if (user.isActive) {
+              <span style="color: #1e8e3e; display: flex; align-items: center; gap: 4px;">
+        <mat-icon svgIcon="check_circle" style="font-size: 18px; width: 18px; height: 18px;"></mat-icon>
+        Activo
+      </span>
+            } @else {
+              <span style="color: #5f6368; display: flex; align-items: center; gap: 4px;">
+        <mat-icon svgIcon="cancel" style="font-size: 18px; width: 18px; height: 18px;"></mat-icon>
+        Inactivo
+      </span>
+            }
+
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="opciones">
@@ -65,7 +84,7 @@
                 <mat-icon svgIcon="edit"></mat-icon>
               </button>
 
-              <button matIconButton class="accent"  aria-label="Eliminar usuario">
+              <button matIconButton class="accent" aria-label="Eliminar usuario">
                 <mat-icon svgIcon="delete"></mat-icon>
               </button>
 
