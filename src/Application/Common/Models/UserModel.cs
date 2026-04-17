@@ -12,6 +12,7 @@ public class UserModel
     public string? ImagenPerfilUrl { get; init; }
     public required Guid IdRol { get; init; }
     public required string RolName { get; set; }
+    public bool IsActive { get; set; }
 }
 
 public class UserListModel
@@ -23,6 +24,7 @@ public class UserListModel
     public string? Telefono { get; init; }
     public string? ImagenPerfilUrl { get; init; }
     public required string RolName { get; set; }
+    public bool IsActive { get; init; }
 }
 
 public class UserCreateModel
@@ -47,5 +49,6 @@ public class UserUpdateModel
     public required string Email { get; init; }
     public string? Telefono { get; init; }
     public string? ImagenPerfilUrl { get; init; }
+    public bool IsActive { get; init; }
     public required Guid IdRol { get; init; }
 }

@@ -67,6 +67,11 @@ public class IdentityService : IIdentityService
 
         if (user is null)
             throw new UnauthorizedAccessException("Usuario o contraseña inválidos.");
+        
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("Cuenta inactiva. Por favor, contacta a soporte.");
+        }
 
         // 2) Verificación + posible rehash
         var result = _passwordService.Verify(user.PasswordHash, password, out var needsRehash);
@@ -133,12 +138,12 @@ public class IdentityService : IIdentityService
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Nombre =
-                    u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
+                Nombre = u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
                 Email = u.Email,
                 Telefono = u.Telefono,
                 ImagenPerfilUrl = u.ImagenPerfilUrl,
-                RolName = u.Rol.Nombre
+                RolName = u.Rol.Nombre,
+                IsActive = u.IsActive
             }).ToListAsync(cancellationToken);
 
         return users;
@@ -160,7 +165,8 @@ public class IdentityService : IIdentityService
                 Email = u.Email,
                 ImagenPerfilUrl = u.ImagenPerfilUrl,
                 IdRol = u.IdRol,
-                RolName = u.Rol.Nombre
+                RolName = u.Rol.Nombre,
+                IsActive = u.IsActive
             }).FirstOrDefaultAsync(cancellationToken);
 
         return user;
@@ -225,7 +231,8 @@ public class IdentityService : IIdentityService
             email: model.Email,
             telefono: model.Telefono,
             imagenPerfilUrl: model.ImagenPerfilUrl,
-            idRol: model.IdRol
+            idRol: model.IdRol,
+            isActive: model.IsActive
         );
 
         await _context.SaveChangesAsync(cancellationToken);
