@@ -2,7 +2,7 @@
 
   <div class="flex items-center justify-between mt-4 mb-8 gap-4">
 
-    <button matButton="filled">
+    <button matButton="filled" routerLink="nuevo">
       <mat-icon svgIcon="add"></mat-icon>
       Nuevo
     </button>
@@ -17,7 +17,7 @@
 
   <div class="table-container">
     <div class="table-scroll">
-      <table mat-table [dataSource]="dataSource()" matSort>
+      <table mat-table [dataSource]="dataSource" matSort>
 
         <ng-container matColumnDef="userName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>

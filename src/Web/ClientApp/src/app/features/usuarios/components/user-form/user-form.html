@@ -1,0 +1,32 @@
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 p-4">
+  <h2 class="text-xl font-bold">{{ isEdit() ? 'Editar' : 'Nuevo' }} Usuario</h2>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Username</mat-label>
+    <input matInput formControlName="userName" [readonly]="isEdit()">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Nombre</mat-label>
+    <input matInput formControlName="nombre">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" type="email">
+  </mat-form-field>
+
+  <div class="flex items-center justify-between py-2">
+    <span class="text-sm text-gray-600">Estatus del usuario</span>
+    <mat-slide-toggle formControlName="isActive" [disabled]="isAdmin()">
+      {{ userForm.get('isActive')?.value ? 'Activo' : 'Inactivo' }}
+    </mat-slide-toggle>
+  </div>
+
+  <div class="flex justify-end gap-2 mt-4">
+    <button type="button" mat-button (click)="cancel.emit()">Cancelar</button>
+    <button type="submit" mat-flat-button [disabled]="userForm.invalid">
+      {{ isEdit() ? 'Actualizar' : 'Guardar' }}
+    </button>
+  </div>
+</form>

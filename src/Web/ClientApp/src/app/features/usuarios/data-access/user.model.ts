@@ -11,7 +11,7 @@ export interface User {
   isActive: boolean;
 }
 
-export interface UserList {
+export interface UserListItem {
   id: string;
   userName: string;
   nombre: string;
