@@ -7,6 +7,7 @@ import {map, of, switchMap} from 'rxjs';
 import {CreateUserCommand, IdentityResult, UpdateUserCommand, User} from '../data-access/user.model';
 import {RolApi} from '../../roles/data-acces/rol.api';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
+import {UserFormValue, UserMapper} from '../data-access/user.mapper';
 
 @Component({
   selector: 'app-user-page',
@@ -31,15 +32,11 @@ export class UserPage {
 
 
   backendErrors = signal<string[]>([]);
-
-
-  private userId = toSignal(
-    this.route.paramMap.pipe(map(p => p.get('id')))
-  );
-
   roles = toSignal(this.rolApi.getAll(), {initialValue: []})
 
-  isEditMode = computed(() => !!this.userId());   // Si hay :id en la ruta → editar, si no → crear
+  // Si hay :id en la ruta es update, si no es create
+  private userId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
+  isUpdateMode = computed(() => !!this.userId());
 
   userToUpdate = toSignal(
     this.route.paramMap.pipe(
@@ -49,68 +46,30 @@ export class UserPage {
     {initialValue: null}
   );
 
-  onSave(form: any) {
 
-    this.backendErrors.set([]); // limpiar errores anteriores
+  onSave(form: UserFormValue) {
 
-    if (this.isEditMode()) {
+    this.backendErrors.set([]);
 
-      const command: UpdateUserCommand = {
-        id: this.userId()!,
-        nombre: form.nombre,
-        apellidoPaterno: form.apellidoPaterno,
-        apellidoMaterno: form.apellidoMaterno,
-        email: form.email,
-        telefono: form.telefono,
-        idRol: form.idRol,
-        isActive: form.isActive,
-        imagenPerfilUrl: form.imagenPerfilUrl
-      };
+    const request$ = this.isUpdateMode()
+      ? this.userApi.update(this.userId()!, UserMapper.toUpdate(form, this.userId()!)      )
+      : this.userApi.create(UserMapper.toCreate(form));
 
-      this.userApi.update(command.id, command).subscribe({
-        next: (result) => {
-          if (result.success)
-            this.snackBar.success("resultado");
-          else {
-            this.snackBar.error("resultado: ");
-            this.backendErrors.set(result.errors);
-          }
-
-
-        },
-        error: (err) => console.error('Error al actualizar el usuario:', err)
-      });
-
-    } else {
-
-      const command: CreateUserCommand = {
-        userName: form.userName,
-        nombre: form.nombre,
-        apellidoPaterno: form.apellidoPaterno,
-        apellidoMaterno: form.apellidoMaterno,
-        email: form.email,
-        telefono: form.telefono,
-        password: form.password!, // aquí sí garantizas que existe
-        idRol: form.idRol,
-        imagenPerfilUrl: form.imagenPerfilUrl,
-        isActive: true // backend lo ignora o lo puedes omitir si quieres
-      };
-
-      this.userApi.create(command).subscribe({
-        next: (result: IdentityResult) => {
-
-          if (result.success) {
-            this.snackBar.success("Registro con éxito");
-            this.router.navigate(['/usuarios']);
-          } else {
-            this.backendErrors.set(result.errors);
-          }
-
-
-        },
-        error: (err) => this.backendErrors.set(err)
-      });
-    }
+    request$.subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.snackBar.success(
+            this.isUpdateMode() ? 'Actualizado con éxito' : 'Registrado con éxito'
+          );
+          this.router.navigate(['/usuarios']);
+        } else {
+          this.backendErrors.set(result.errors);
+        }
+      },
+      error: (errors: string[]) => {
+        this.backendErrors.set(errors);
+      }
+    });
   }
 
   onCancel(): void {

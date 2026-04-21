@@ -42,7 +42,6 @@ export class UserForm {
   public showPassRules = computed(() => !this.isEditing());
 
   form = this.fb.group({
-    id: [null as string | null],
     userName: ['', [Validators.required, Validators.pattern(/^\S+$/)]],
     nombre: ['', Validators.required],
     apellidoPaterno: ['', Validators.required],
@@ -116,7 +115,6 @@ export class UserForm {
       } else {
         // CREATE
         this.form.reset({
-          id: null,
           isActive: true,
           password: null,
           confirmPassword: null

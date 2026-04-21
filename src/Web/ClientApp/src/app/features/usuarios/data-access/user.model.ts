@@ -32,7 +32,7 @@ export interface CreateUserCommand {
   password: string;
   imagenPerfilUrl?: string;
   idRol: string;
-  isActive: boolean;
+  // isActive: boolean; se maneja en backend
 }
 
 export interface UpdateUserCommand {
