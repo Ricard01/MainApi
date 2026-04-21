@@ -2,10 +2,10 @@ export interface User {
   userName: string;
   nombre: string;
   apellidoPaterno: string;
-  apellidoMaterno?: string | null;
+  apellidoMaterno?: string;
   email: string;
-  telefono?: string | null;
-  imagenPerfilUrl?: string | null;
+  telefono?: string;
+  imagenPerfilUrl?: string;
   idRol: string;
   rolName: string;
   isActive: boolean;
@@ -16,8 +16,8 @@ export interface UserListItem {
   userName: string;
   nombre: string;
   email: string;
-  telefono?: string | null;
-  imagenPerfilUrl?: string | null;
+  telefono?: string;
+  imagenPerfilUrl?: string;
   rolName: string;
   isActive: boolean;
 }
@@ -26,22 +26,28 @@ export interface CreateUserCommand {
   userName: string;
   nombre: string;
   apellidoPaterno: string;
-  apellidoMaterno?: string | null;
+  apellidoMaterno?: string;
   email: string;
-  telefono?: string | null;
+  telefono?: string;
   password: string;
-  imagenPerfilUrl?: string | null;
+  imagenPerfilUrl?: string;
   idRol: string;
+  isActive: boolean;
 }
 
 export interface UpdateUserCommand {
   id: string;
   nombre: string;
   apellidoPaterno: string;
-  apellidoMaterno?: string | null;
+  apellidoMaterno?: string;
   email: string;
-  telefono?: string | null;
-  imagenPerfilUrl?: string | null;
+  telefono?: string;
+  imagenPerfilUrl?: string;
   idRol: string;
   isActive: boolean;
+}
+
+export interface IdentityResult {
+  success: boolean;
+  errors: string[];
 }

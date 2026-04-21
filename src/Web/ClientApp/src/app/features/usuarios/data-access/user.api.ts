@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {API_BASE_URL} from '../../../app.config';
-import {UserListItem} from './user.model';
+import {CreateUserCommand, IdentityResult, UpdateUserCommand, User, UserListItem} from './user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,18 @@ export class UserApi {
 
   getAll() {
     return this.http.get<UserListItem[]>(`${this.baseUrl}`);
+  }
+
+  getById(id: string) {
+    return this.http.get<User>(`${this.baseUrl}/${id}`);
+  }
+
+  create(command: CreateUserCommand) {
+    return this.http.post<IdentityResult>(this.baseUrl, command);
+  }
+
+  update(id: string, command: UpdateUserCommand) {
+    return this.http.put<IdentityResult>(`${this.baseUrl}/${id}`, command);
   }
 
 }

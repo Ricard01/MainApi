@@ -12,15 +12,15 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
         RuleFor(u => u.UserName).RuleRequiredMax(100)
             .MinimumLength(4).WithMessage("El nombre de usuario debe tener al menos 4 caracteres")
             .MustAsync(BeUniqueUserName)
-            .WithMessage( u => $"'{u.UserName}'el nombre de usuario ya existe.")
+            .WithMessage( u => $"'{u.UserName}' el nombre de usuario ya existe.")
             .WithErrorCode("Unique");
         RuleFor(u => u.Nombre).RuleRequiredMax(200);
-        RuleFor(u => u.ApellidoPaterno).RuleRequiredMax(100);
+        RuleFor(u => u.ApellidoPaterno).RuleRequiredMax(100).WithMessage("Maximo 100 caracteres");;
         RuleFor(u => u.ApellidoMaterno).MaximumLength(100).WithMessage("Maximo 100 caracteres");
         RuleFor(u => u.Telefono).MaximumLength(20).WithMessage("Maximo 20 caracteres");
         RuleFor(u => u.Email).RuleRequiredMax(100)
             .MustAsync(BeUniqueEmail)
-            .WithMessage( u => $"'{u.Email}'el correo ya existe.")
+            .WithMessage( u => $"'{u.Email}' el email ya existe.")
             .WithErrorCode("Unique");
         RuleFor(u => u.Password)
             .NotEmpty().WithMessage("La contraseña no puede estar vacía")

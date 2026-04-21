@@ -28,7 +28,7 @@ public class User : EndpointGroupBase
 
     private Task<UserModel> GetUserById(ISender sender, Guid id)
     {
-        return sender.Send(new GetUserByIdQuery{Id = id});
+        return sender.Send(new GetUserByIdQuery { Id = id });
     }
 
     private async Task<IdentityResult> ChangeUserPassword(ISender sender, Guid id, ChangePasswordCommand command)
@@ -43,9 +43,10 @@ public class User : EndpointGroupBase
 
     private Task<IdentityResult> CreateUser(ISender sender, CreateUserCommand command)
     {
-        return sender.Send(command);
+        var user = sender.Send(command);
+        return user;
     }
-    
+
     private async Task<IdentityResult> UpdateUser(ISender sender, Guid id, UpdateUserCommand command)
     {
         if (id != command.Id)

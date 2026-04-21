@@ -37,6 +37,7 @@ html.theme-light .nav-section {
   .mat-mdc-table .mat-mdc-row:hover {
     background-color: rgba(128, 128, 128, 0.08); // Un gris muy tenue (funciona en modo claro y oscuro)
   }
+
 }
 
 // --- TOOLBAR
@@ -55,3 +56,9 @@ mat-toolbar {
     icon-color: var(--mat-sys-primary),
   ));
 }
+
+
+//@include mat.snack-bar-overrides((
+//  button-color: var(--mat-sys-secondary-container),
+//  container-color:var(--mat-sys-surface-tint),
+//));

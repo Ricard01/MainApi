@@ -7,19 +7,23 @@ import {
 } from '@angular/core';
 import {provideRouter} from '@angular/router';
 import {routes} from './app.routes';
-import {provideHttpClient, withFetch,} from '@angular/common/http';
+import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/http';
 import {provideStore} from '@ngrx/store';
 import {provideStoreDevtools} from '@ngrx/store-devtools';
 import {provideAuthFeature} from './core/auth/data-access/state/auth.state';
 import {translatePaginator} from './shared/custom/translatePaginator';
 import {MatPaginatorIntl} from '@angular/material/paginator';
+import {errorInterceptor} from './core/interceptors/error.interceptor';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export const appConfig: ApplicationConfig = {
   providers: [
     {provide: API_BASE_URL, useValue: '/api'},
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([errorInterceptor]
+      )),
     // DEFAULTS
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({eventCoalescing: true}),

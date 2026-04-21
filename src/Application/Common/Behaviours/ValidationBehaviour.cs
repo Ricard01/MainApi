@@ -1,5 +1,5 @@
 namespace MainApi.Application.Common.Behaviours;
-
+using ValidationException = MainApi.Application.Common.Exceptions.ValidationException;
 public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
