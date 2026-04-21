@@ -13,7 +13,6 @@ export const usuariosRoutes = [
         {
           path: ':id',
           loadComponent: () => import('./pages/user.page').then(m => m.UserPage)
-
         }
 
       ]

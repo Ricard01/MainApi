@@ -1,5 +1,5 @@
 import {Component, computed, inject, signal, viewChild} from '@angular/core';
-import {UserForm} from '../components/user-form/user-form';
+import {UserUpdate} from '../components/user-edit/user-update';
 import {UserApi} from '../data-access/user.api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
@@ -8,18 +8,32 @@ import {CreateUserCommand, IdentityResult, UpdateUserCommand, User} from '../dat
 import {RolApi} from '../../roles/data-acces/rol.api';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
 import {UserFormValue, UserMapper} from '../data-access/user.mapper';
+import {UserCreate} from '../components/user-create/user-create';
 
 @Component({
   selector: 'app-user-page',
-  imports: [UserForm],
+  imports: [UserUpdate, UserCreate],
   template: `
-    <app-user-form
-      [user]="userToUpdate()"
-      [roles]="roles()"
-      [serverErrors]="backendErrors()"
-      (save)="onSave($event)"
-      (cancel)="onCancel()">
-    </app-user-form>
+
+    @if (isUpdate()) {
+      <app-user-update
+        [user]="userToUpdate()"
+        [roles]="roles()"
+        [errors]="backendErrors()"
+        (save)="onSave($event)"
+        (cancel)="onCancel()">
+      </app-user-update>
+
+    } @else {
+      <app-user-create
+        [roles]="roles()"
+        [errors]="backendErrors()"
+        (save)="onSave($event)"
+        (cancel)="onCancel()"
+      >
+      </app-user-create>
+    }
+
   `,
 })
 export class UserPage {
@@ -36,7 +50,7 @@ export class UserPage {
 
   // Si hay :id en la ruta es update, si no es create
   private userId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
-  isUpdateMode = computed(() => !!this.userId());
+  isUpdate = computed(() => !!this.userId());
 
   userToUpdate = toSignal(
     this.route.paramMap.pipe(
@@ -51,7 +65,7 @@ export class UserPage {
 
     this.backendErrors.set([]);
 
-    const request$ = this.isUpdateMode()
+    const request$ = this.isUpdate()
       ? this.userApi.update(this.userId()!, UserMapper.toUpdate(form, this.userId()!)      )
       : this.userApi.create(UserMapper.toCreate(form));
 
@@ -59,7 +73,7 @@ export class UserPage {
       next: (result) => {
         if (result.success) {
           this.snackBar.success(
-            this.isUpdateMode() ? 'Actualizado con éxito' : 'Registrado con éxito'
+            this.isUpdate() ? 'Actualizado con éxito' : 'Registrado con éxito'
           );
           this.router.navigate(['/usuarios']);
         } else {
