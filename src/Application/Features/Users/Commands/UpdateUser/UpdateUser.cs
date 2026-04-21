@@ -13,6 +13,7 @@ public record UpdateUserCommand : IRequest<IdentityResult>
     public string? Telefono { get; init; }
     public string? ImagenPerfilUrl { get; init; }
     public required Guid IdRol { get; init; }
+    public bool IsActive { get; init; }
 }
 
 public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, IdentityResult>
@@ -36,6 +37,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Ident
             Telefono = request.Telefono,
             ImagenPerfilUrl = request.ImagenPerfilUrl,
             IdRol = request.IdRol,
+            IsActive = request.IsActive
         };
         return await _identityService.UpdateUserAsync(user, cancellationToken);
     }

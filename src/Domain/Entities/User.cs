@@ -65,6 +65,7 @@ public class User : BaseAuditableEntity<Guid>
         Telefono = telefono;
         ImagenPerfilUrl = imagenPerfilUrl;
         IdRol = idRol;
+        IsActive = isActive;
     }
 
     /// <summary>
