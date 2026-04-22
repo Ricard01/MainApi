@@ -15,6 +15,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {UserListItem} from '../../data-access/user.model';
 import {RouterModule} from '@angular/router';
+import {NgOptimizedImage} from '@angular/common';
 
 
 @Component({
@@ -27,7 +28,8 @@ import {RouterModule} from '@angular/router';
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
-    RouterModule
+    RouterModule,
+    NgOptimizedImage
   ],
   templateUrl: './user-list.html',
   styles: [`
@@ -68,6 +70,14 @@ export class UserList {
       this.dataSource.paginator = this.paginator();
     });
 
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'userName': return item.userName.toLowerCase(); // Corrección no filtraba por userName
+        default: return (item as any)[property];
+      }
+    };
+
+
     this.dataSource.filterPredicate = (data: UserListItem, filter: string) =>
       data.userName.toLowerCase().includes(filter) ||
       data.nombre.toLowerCase().includes(filter);
@@ -79,8 +89,9 @@ export class UserList {
     this.dataSource.paginator?.firstPage();
   }
 
-  updateUrl(event: Event) {
-    (event.target as HTMLImageElement).src = this.DEFAULT_IMAGE;
+  handleImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = this.DEFAULT_IMAGE;
   }
 
 }

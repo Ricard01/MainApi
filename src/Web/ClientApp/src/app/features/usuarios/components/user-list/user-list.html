@@ -24,8 +24,8 @@
           <td mat-cell *matCellDef="let user">
             <div class="profile-container">
               <img
-                [src]="user.imagenPerfilUrl || DEFAULT_IMAGE"
-                (error)="updateUrl($event)"
+                [ngSrc]="user.imagenPerfilUrl || DEFAULT_IMAGE"
+                (error)="handleImageError($event)"
                 alt="Foto de {{ user.userName }}"
                 width="32"
                 height="32"
