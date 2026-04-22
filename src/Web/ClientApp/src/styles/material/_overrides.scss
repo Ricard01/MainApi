@@ -58,7 +58,35 @@ mat-toolbar {
 }
 
 
-//@include mat.snack-bar-overrides((
-//  button-color: var(--mat-sys-secondary-container),
-//  container-color:var(--mat-sys-surface-tint),
-//));
+@include mat.snack-bar-overrides((
+  //button-color: red,//var(--mat-sys-on-sur),
+  //container-color:var(mat-sys-inverse-surface),
+  supporting-text-color: var(--mat-sys-on-surface),
+));
+
+/* styles.css */
+
+/* --- SNACKBAR COMPACTO Y TEMATIZADO --- */
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  /* Reducción de altura y rellenos para hacerlo compacto */
+  padding: 0 8px 0 12px !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  border-radius: 8px !important;
+
+  /* Uso de tus variables de tema de Tailwind v4 / Material */
+  background-color: var(--color-surface-container-high) !important;
+}
+
+/* Clases específicas para colores de estado usando tus variables de tema */
+.snackbar-success .mdc-snackbar__surface {
+  border-left: 4px solid #1e8e3e; /* Detalle visual compacto en lugar de fondo total */
+}
+
+.snackbar-error .mdc-snackbar__surface {
+  border-left: 4px solid var(--color-error);
+}
+
+.snackbar-info .mdc-snackbar__surface {
+  border-left: 4px solid var(--color-primary);
+}

@@ -5,11 +5,13 @@ import {UserList} from '../components/user-list/user-list';
 import {switchMap} from 'rxjs';
 import {IdentityResult, UserListItem} from '../data-access/user.model';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatButtonModule} from '@angular/material/button';
 
 
 @Component({
   selector: 'app-user-list-page',
-  imports: [UserList],
+  imports: [UserList, MatButtonModule],
   template: `
 
     <h2>Administración Usuarios</h2>
@@ -41,11 +43,11 @@ export class UserListPage {
           this.reload.update(v => v + 1);
           this.snackBar.success('Usuario eliminado');
         } else {
-          this.snackBar.error(`No se pudo eliminar${JSON.stringify(result.errors)}`,);
+          this.snackBar.error(`${JSON.stringify(result.errors)}`,);
         }
       },
       error: (error: string) => {
-        this.snackBar.error(error);
+        this.snackBar.error(`Api ${error}`);
       }
     });
   }
