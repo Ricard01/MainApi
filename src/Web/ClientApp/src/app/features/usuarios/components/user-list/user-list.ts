@@ -4,7 +4,7 @@ import {
   ChangeDetectionStrategy,
   input,
   afterNextRender,
-  effect
+  effect, inject, Output, EventEmitter
 } from '@angular/core';
 import {MatTableModule, MatTableDataSource} from '@angular/material/table';
 import {MatSortModule, MatSort} from '@angular/material/sort';
@@ -16,6 +16,9 @@ import {MatIconModule} from '@angular/material/icon';
 import {UserListItem} from '../../data-access/user.model';
 import {RouterModule} from '@angular/router';
 import {NgOptimizedImage} from '@angular/common';
+import {MatDialogModule} from '@angular/material/dialog';
+import {UserApi} from '../../data-access/user.api';
+import {SnackbarService} from '../../../../shared/services/snackbar.service';
 
 
 @Component({
@@ -29,7 +32,8 @@ import {NgOptimizedImage} from '@angular/common';
     MatFormFieldModule,
     MatInputModule,
     RouterModule,
-    NgOptimizedImage
+    NgOptimizedImage,
+    MatDialogModule
   ],
   templateUrl: './user-list.html',
   styles: [`
@@ -49,7 +53,9 @@ import {NgOptimizedImage} from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserList {
+  private snackBar = inject(SnackbarService);
   public users = input.required<UserListItem[]>();
+  @Output() delete = new EventEmitter<UserListItem>();
 
 
   private sort = viewChild.required(MatSort);
@@ -92,6 +98,13 @@ export class UserList {
   handleImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.src = this.DEFAULT_IMAGE;
+  }
+
+  onDelete(user: UserListItem) {
+    const confirmed = confirm(`¿Estás seguro de que deseas eliminar a ${user.nombre}?`);
+    if (confirmed) {
+      this.delete.emit(user);
+    }
   }
 
 }

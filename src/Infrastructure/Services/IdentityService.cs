@@ -32,7 +32,7 @@ public class IdentityService : IIdentityService
         // 1) Validar si el usuario está autenticado (la cookie es válida y no ha expirado)
         if (userClaims?.Identity?.IsAuthenticated != true)
         {
-            return Task.FromResult<AuthUser?>(null); 
+            return Task.FromResult<AuthUser?>(null);
         }
 
         // 2) Extraer los datos directamente de los Claims de la cookie
@@ -46,15 +46,15 @@ public class IdentityService : IIdentityService
 
         // 3) Retornar el objeto AuthUser
         var authUser = new AuthUser(
-            Nombre: nombre, 
-            ImagenUrl: string.IsNullOrEmpty(imagenUrl) ? null : imagenUrl, 
-            Rol: rol, 
+            Nombre: nombre,
+            ImagenUrl: string.IsNullOrEmpty(imagenUrl) ? null : imagenUrl,
+            Rol: rol,
             Permisos: permisos
         );
 
         return Task.FromResult<AuthUser?>(authUser);
     }
-    
+
     public async Task<AuthUser> SignInAsync(string username, string password, bool rememberMe,
         CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ public class IdentityService : IIdentityService
 
         if (user is null)
             throw new UnauthorizedAccessException("Usuario o contraseña inválidos.");
-        
+
         if (!user.IsActive)
         {
             throw new UnauthorizedAccessException("Cuenta inactiva. Por favor, contacta a soporte.");
@@ -138,13 +138,14 @@ public class IdentityService : IIdentityService
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Nombre = u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
+                Nombre =
+                    u.Nombre + " " + u.ApellidoPaterno + (u.ApellidoMaterno != null ? " " + u.ApellidoMaterno : ""),
                 Email = u.Email,
                 Telefono = u.Telefono,
                 ImagenPerfilUrl = u.ImagenPerfilUrl,
                 RolName = u.Rol.Nombre,
                 IsActive = u.IsActive
-            }).ToListAsync(cancellationToken);
+            }).OrderBy(u => u.UserName).ToListAsync(cancellationToken);
 
         return users;
     }
@@ -242,10 +243,15 @@ public class IdentityService : IIdentityService
 
     public async Task<IdentityResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken)
     {
+        const string Admin = nameof(Admin);
+
         var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
         if (user == null)
             return IdentityResult.Fail("El usuario no existe.");
+
+        if (user.UserName == Admin)
+            return IdentityResult.Fail("No se puede eliminar el usuario administrador.");
 
         _context.Usuarios.Remove(user);
         await _context.SaveChangesAsync(cancellationToken);
@@ -365,6 +371,12 @@ public class IdentityService : IIdentityService
         var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (rol == null)
             return IdentityResult.Fail("El rol no existe.");
+
+        const string Administrador = nameof(Administrador);
+
+        if (rol.Nombre == Administrador)
+            return IdentityResult.Fail("No se puede eliminar el rol administrador.");
+
         _context.Roles.Remove(rol);
         await _context.SaveChangesAsync(cancellationToken);
         return IdentityResult.Ok();

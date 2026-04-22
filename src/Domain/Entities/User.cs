@@ -52,10 +52,13 @@ public class User : BaseAuditableEntity<Guid>
 
     public void Update(string nombre, string apellidoPaterno, string? apellidoMaterno, string email, string? telefono,
         string? imagenPerfilUrl, bool isActive, Guid idRol)
+    
     {
-        if (UserName.ToLower() == "administrador" && !isActive)
+        const string Admin = nameof(Admin);
+        
+        if (UserName == Admin && !isActive)
         {
-            throw new InvalidOperationException("El usuario administrador principal no puede ser desactivado.");
+            throw new InvalidOperationException("El usuario Admin principal no puede ser desactivado.");
         }
 
         Nombre = nombre;

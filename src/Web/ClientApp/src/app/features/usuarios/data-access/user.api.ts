@@ -26,4 +26,8 @@ export class UserApi {
     return this.http.put<IdentityResult>(`${this.baseUrl}/${id}`, command);
   }
 
+  delete(id: string) {
+    return this.http.delete<IdentityResult>(`${this.baseUrl}/${id}`);
+  }
+
 }
