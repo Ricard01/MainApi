@@ -43,7 +43,7 @@ export class UserListPage {
           this.reload.update(v => v + 1);
           this.snackBar.success('Usuario eliminado');
         } else {
-          this.snackBar.error(`${JSON.stringify(result.errors)}`,);
+          this.snackBar.error(result.errors.join('\n'));
         }
       },
       error: (error: string) => {
