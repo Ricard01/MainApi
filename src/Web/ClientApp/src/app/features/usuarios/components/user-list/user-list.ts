@@ -4,7 +4,7 @@ import {
   ChangeDetectionStrategy,
   input,
   afterNextRender,
-  effect, inject, Output, EventEmitter
+  effect, inject, output
 } from '@angular/core';
 import {MatTableModule, MatTableDataSource} from '@angular/material/table';
 import {MatSortModule, MatSort} from '@angular/material/sort';
@@ -16,8 +16,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {UserListItem} from '../../data-access/user.model';
 import {RouterModule} from '@angular/router';
 import {NgOptimizedImage} from '@angular/common';
-import {MatDialogModule} from '@angular/material/dialog';
-import {UserApi} from '../../data-access/user.api';
+import {MatDialog, MatDialogModule,} from '@angular/material/dialog';
+import {ChangePasswordDialog} from '../change-password/change-password';
 import {SnackbarService} from '../../../../shared/services/snackbar.service';
 
 
@@ -53,9 +53,11 @@ import {SnackbarService} from '../../../../shared/services/snackbar.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserList {
-  private snackBar = inject(SnackbarService);
+
+  private dialog = inject(MatDialog);
+  private snackbar = inject(SnackbarService)
   public users = input.required<UserListItem[]>();
-  @Output() delete = new EventEmitter<UserListItem>();
+  delete = output<UserListItem>();
 
 
   private sort = viewChild.required(MatSort);
@@ -78,8 +80,10 @@ export class UserList {
 
     this.dataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
-        case 'userName': return item.userName.toLowerCase(); // Corrección no filtraba por userName
-        default: return (item as any)[property];
+        case 'userName':
+          return item.userName.toLowerCase(); // Corrección no filtraba por userName
+        default:
+          return (item as any)[property];
       }
     };
 
@@ -105,6 +109,17 @@ export class UserList {
     if (confirmed) {
       this.delete.emit(user);
     }
+  }
+
+  onChangePassword(user: UserListItem) {
+    this.dialog.open(ChangePasswordDialog, {
+      width: '400px',
+      data: {id: user.id} // Pasamos el ID al diálogo
+    }).afterClosed().subscribe(success => {
+      if (success) {
+        this.snackbar.success('Contraseña actualizada correctamente');
+      }
+    });
   }
 
 }

@@ -37,7 +37,7 @@ export class UserCreate {
     email: ['', Validators.email],
     telefono: [''],
     idRol: ['', Validators.required],
-    password: ['',Validators.required],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/)]],
     confirmPassword: ['',Validators.required],
     imagenPerfilUrl: ['']
   }, {validators: [this.passwordsMatchValidator]});

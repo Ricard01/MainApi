@@ -83,6 +83,9 @@
               <button matIconButton class="primary" aria-label="Editar usuario" routerLink="{{ user.id }}">
                 <mat-icon svgIcon="edit"></mat-icon>
               </button>
+              <button matIconButton class="teritary" aria-label="Clave usuario" (click)="onChangePassword(user)">
+                <mat-icon>password</mat-icon>
+              </button>
 
               <button matIconButton class="accent" aria-label="Eliminar usuario" (click)="onDelete(user)">
                 <mat-icon svgIcon="delete"></mat-icon>

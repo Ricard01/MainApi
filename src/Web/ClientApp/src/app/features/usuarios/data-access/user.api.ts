@@ -30,4 +30,8 @@ export class UserApi {
     return this.http.delete<IdentityResult>(`${this.baseUrl}/${id}`);
   }
 
+  changePassword(command: { id: string; newPassword: string }) {
+    return this.http.patch<IdentityResult>(`${this.baseUrl}/${command.id}/change-password`, command);
+  }
+
 }
