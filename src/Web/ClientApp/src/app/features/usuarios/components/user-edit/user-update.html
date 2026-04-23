@@ -3,17 +3,20 @@
 
   <div class="flex justify-between items-center border-b border-outline-variant pb-3">
     <h2 class="text-xl font-bold text-on-surface">Editar Usuario</h2>
+    @if (user() && user()?.userName !== 'Admin') {
 
-    <label class="inline-flex items-center cursor-pointer">
-      <input type="checkbox" formControlName="isActive" class="sr-only peer">
-      <div
-        class="relative w-9 h-5 bg-surface-container-high peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-outline after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-surface after:border-outline after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-      <span class="ms-2 text-sm font-medium"
-            [class.text-primary]="form.controls.isActive.value"
-            [class.text-on-surface-variant]="!form.controls.isActive.value">
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" formControlName="isActive" class="sr-only peer">
+        <div
+          class="relative w-9 h-5 bg-surface-container-high peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-outline after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-surface after:border-outline after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+        <span class="ms-2 text-sm font-medium"
+              [class.text-primary]="form.controls.isActive.value"
+              [class.text-on-surface-variant]="!form.controls.isActive.value">
           {{ form.controls.isActive.value ? 'Activo' : 'Inactivo' }}
         </span>
-    </label>
+      </label>
+
+    }
 
   </div>
 
@@ -154,3 +157,4 @@
     </button>
   </div>
 </form>
+

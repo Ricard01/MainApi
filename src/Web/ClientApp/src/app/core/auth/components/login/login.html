@@ -16,17 +16,17 @@
           </svg>
         </div>
 
-        <h1 class="text-2xl md:text-[28px] font-semibold text-neutral-800 text-center">
+        <h1 class="text-2xl md:text-[28px] font-semibold text-on-surface text-center">
           Main App
         </h1>
-        <p class="mt-2 text-neutral-500 text-center"> Bienvendo! Ingresa tus datos para entrar. </p>
+        <p class="mt-2 text-neutral-500 text-center"> Bienvenido! Ingresa tus datos para entrar. </p>
 
         <!-- Form -->
         <form class="mt-8 space-y-5" [formGroup]="form" (ngSubmit)="submit()">
 
           <!-- Usuario -->
           <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1.5">Usuario</label>
+            <label class="block text-sm font-medium  text-on-surface-variant mb-1.5">Usuario</label>
             <div class="relative">
               <!-- 1 solo icono -->
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none">
@@ -50,7 +50,7 @@
           <!-- Contraseña -->
           <div>
             <div class="flex items-center justify-between">
-              <label class="block text-sm font-medium text-neutral-700 mb-1.5">Contraseña</label>
+              <label class="block text-sm font-medium  mb-1.5 text-on-surface-variant ">Contraseña</label>
             </div>
 
             <div class="relative">
@@ -107,10 +107,10 @@
           }
 
           <!-- Remember -->
-          <label class="flex items-center gap-2 text-sm text-neutral-700">
-            <input type="checkbox" formControlName="remember"
-                   class="size-4 rounded border-neutral-300 text-emerald-700 focus:ring-emerald-500"/>
-            Recordarme </label>
+          <label class="flex items-center gap-2 text-sm text-on-surface-variant">
+          <input type="checkbox" formControlName="remember"
+                 class="size-4 rounded border-neutral-300 text-emerald-700 focus:ring-emerald-500"/>
+          Recordarme </label>
 
           <!-- Submit -->
           <button
