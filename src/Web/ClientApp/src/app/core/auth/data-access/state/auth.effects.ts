@@ -40,7 +40,7 @@ export class AuthEffects {
           catchError((err) => {
             return of(
               AuthActions.loginFailed({
-                error: err?.error.detail ?? 'No se pudo iniciar sesión',
+                error: err[0]
               }))
           })
         )

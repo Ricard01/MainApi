@@ -29,8 +29,7 @@ import {UserCreate} from '../components/user-create/user-create';
         [roles]="roles()"
         [errors]="backendErrors()"
         (save)="onSave($event)"
-        (cancel)="onCancel()"
-      >
+        (cancel)="onCancel()">
       </app-user-create>
     }
 

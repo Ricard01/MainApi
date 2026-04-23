@@ -1,9 +1,9 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import {SnackbarService} from '../../shared/services/snackbar.service'; // Opcional
+import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
+import {catchError, throwError} from 'rxjs';
+import {inject} from '@angular/core';
+import {Router} from '@angular/router';
+import {SnackbarService} from '../../shared/services/snackbar.service';
+import {SILENT_401} from '../auth/data-access/auth.api';
 
 export interface ProblemDetails {
   type?: string;
@@ -23,6 +23,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: HttpErrorResponse) => {
       let errorMessages: string[] = [];
       const problem: ProblemDetails = err.error;
+      const skipAuthError = req.context.get(SILENT_401);
 
       switch (err.status) {
 
@@ -45,9 +46,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
         case 401:
           // Unauthorized: Token faltante, expirado o inválido
-          errorMessages = ['Tu sesión ha expirado o no estás autenticado.'];
-          snackBar.error(errorMessages[0]);
-          router.navigate(['/login']); // Redirección automática global
+          if (skipAuthError) {
+            errorMessages = [problem?.detail || problem?.title || 'No autorizado.'];
+          } else {
+            errorMessages = ['Tu sesión ha expirado o no estás autenticado.'];
+            snackBar.error(errorMessages[0]);
+            router.navigate(['/login']); // Redirección automática global
+          }
           break;
 
         case 403:
