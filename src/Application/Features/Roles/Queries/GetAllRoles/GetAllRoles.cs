@@ -3,7 +3,7 @@ using MainApi.Application.Common.Models;
 using MainApi.Application.Common.Validation;
 using MainApi.Domain.Constants;
 
-namespace MainApi.Application.Features.Roles.Querys.GetAllRoles;
+namespace MainApi.Application.Features.Roles.Queries.GetAllRoles;
 
 [RequirePermission(Permisos.Roles.Acceso)]
 public record GetAllRolesQuery : IRequest<IEnumerable<RolListModel>>

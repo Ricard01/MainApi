@@ -1,7 +1,7 @@
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.Common.Models;
 
-namespace MainApi.Application.Features.Roles.Querys.GetRolById;
+namespace MainApi.Application.Features.Roles.Queries.GetRolById;
 
 public record GetRolByIdQuery : IRequest<RolModel>
 {

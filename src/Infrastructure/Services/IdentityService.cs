@@ -302,6 +302,7 @@ public class IdentityService : IIdentityService
                 Nombre = r.Nombre,
                 Descripcion = r.Descripcion
             })
+            .OrderBy(r => r.Nombre)
             .ToListAsync(cancellationToken);
     }
 

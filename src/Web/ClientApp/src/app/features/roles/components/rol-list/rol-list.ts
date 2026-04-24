@@ -7,7 +7,7 @@ import {
   input, output,
   viewChild
 } from '@angular/core';
-import {RolListItem} from '../../data-acces/rol.model';
+import {Permiso, RolListItem} from '../../data-acces/rol.model';
 import {MatSort, MatSortHeader, MatSortModule} from '@angular/material/sort';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {
@@ -52,6 +52,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 export class RolList {
 
   public roles = input.required<RolListItem[]>();
+  public permisos = input.required<Permiso[]>();
+
   private dialog = inject(MatDialog);
   private snackbar = inject(SnackbarService)
   delete = output<RolListItem>();
@@ -65,6 +67,8 @@ export class RolList {
     effect(() => {
       this.dataSource.data = this.roles();
     });
+
+    effect(() => console.log('Signal de roles:', this.permisos()));
 
     afterNextRender(() => {
       this.dataSource.sort = this.sort();

@@ -2,8 +2,9 @@ using MainApi.Application.Common.Models;
 using MainApi.Application.Features.Roles.Commands.CreateRol;
 using MainApi.Application.Features.Roles.Commands.DeleteRol;
 using MainApi.Application.Features.Roles.Commands.UpdateRol;
-using MainApi.Application.Features.Roles.Querys.GetAllRoles;
-using MainApi.Application.Features.Roles.Querys.GetRolById;
+using MainApi.Application.Features.Roles.Queries.GetAllPermisos;
+using MainApi.Application.Features.Roles.Queries.GetAllRoles;
+using MainApi.Application.Features.Roles.Queries.GetRolById;
 
 namespace MainApi.Web.Endpoints;
 
@@ -13,6 +14,7 @@ public class Rol : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapGet(GetAllRoles)
+            .MapGet(GetAllPermisos, "/permisos")
             .MapGet(GetRolById, "{id:guid}")
             .MapPost(CreateRol)
             .MapPut(UpdateRol, "{id:guid}")
@@ -22,6 +24,11 @@ public class Rol : EndpointGroupBase
     private Task<IEnumerable<RolListModel>> GetAllRoles(ISender sender)
     {
         return sender.Send(new GetAllRolesQuery());
+    }
+
+    private Task<IEnumerable<PermisosDto>> GetAllPermisos(ISender sender)
+    {
+        return sender.Send(new GetAllPermisosQuery());
     }
 
     private Task<RolModel> GetRolById(ISender sender, Guid id)
