@@ -1,1 +1,68 @@
-<p>rol-list works!</p>
+<div class="page-container">
+
+  <div class="flex items-center justify-between mt-4 mb-8 gap-4">
+
+    <button matButton="filled" routerLink="nuevo">
+      <mat-icon svgIcon="add"></mat-icon>
+      Nuevo
+    </button>
+
+    <!--    subscriptSizing="dynamic": Esta propiedad de Angular Material hace que el campo de texto no reserve espacio abajo para mensajes de error si no los hay, haciendo que el alineado vertical con el botón sea perfecto.-->
+    <mat-form-field appearance="outline" class="w-64 max-w-xs compact-input" subscriptSizing="dynamic">
+      <mat-label>Filtrar</mat-label>
+      <input matInput (keyup)="applyFilter($event)" #input>
+    </mat-form-field>
+
+  </div>
+
+  <div class="table-container">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="dataSource" matSort>
+
+
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+          <td mat-cell *matCellDef="let rol">{{ rol.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="descripcion">
+          <th mat-header-cell *matHeaderCellDef>Descripcion</th>
+          <td mat-cell *matCellDef="let rol">{{ rol.descripcion }}</td>
+        </ng-container>
+
+
+
+        <ng-container matColumnDef="opciones">
+          <th mat-header-cell class="text-center" *matHeaderCellDef>Opciones</th>
+          <td mat-cell *matCellDef="let rol">
+            <div class="flex items-center justify-center gap-2 whitespace-nowrap">
+
+              <button matIconButton class="primary" aria-label="Editar rol" routerLink="{{ rol.id }}">
+                <mat-icon svgIcon="edit"></mat-icon>
+              </button>
+
+
+              <button matIconButton class="accent" aria-label="Eliminar rol" (click)="onDelete(rol)">
+                <mat-icon svgIcon="delete"></mat-icon>
+              </button>
+
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="3">No hay datos que coincidan con el filtro "{{ input.value }}"</td>
+        </tr>
+      </table>
+    </div>
+
+    <mat-paginator [pageSizeOptions]="[25, 50, 100]" aria-label="Seleccionar página de usuarios"
+                   class="mt-auto"></mat-paginator>
+  </div>
+
+</div>
+

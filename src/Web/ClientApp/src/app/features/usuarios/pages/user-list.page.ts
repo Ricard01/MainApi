@@ -5,7 +5,6 @@ import {UserList} from '../components/user-list/user-list';
 import {switchMap} from 'rxjs';
 import {IdentityResult, UserListItem} from '../data-access/user.model';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
-import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 
 
@@ -26,8 +25,8 @@ import {MatButtonModule} from '@angular/material/button';
 })
 export class UserListPage {
   private userApi = inject(UserApi);
-  private reload = signal(0);
   private snackBar = inject(SnackbarService);
+  private reload = signal(0);
 
   public users = toSignal(
     toObservable(this.reload).pipe(
