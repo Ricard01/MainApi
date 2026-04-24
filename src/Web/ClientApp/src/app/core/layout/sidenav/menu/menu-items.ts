@@ -19,6 +19,6 @@ export const items: MenuItem[] = [
   {
     icon: 'rol',
     label: 'Permisos',
-    route: 'mi-vehiculo',
+    route: 'roles',
   },
 ];

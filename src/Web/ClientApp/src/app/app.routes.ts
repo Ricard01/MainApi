@@ -14,6 +14,7 @@ export const routes: Routes = [
       {path: '', pathMatch: 'full', redirectTo: 'home'},
       {path: 'home', component: HomeComponent},
       {path: 'usuarios', loadChildren: () => import('./features/usuarios/usuarios.routes').then(m => m.usuariosRoutes)},
+      {path: 'roles', loadChildren: () => import('./features/roles/roles.routes').then(m => m.rolesRoutes)},
     ]
   },
   {path: '**', redirectTo: 'home'}
