@@ -22,6 +22,7 @@ export interface PermisoGrupo {
   modulo: string;
   permisos: Permiso[];
 }
+
 // Commands
 export interface CreateRolCommand {
   nombre: string;
@@ -31,6 +32,13 @@ export interface CreateRolCommand {
 
 export interface UpdateRolCommand {
   id: string;
+  nombre: string;
+  descripcion: string;
+  permisosIds: number[];
+}
+
+export interface RolFormValue {
+  id?: string;
   nombre: string;
   descripcion: string;
   permisosIds: number[];

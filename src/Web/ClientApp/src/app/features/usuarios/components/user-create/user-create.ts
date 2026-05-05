@@ -1,8 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject, input, output, signal} from '@angular/core';
 import {
   AbstractControl,
-  FormBuilder,
-  FormsModule,
+  FormsModule, NonNullableFormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
   Validators
@@ -18,16 +17,16 @@ import {RolListItem} from '../../../roles/data-acces/rol.model';
 
 export class UserCreate {
 
-  private fb = inject(FormBuilder);
-  public roles = input<RolListItem[]>([]);
+  private readonly fb = inject(NonNullableFormBuilder);
+  roles = input<RolListItem[]>([]);
 
-  public save = output<any>();
-  public cancel = output<void>();
+  save = output<any>();
+  cancel = output<void>();
 
   hidePassword = signal(true);
   hideConfirmPassword = signal(true);
 
-  public errors = input<string[]>([]);
+  errors = input<string[]>([]);
 
   form = this.fb.group({
     userName: ['', [Validators.required, Validators.pattern(/^\S+$/)]],
@@ -38,7 +37,7 @@ export class UserCreate {
     telefono: [''],
     idRol: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/)]],
-    confirmPassword: ['',Validators.required],
+    confirmPassword: ['', Validators.required],
     imagenPerfilUrl: ['']
   }, {validators: [this.passwordsMatchValidator]});
 
@@ -50,13 +49,13 @@ export class UserCreate {
     // Si ambos tienen texto y no son iguales
     if (password && confirmPassword && password !== confirmPassword) {
       // Le inyectamos el error directamente al input para que se ponga rojo
-      confirmPasswordCtrl?.setErrors({ ...confirmPasswordCtrl.errors, mismatch: true });
-      return { mismatch: true };
+      confirmPasswordCtrl?.setErrors({...confirmPasswordCtrl.errors, mismatch: true});
+      return {mismatch: true};
     }
 
     // Si ya son iguales, le quitamos el error al input
     if (confirmPasswordCtrl?.hasError('mismatch')) {
-      const errors = { ...confirmPasswordCtrl.errors };
+      const errors = {...confirmPasswordCtrl.errors};
       delete errors['mismatch'];
       confirmPasswordCtrl.setErrors(Object.keys(errors).length ? errors : null);
     }

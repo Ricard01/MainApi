@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output} from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Permiso, PermisoGrupo} from '../../data-acces/rol.model';
+import {Permiso, PermisoGrupo, Rol, RolFormValue} from '../../data-acces/rol.model';
 
 @Component({
   selector: 'app-rol-upsert',
@@ -13,8 +13,10 @@ export class RolUpsert {
   private readonly fb = inject(NonNullableFormBuilder);
 
   //inputs and Outputs siempre public
+  rol = input<Rol | null >(null);
   permisos = input<Permiso[]>([]);
-  save = output<any>();
+
+  save = output<RolFormValue>();
   cancel = output<void>();
   errors = input<string[]>([]);
 
@@ -23,6 +25,19 @@ export class RolUpsert {
     descripcion: ['', Validators.required],
     permisosIds: this.fb.control<number[]>([], [Validators.required, Validators.minLength(1)]),
   });
+
+  constructor() {
+    effect(() => {
+      const rol = this.rol();
+      if (rol) {
+        this.form.patchValue({
+          nombre: rol.nombre,
+          descripcion: rol.descripcion,
+          permisosIds: rol.permisos.map(p => p.id)
+        });
+      }
+    });
+  }
 
   onSubmit() {
     if (this.form.invalid) return;

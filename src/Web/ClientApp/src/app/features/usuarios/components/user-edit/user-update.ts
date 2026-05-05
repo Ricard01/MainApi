@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component,  effect, inject, input, output} from '@angular/core';
-import { FormBuilder, ReactiveFormsModule,  Validators} from '@angular/forms';
+import {ChangeDetectionStrategy, Component, effect, inject, input, output} from '@angular/core';
+import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {User} from '../../data-access/user.model';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -25,19 +25,19 @@ import {MatIconModule} from '@angular/material/icon';
 })
 export class UserUpdate {
 
-  private fb = inject(FormBuilder);
-  public user = input<User | null>(null);
-  public roles = input<RolListItem[]>([]);
+  private readonly fb = inject(NonNullableFormBuilder);
+  user = input<User | null>(null);
+  roles = input<RolListItem[]>([]);
 
 
-  public save  = output<any>();
-  public cancel = output<void>();
+  save = output<any>();
+  cancel = output<void>();
 
 
-  public errors = input<string[]>([]);
+  errors = input<string[]>([]);
 
   form = this.fb.group({
-    userName: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^\S+$/)]],
+    userName: [{value: '', disabled: true}, [Validators.required, Validators.pattern(/^\S+$/)]],
     nombre: ['', Validators.required],
     apellidoPaterno: ['', Validators.required],
     apellidoMaterno: [''],
@@ -47,7 +47,6 @@ export class UserUpdate {
     isActive: [true],
     imagenPerfilUrl: ['']
   });
-
 
 
   constructor() {
