@@ -32,9 +32,9 @@ export class RolPage {
   readonly backendErrors = signal<string[]>([]);
   readonly permisos = toSignal(this.rolApi.getAllPermisos(), {initialValue: []})
 
-  readonly rolId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
+  private readonly rolId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
 
-  readonly rolToUpdate = toSignal(
+  rolToUpdate = toSignal(
     toObservable(this.rolId).pipe(
       switchMap(id => id ? this.rolApi.getById(id) : of(null))
     ),

@@ -13,19 +13,20 @@ import {IdentityResult} from '../../usuarios/data-access/user.model';
   imports: [MatButtonModule, RolList],
   template: `
     <h2>Administración de Roles y Permisos </h2>
-    <app-rol-list
-      [roles]="roles()">
-    </app-rol-list>
 
+    <app-rol-list
+      [roles]="roles()"
+      (delete)="onDelete($event)">
+    </app-rol-list>
 
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RolListPage {
 
-  private rolApi = inject(RolApi);
-  private snackBar = inject(SnackbarService);
-  private reload = signal(0); // para que podamos actualizar los roles , cuando por ejemplo se elimina un rol
+  private readonly rolApi = inject(RolApi);
+  private readonly snackBar = inject(SnackbarService);
+  private readonly reload = signal(0); // para que podamos actualizar los roles , cuando por ejemplo se elimina un rol
 
 
   roles = toSignal(

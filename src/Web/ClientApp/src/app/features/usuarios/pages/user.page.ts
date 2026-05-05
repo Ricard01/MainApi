@@ -49,7 +49,7 @@ export class UserPage {
   readonly isUpdate = computed(() => !!this.userId());
 
   // Si hay :id en la ruta es update, si no es create
-  private userId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
+  private readonly userId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
 
 
 

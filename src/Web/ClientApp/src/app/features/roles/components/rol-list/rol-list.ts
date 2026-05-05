@@ -36,17 +36,14 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 })
 export class RolList {
 
-  public roles = input.required<RolListItem[]>();
-
-
-  // private dialog = inject(MatDialog);
-  // private snackbar = inject(SnackbarService)
+  roles = input.required<RolListItem[]>();
   delete = output<RolListItem>();
 
-  private sort = viewChild.required(MatSort);
-  private paginator = viewChild.required(MatPaginator);
-  dataSource = new MatTableDataSource<RolListItem>();
-  displayedColumns: string[] = ['nombre', 'descripcion', 'opciones'];
+  private readonly sort = viewChild.required(MatSort);
+  private readonly paginator = viewChild.required(MatPaginator);
+
+  readonly dataSource = new MatTableDataSource<RolListItem>();
+  readonly displayedColumns: string[] = ['nombre', 'descripcion', 'opciones'];
 
   constructor() {
     effect(() => {
@@ -77,7 +74,7 @@ export class RolList {
   }
 
   isProtected(rol: RolListItem): boolean {
-    return rol.nombre === 'Administrador'; // o mejor rol.esSistema
+    return rol.nombre === 'Administrador';
   }
 
 }

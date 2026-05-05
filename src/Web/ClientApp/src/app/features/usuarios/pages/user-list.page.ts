@@ -24,16 +24,17 @@ import {MatButtonModule} from '@angular/material/button';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserListPage {
-  private userApi = inject(UserApi);
-  private snackBar = inject(SnackbarService);
-  private reload = signal(0);
+  private readonly userApi = inject(UserApi);
+  private readonly snackBar = inject(SnackbarService);
+  private readonly reload = signal(0);
 
-  public users = toSignal(
+  users = toSignal(
     toObservable(this.reload).pipe(
       switchMap(() => this.userApi.getAll())
     ),
     {initialValue: []}
   );
+
 
   onDelete(user: UserListItem) {
     this.userApi.delete(user.id).subscribe({

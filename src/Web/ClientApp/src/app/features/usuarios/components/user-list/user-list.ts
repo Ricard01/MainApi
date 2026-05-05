@@ -54,16 +54,16 @@ import {SnackbarService} from '../../../../shared/services/snackbar.service';
 })
 export class UserList {
 
-  private dialog = inject(MatDialog);
-  private snackbar = inject(SnackbarService)
-  public users = input.required<UserListItem[]>();
+  private readonly dialog = inject(MatDialog);
+  private readonly snackbar = inject(SnackbarService)
+  users = input.required<UserListItem[]>();
   delete = output<UserListItem>();
 
 
-  private sort = viewChild.required(MatSort);
-  private paginator = viewChild.required(MatPaginator);
-  dataSource = new MatTableDataSource<UserListItem>();
-  displayedColumns: string[] = ['userName', 'nombre', 'rol', 'telefono', 'email', 'estatus', 'opciones'];
+  private readonly sort = viewChild.required(MatSort);
+  private readonly paginator = viewChild.required(MatPaginator);
+  readonly dataSource = new MatTableDataSource<UserListItem>();
+  readonly displayedColumns: string[] = ['userName', 'nombre', 'rol', 'telefono', 'email', 'estatus', 'opciones'];
 
 
   readonly DEFAULT_IMAGE = 'assets/imgs/user.png';
