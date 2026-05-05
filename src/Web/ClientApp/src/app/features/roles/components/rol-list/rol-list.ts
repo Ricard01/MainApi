@@ -3,11 +3,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
-  inject,
   input, output,
   viewChild
 } from '@angular/core';
-import {Permiso, RolListItem} from '../../data-acces/rol.model';
+import {RolListItem} from '../../data-acces/rol.model';
 import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
@@ -15,8 +14,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {RouterModule} from '@angular/router';
-import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {SnackbarService} from '../../../../shared/services/snackbar.service';
+import {MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 
 
@@ -34,11 +32,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
     MatDialogModule
   ],
   templateUrl: './rol-list.html',
-  styles: `
-    :host {
-      display: block;
-    }
-  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RolList {
@@ -81,6 +74,10 @@ export class RolList {
     if (confirmed) {
       this.delete.emit(rol);
     }
+  }
+
+  isProtected(rol: RolListItem): boolean {
+    return rol.nombre === 'Administrador'; // o mejor rol.esSistema
   }
 
 }

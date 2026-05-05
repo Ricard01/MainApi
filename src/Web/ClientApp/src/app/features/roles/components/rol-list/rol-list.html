@@ -19,8 +19,6 @@
     <div class="table-scroll">
       <table mat-table [dataSource]="dataSource" matSort>
 
-
-
         <ng-container matColumnDef="nombre">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
           <td mat-cell *matCellDef="let rol">{{ rol.nombre }}</td>
@@ -31,18 +29,18 @@
           <td mat-cell *matCellDef="let rol">{{ rol.descripcion }}</td>
         </ng-container>
 
-
-
         <ng-container matColumnDef="opciones">
           <th mat-header-cell class="text-center" *matHeaderCellDef>Opciones</th>
           <td mat-cell *matCellDef="let rol">
             <div class="flex items-center justify-center gap-2 whitespace-nowrap">
 
-              <button matIconButton class="primary" aria-label="Editar rol" routerLink="{{ rol.id }}">
+              <button matIconButton class="primary disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Editar rol" routerLink="{{ rol.id }}" [disabled]="isProtected(rol)">
                 <mat-icon svgIcon="edit"></mat-icon>
               </button>
 
-              <button matIconButton class="accent" aria-label="Eliminar rol" (click)="onDelete(rol)">
+              <button matIconButton class="accent disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Eliminar rol" (click)="onDelete(rol)" [disabled]="isProtected(rol)">
                 <mat-icon svgIcon="delete"></mat-icon>
               </button>
 

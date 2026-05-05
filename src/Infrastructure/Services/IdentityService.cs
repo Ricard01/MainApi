@@ -17,6 +17,7 @@ public class IdentityService : IIdentityService
     private readonly IAppDbContext _context;
     private readonly IPasswordService _passwordService;
     private readonly IHttpContextAccessor _http;
+    private const string Administrador = nameof(Administrador);
 
     public IdentityService(IAppDbContext context, IPasswordService passwordService, IHttpContextAccessor http)
     {
@@ -337,6 +338,9 @@ public class IdentityService : IIdentityService
 
         if (rol == null)
             return IdentityResult.Fail("El rol no existe.");
+        
+        if (rol.Nombre == Administrador)
+            return IdentityResult.Fail("No se puede modificar el rol administrador.");
 
         rol.Nombre = model.Nombre;
         rol.Descripcion = model.Descripcion;
@@ -372,11 +376,9 @@ public class IdentityService : IIdentityService
         var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (rol == null)
             return IdentityResult.Fail("El rol no existe.");
-
-        const string Administrador = nameof(Administrador);
-
+        
         if (rol.Nombre == Administrador)
-            return IdentityResult.Fail("No se puede eliminar el rol administrador.");
+            return IdentityResult.Fail("No se puede modificar el rol administrador.");
 
         _context.Roles.Remove(rol);
         await _context.SaveChangesAsync(cancellationToken);
