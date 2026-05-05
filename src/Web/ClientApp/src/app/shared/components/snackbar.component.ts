@@ -37,9 +37,17 @@ export interface SnackbarData {
     }
 
     /* Colores basados en el estado */
-    .success { color: #1e8e3e; }
-    .error { color: var(--color-error); }
-    .info { color: var(--color-primary); }
+    .success {
+      color: #1e8e3e;
+    }
+
+    .error {
+      color: var(--color-error);
+    }
+
+    .info {
+      color: var(--color-primary);
+    }
 
     .close-btn {
       /* Color automático para light/dark según el tema de Material */

@@ -18,7 +18,10 @@ export interface Permiso {
   modulo: string;
   descripcion?: string | null;
 }
-
+export interface PermisoGrupo {
+  modulo: string;
+  permisos: Permiso[];
+}
 // Commands
 export interface CreateRolCommand {
   nombre: string;

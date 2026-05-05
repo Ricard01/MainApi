@@ -8,21 +8,13 @@ import {
   viewChild
 } from '@angular/core';
 import {Permiso, RolListItem} from '../../data-acces/rol.model';
-import {MatSort, MatSortHeader, MatSortModule} from '@angular/material/sort';
+import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderRow, MatHeaderRowDef, MatNoDataRow, MatRow, MatRowDef, MatTable,
-  MatTableDataSource, MatTableModule
-} from '@angular/material/table';
-import {MatButton, MatButtonModule, MatIconButton} from '@angular/material/button';
-import {MatFormField, MatInput, MatInputModule, MatLabel} from '@angular/material/input';
-import {MatIcon, MatIconModule} from '@angular/material/icon';
-import {NgOptimizedImage} from '@angular/common';
-import {RouterLink, RouterModule} from '@angular/router';
+import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import {MatButtonModule} from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
+import {RouterModule} from '@angular/router';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {SnackbarService} from '../../../../shared/services/snackbar.service';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -52,10 +44,10 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 export class RolList {
 
   public roles = input.required<RolListItem[]>();
-  public permisos = input.required<Permiso[]>();
 
-  private dialog = inject(MatDialog);
-  private snackbar = inject(SnackbarService)
+
+  // private dialog = inject(MatDialog);
+  // private snackbar = inject(SnackbarService)
   delete = output<RolListItem>();
 
   private sort = viewChild.required(MatSort);
@@ -67,8 +59,6 @@ export class RolList {
     effect(() => {
       this.dataSource.data = this.roles();
     });
-
-    effect(() => console.log('Signal de roles:', this.permisos()));
 
     afterNextRender(() => {
       this.dataSource.sort = this.sort();

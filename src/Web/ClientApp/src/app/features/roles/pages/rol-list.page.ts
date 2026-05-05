@@ -14,7 +14,6 @@ import {IdentityResult} from '../../usuarios/data-access/user.model';
   template: `
     <h2>Administración de Roles y Permisos </h2>
     <app-rol-list
-      [permisos]="permisos()"
       [roles]="roles()">
     </app-rol-list>
 
@@ -34,10 +33,6 @@ export class RolListPage {
       switchMap(() => this.rolApi.getAll())
     ), {initialValue: []});
 
-  permisos = toSignal(
-    toObservable(this.reload).pipe(
-      switchMap(() => this.rolApi.getAllPermisos())
-    ), {initialValue: []});
 
   onDelete(rol: RolListItem) {
     this.rolApi.delete(rol.id).subscribe({

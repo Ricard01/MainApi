@@ -1,10 +1,9 @@
-import {Component, computed, inject, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {UserUpdate} from '../components/user-edit/user-update';
 import {UserApi} from '../data-access/user.api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map, of, switchMap} from 'rxjs';
-import {CreateUserCommand, IdentityResult, UpdateUserCommand, User} from '../data-access/user.model';
 import {RolApi} from '../../roles/data-acces/rol.api';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
 import {UserFormValue, UserMapper} from '../data-access/user.mapper';
@@ -34,6 +33,7 @@ import {UserCreate} from '../components/user-create/user-create';
     }
 
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserPage {
 

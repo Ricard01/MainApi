@@ -1,0 +1,23 @@
+@layer components {
+  .form-container {
+    @apply flex flex-col gap-5 p-4 rounded-lg shadow-sm border border-outline-variant;
+  }
+
+  .form-header {
+    @apply flex justify-between items-center border-b border-outline-variant pb-3;
+  }
+
+  .input-group {
+    @apply flex flex-col gap-1;
+  }
+
+  .label-standard {
+    @apply block text-sm font-medium text-on-surface mb-1;
+  }
+
+  .input-standard {
+    @apply block w-full rounded-md border border-outline bg-surface text-on-surface
+    py-1.5 px-3 text-sm outline-none transition-colors
+    focus:border-primary focus:ring-1 focus:ring-primary;
+  }
+}
