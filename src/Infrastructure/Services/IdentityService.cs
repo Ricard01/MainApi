@@ -7,6 +7,7 @@ using MainApi.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -338,7 +339,7 @@ public class IdentityService : IIdentityService
 
         if (rol == null)
             return IdentityResult.Fail("El rol no existe.");
-        
+
         if (rol.Nombre == Administrador)
             return IdentityResult.Fail("No se puede modificar el rol administrador.");
 
@@ -376,13 +377,28 @@ public class IdentityService : IIdentityService
         var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (rol == null)
             return IdentityResult.Fail("El rol no existe.");
-        
+
         if (rol.Nombre == Administrador)
             return IdentityResult.Fail("No se puede modificar el rol administrador.");
 
-        _context.Roles.Remove(rol);
-        await _context.SaveChangesAsync(cancellationToken);
-        return IdentityResult.Ok();
+        if (_context.Usuarios.Any(u => u.IdRol == rol.Id))
+            return IdentityResult.Fail("No se puede eliminar el rol porque tiene usuarios asociados.");
+        try
+        {
+            _context.Roles.Remove(rol);
+            await _context.SaveChangesAsync(cancellationToken);
+            return IdentityResult.Ok();
+        }
+        catch (DbUpdateException ex)
+        {
+            // 547 es el número de error de SQL Server para conflictos de FK
+            if (ex.InnerException is SqlException sqlEx && sqlEx.Number == 547)
+            {
+                return IdentityResult.Fail("No se puede eliminar el rol porque tiene usuarios asociados.");
+            }
+
+            return IdentityResult.Fail("Ocurrió un error inesperado al eliminar el rol.");
+        }
     }
 
     public async Task<IdentityResult> CreateInitialRoleAsync(RolCreateModel model, CancellationToken cancellationToken)

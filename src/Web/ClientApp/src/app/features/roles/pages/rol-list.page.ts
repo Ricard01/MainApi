@@ -40,7 +40,7 @@ export class RolListPage {
       next: (result: IdentityResult) => {
         if (result.success) {
           this.reload.update(v => v + 1);
-          this.snackBar.success('Usuario eliminado');
+          this.snackBar.success('Rol eliminado');
         } else {
           this.snackBar.error(result.errors.join('\n'));
         }
