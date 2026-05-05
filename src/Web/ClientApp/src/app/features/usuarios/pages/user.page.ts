@@ -37,19 +37,21 @@ import {UserCreate} from '../components/user-create/user-create';
 })
 export class UserPage {
 
-  private userApi = inject(UserApi);
-  private rolApi = inject(RolApi);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private snackBar = inject(SnackbarService);
+  private readonly userApi = inject(UserApi);
+  private readonly rolApi = inject(RolApi);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly snackBar = inject(SnackbarService);
 
 
-  backendErrors = signal<string[]>([]);
-  roles = toSignal(this.rolApi.getAll(), {initialValue: []})
+  readonly backendErrors = signal<string[]>([]);
+  readonly roles = toSignal(this.rolApi.getAll(), {initialValue: []})
+  readonly isUpdate = computed(() => !!this.userId());
 
   // Si hay :id en la ruta es update, si no es create
   private userId = toSignal(this.route.paramMap.pipe(map(p => p.get('id'))));
-  isUpdate = computed(() => !!this.userId());
+
+
 
   userToUpdate = toSignal(
     this.route.paramMap.pipe(
@@ -85,7 +87,7 @@ export class UserPage {
     });
   }
 
-  onCancel(): void {
+  protected onCancel(): void {
     this.router.navigate(['/usuarios']);
   }
 

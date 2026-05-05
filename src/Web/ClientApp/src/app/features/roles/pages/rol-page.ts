@@ -29,6 +29,7 @@ export class RolPage {
   readonly backendErrors = signal<string[]>([]);
   readonly permisos = toSignal(this.rolApi.getAllPermisos(), {initialValue: []})
 
+
   onSave(command: CreateRolCommand) {
 
     this.backendErrors.set([]);
@@ -48,8 +49,8 @@ export class RolPage {
     });
   }
 
-
-  protected onCancel() {
+  protected onCancel(): void {
     this.router.navigate(['/roles']);
   }
+
 }
