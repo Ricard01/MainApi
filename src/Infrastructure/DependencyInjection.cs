@@ -1,4 +1,7 @@
 ﻿using MainApi.Application.Common.Interfaces;
+using MainApi.Infrastructure.CONTPAQi.Config;
+using MainApi.Infrastructure.CONTPAQi.Database;
+using MainApi.Infrastructure.CONTPAQi.Security;
 using MainApi.Infrastructure.Data;
 using MainApi.Infrastructure.Data.Interceptors;
 using MainApi.Infrastructure.Services;
@@ -30,9 +33,13 @@ public static class DependencyInjection
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddScoped<AppDbContextInitialiser>();
 
-        services
-            .AddSingleton<IPasswordHasher<object>,
-                PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
+        // CONTPAQi Implementacion 
+        services.AddDataProtection();
+        services.AddScoped<IEncryptionService, EncryptionService>();
+        services.AddScoped<ContpaqiConnectionStringFactory>();
+        services.AddScoped<IContpaqiSqlConnection, ContpaqiSqlConnection>();
+
+        services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IIdentityService, IdentityService>();
 

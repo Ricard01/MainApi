@@ -1,5 +1,3 @@
-using MainApi.Domain.Common;
-
 namespace MainApi.Domain.Entities;
 
 public class Empresa : BaseEntity

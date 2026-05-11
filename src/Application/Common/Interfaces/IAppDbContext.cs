@@ -14,5 +14,7 @@ public interface IAppDbContext
     
     DbSet<Empresa> Empresa { get; }
     
+    DbSet<ContpaqiConexion>  ContpaqiConexion { get; }
+    
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
