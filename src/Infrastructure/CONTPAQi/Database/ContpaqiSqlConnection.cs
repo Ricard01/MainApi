@@ -20,7 +20,7 @@ public class ContpaqiSqlConnection : IContpaqiSqlConnection
     {
         var conexion = await _context.ContpaqiConexion
             .AsNoTracking()
-            .SingleAsync();
+            .SingleOrDefaultAsync();
 
         if (conexion is null)
         {

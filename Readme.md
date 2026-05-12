@@ -7,7 +7,7 @@ Esta es una solucion que serviria como base para futuros proyectos, Desarrollo c
 src> dotnet ef migrations add Initial -p Infrastructure -s Web -o Data/Migrations -c AppDbContext   --verbose
 src> dotnet ef migrations remove -p Infrastructure -s Web -c AppDbContext --verbose
 src> dotnet ef database update -p Infrastructure -s Web -c AppDbContext --verbose
-
+dotnet ef migrations add CONTPAQi -p Infrastructure -s Web -o Data/Migrations -c AppDbContext   --verbose
 [//]: # (This is a solution for create a Knowledge Base a Single Page App &#40;SPA&#41; with Angular and ASP.NET Core following the principles of Clean Architecture.)
 
 [//]: # ()
