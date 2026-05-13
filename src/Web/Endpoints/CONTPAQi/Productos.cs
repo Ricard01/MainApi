@@ -1,6 +1,6 @@
 using MainApi.Application.CONTPAQi.Productos.Queries.GetAllProductos;
 
-namespace MainApi.Web.Endpoints;
+namespace MainApi.Web.Endpoints.CONTPAQi;
 
 public class Productos : EndpointGroupBase
 {

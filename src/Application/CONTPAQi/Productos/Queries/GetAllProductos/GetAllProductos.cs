@@ -21,9 +21,11 @@ public class GetAllProductosQueryHandler : IRequestHandler<GetAllProductosQuery,
         
         var query = """
                       SELECT
-                          CCODIGOPRODUCTO AS CodigoProducto,
-                          CNOMBREPRODUCTO AS Nombre
+                          cidproducto  Id,
+                          ccodigoproducto  Codigo,
+                          cnombreproducto  Nombre
                       FROM admProductos
+                      WHERE cidproducto>0 AND cstatusproducto = 1 AND ctipoproducto<3
                   """;
         
         return await connection.QueryAsync<ProductoItemDto>(query);

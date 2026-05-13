@@ -16,5 +16,10 @@
     <ItemGroup>
         <ProjectReference Include="..\Domain\Domain.csproj"/>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="CONTPAQi\Conexion\Commands\UpdateConexion\" />
+      <Folder Include="CONTPAQi\Conexion\Queries\GetConexion\" />
+    </ItemGroup>
 
 </Project>
