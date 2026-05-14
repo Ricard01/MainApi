@@ -19,7 +19,7 @@ public class GetAllProductosQueryHandler : IRequestHandler<GetAllProductosQuery,
     {
         using var connection = await _sqlConnection.CreateAsync(); 
         
-        var query = """
+        const string query = """
                       SELECT
                           cidproducto  Id,
                           ccodigoproducto  Codigo,
