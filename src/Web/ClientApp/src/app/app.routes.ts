@@ -15,6 +15,7 @@ export const routes: Routes = [
       {path: 'home', component: HomeComponent},
       {path: 'usuarios', loadChildren: () => import('./features/usuarios/usuarios.routes').then(m => m.usuariosRoutes)},
       {path: 'roles', loadChildren: () => import('./features/roles/roles.routes').then(m => m.rolesRoutes)},
+      {path: 'contpaqi', loadChildren: () => import('./features/contpaqi/contpaqi.route').then(m => m.contpaqRoutes)},
     ]
   },
   {path: '**', redirectTo: 'home'}

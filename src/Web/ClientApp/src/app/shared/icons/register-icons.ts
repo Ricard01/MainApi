@@ -1,5 +1,5 @@
-import {MatIconRegistry} from '@angular/material/icon';
-import {DomSanitizer} from '@angular/platform-browser';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
 // material iCons Color #42454
 export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer) {
@@ -14,9 +14,11 @@ export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer
   registry.addSvgIcon('user_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/user_filled.svg'));
   registry.addSvgIcon('rol', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/rol.svg'));
   registry.addSvgIcon('rol_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/rol_filled.svg'));
+  registry.addSvgIcon('sync_desktop', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/sync_desktop.svg'));
+  registry.addSvgIcon('sync_desktop_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/sync_desktop_filled.svg'));
+  
   registry.addSvgIcon('badge', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/employee.svg'));
   registry.addSvgIcon('search', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/search.svg'));
-
   registry.addSvgIcon('account_circle', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/account_circle.svg'));
   registry.addSvgIcon('logout', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/logout.svg'));
   registry.addSvgIcon('add', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/add.svg'));

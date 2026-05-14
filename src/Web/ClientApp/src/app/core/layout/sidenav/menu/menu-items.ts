@@ -21,4 +21,9 @@ export const items: MenuItem[] = [
     label: 'Permisos',
     route: 'roles',
   },
+    {
+    icon: 'sync_desktop',
+    label: 'Contpaqi',
+    route: 'contpaqi',
+  },
 ];
