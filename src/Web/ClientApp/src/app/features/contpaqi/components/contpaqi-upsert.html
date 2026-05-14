@@ -6,96 +6,56 @@
   </div>
 
   @if (errorMessage()) {
-    <div
-      role="alert"
-      class="p-4 bg-red-50 text-red-700 border-l-4 border-red-500"
-    >
-      {{ errorMessage() }}
-    </div>
+  <div role="alert" class="p-4 bg-red-50 text-red-700 border-l-4 border-red-500">
+    {{ errorMessage() }}
+  </div>
   }
 
   @if (successMessage()) {
-    <div
-      role="status"
-      class="p-4 bg-green-50 text-green-700 border-l-4 border-green-500"
-    >
-      {{ successMessage() }}
-    </div>
+  <div role="status" class="p-4 bg-green-50 text-green-700 border-l-4 border-green-500">
+    {{ successMessage() }}
+  </div>
   }
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
     <div class="md:col-span-2 input-group">
       <label for="servidor" class="label-standard"> Servidor</label>
-      <input
-        id="servidor"
-        type="text"
-        formControlName="servidor"
-        class="input-standard"
-      />
+      <input id="servidor" type="text" formControlName="servidor" class="input-standard" />
 
       @if (form.controls.servidor.invalid && form.controls.servidor.touched) {
-        <span class="text-sm text-red-600"
-          >El nombre del servidor es requerido.</span
-        >
+      <span class="text-sm text-red-600">El nombre del servidor es requerido.</span>
       }
     </div>
 
     <div class="md:col-span-2 input-group">
       <label for="baseDatos" class="label-standard">Base de Datos</label>
-      <input
-        id="baseDatos"
-        type="text"
-        formControlName="baseDatos"
-        class="input-standard"
-      />
+      <input id="baseDatos" type="text" formControlName="baseDatos" class="input-standard" />
     </div>
 
     <div class="md:col-span-2 input-group">
       <label for="puerto" class="label-standard">Puerto</label>
-      <input
-        id="puerto"
-        type="number"
-        formControlName="puerto"
-        class="input-standard"
-      />
+      <input id="puerto" type="number" formControlName="puerto" class="input-standard" />
     </div>
 
     <div class="md:col-span-2 input-group">
       <label for="sqlUser" class="label-standard">Usuario SQL</label>
-      <input
-        id="sqlUser"
-        type="text"
-        formControlName="sqlUser"
-        class="input-standard"
-      />
+      <input id="sqlUser" type="text" formControlName="sqlUser" class="input-standard" />
     </div>
 
     <div class="md:col-span-2 input-group">
       <label for="password" class="label-standard">Contraseña SQL </label>
 
-      <input
-        id="password"
-        type="password"
-        formControlName="password"
-        class="input-standard"
-        placeholder="••••••••"
-      />
+      <input id="password" type="password" formControlName="password" class="input-standard" placeholder="••••••••" />
     </div>
   </div>
 
   <div class="flex justify-end gap-3 mt-2 pt-4 border-t border-outline-variant">
-    <button
-      type="button"
-      (click)="cancelar()"
-      class="px-4 py-1.5 text-sm font-medium text-on-surface bg-surface border border-outline rounded-md hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
-    >
+    <button type="button" (click)="cancelar()"
+      class="px-4 py-1.5 text-sm font-medium text-on-surface bg-surface border border-outline rounded-md hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
       Cancelar
     </button>
-    <button
-      type="submit"
-      [disabled]="form.invalid"
-      class="px-4 py-1.5 text-sm font-medium text-on-primary bg-primary rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
-    >
+    <button type="submit" [disabled]="form.invalid"
+      class="px-4 py-1.5 text-sm font-medium text-on-primary bg-primary rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
       Guardar
     </button>
   </div>
