@@ -8,7 +8,7 @@ using MainApi.Application.Features.Roles.Queries.GetRolById;
 
 namespace MainApi.Web.Endpoints;
 
-public class Rol : EndpointGroupBase
+public class Roles : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {

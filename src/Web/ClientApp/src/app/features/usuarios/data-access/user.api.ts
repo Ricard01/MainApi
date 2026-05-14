@@ -8,7 +8,7 @@ import {CreateUserCommand, IdentityResult, UpdateUserCommand, User, UserListItem
 })
 export class UserApi {
   private http = inject(HttpClient);
-  private baseUrl = inject(API_BASE_URL) + '/user';
+  private baseUrl = inject(API_BASE_URL) + '/users';
 
   getAll() {
     return this.http.get<UserListItem[]>(`${this.baseUrl}`);

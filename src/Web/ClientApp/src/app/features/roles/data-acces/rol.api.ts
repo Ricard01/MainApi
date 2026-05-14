@@ -9,7 +9,7 @@ import {IdentityResult} from '../../usuarios/data-access/user.model';
 })
 export class RolApi {
   private http = inject(HttpClient);
-  private baseUrl = inject(API_BASE_URL) + '/rol';
+  private baseUrl = inject(API_BASE_URL) + '/roles';
 
   getAll() {
     return this.http.get<RolListItem[]>(`${this.baseUrl}`);

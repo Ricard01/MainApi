@@ -8,7 +8,7 @@ using MainApi.Application.Features.Users.Queries.GetUserById;
 
 namespace MainApi.Web.Endpoints;
 
-public class User : EndpointGroupBase
+public class Users : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
