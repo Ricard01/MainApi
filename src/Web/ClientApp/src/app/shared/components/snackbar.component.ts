@@ -12,7 +12,6 @@ export interface SnackbarData {
 
 @Component({
   selector: 'app-custom-snackbar',
-  standalone: true,
   imports: [MatIconModule, MatButtonModule, NgClass],
   template: `
     <div class="snackbar-container" >

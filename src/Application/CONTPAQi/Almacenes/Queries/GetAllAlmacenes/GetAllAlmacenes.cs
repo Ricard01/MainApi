@@ -25,7 +25,7 @@ public class GetAllAlmacenesQueryHandler : IRequestHandler<GetAllAlmacenesQuery,
                                     ccodigoalmacen Codigo, 
                                     cnombrealmacen Nombre 
                              FROM AdmAlmacenes
-                             WHERE cidalmacen>0;
+                             WHERE cidalmacen>0 AND cidalmacen <>2;
                              """;
 
         return await connection.QueryAsync<AlmacenDto>(query);
