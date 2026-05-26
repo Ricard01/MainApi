@@ -13,6 +13,7 @@ public class CurrentUser : IUser
     }
 
     public string? Id => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string? UserName => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name);
     public string? Rol => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
     public ClaimsPrincipal? Principal => _httpContextAccessor.HttpContext?.User;
 }

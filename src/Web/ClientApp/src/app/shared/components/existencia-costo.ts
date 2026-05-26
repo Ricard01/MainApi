@@ -16,7 +16,6 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs/operators';
 import { AlmacenApi } from '../services/almacen.api';
-import { ProductoApi } from '../services/producto.api';
 import { ProductoAutocomplete } from './producto-autocomplete';
 import { Producto } from '../models/producto.model';
 import { AlmacenSelect } from './almacen-select';

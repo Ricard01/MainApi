@@ -1,6 +1,5 @@
 using MainApi.Application;
 using MainApi.Infrastructure;
-using MainApi.Infrastructure.Data;
 using MainApi.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,10 +16,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    await app.InitialiseDatabaseAsync();
+    // app.MapOpenApi();
+    // app.UseSwagger();
+    // app.UseSwaggerUI();
+    // await app.InitialiseDatabaseAsync();
 }
 
 

@@ -43,8 +43,7 @@ public interface IIdentityService
     // Task<UserDto?> FindByUserNameAsync(string email);
 
     // Task<bool> CheckPasswordAsync(string userId, string password);
-
-    Task<string?> GetUserNameAsync(string userId);
+    
 
     /// <summary>
     /// Crea un nuevo rol de usuario con sus respectivos permisos.

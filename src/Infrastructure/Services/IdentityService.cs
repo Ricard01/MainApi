@@ -260,18 +260,7 @@ public class IdentityService : IIdentityService
 
         return IdentityResult.Ok();
     }
-
-    public async Task<string?> GetUserNameAsync(string userId)
-    {
-        if (!Guid.TryParse(userId, out Guid userGuid))
-        {
-            return null;
-        }
-
-        var user = await _context.Usuarios.FindAsync(userGuid);
-        return user?.UserName;
-    }
-
+    
     //ROLES
     public async Task<RolModel?> GetRolByIdAsync(Guid id, CancellationToken cancellationToken)
     {
