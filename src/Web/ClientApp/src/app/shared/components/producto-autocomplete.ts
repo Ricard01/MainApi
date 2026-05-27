@@ -14,8 +14,8 @@ import { Producto } from '../models/producto.model';
   imports: [CommonModule, OverlayModule, ReactiveFormsModule],
   template: `
     <div class="flex flex-col gap-1 relative">
-      <label for="producto-search" class="text-sm font-medium">Producto (Código o Nombre)</label>
-      
+      <label for="producto-search" class="text-sm font-medium">Producto</label>
+
       <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <input id="producto-search"
                type="text"
@@ -27,6 +27,7 @@ import { Producto } from '../models/producto.model';
                (focus)="onInputFocus($event)"
                (click)="onInputFocus($event)"
                (input)="onTyping()"
+               (keydown)="onKeyDown($event)"
                aria-autocomplete="list"
                role="combobox"
                [attr.aria-expanded]="isOverlayOpen()" />
@@ -40,12 +41,16 @@ import { Producto } from '../models/producto.model';
                    [cdkConnectedOverlayHasBackdrop]="true"
                    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
                    (backdropClick)="closeOverlay()">
-        
-        <ul class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50" role="listbox">
-          @for (producto of filteredProductos(); track producto.id) {
+
+        <ul id="autocomplete-list" class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50" role="listbox">
+          @for (producto of filteredProductos(); track producto.id; let i = $index) {
             <li (mousedown)="$event.preventDefault(); selectProducto(producto)"
+                (mouseenter)="activeItemIndex.set(i)"
                 role="option"
-                class="px-4 py-2 hover:bg-primary/10 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors">
+                [attr.aria-selected]="activeItemIndex() === i"
+                [class.bg-primary]="activeItemIndex() === i"
+                [class.bg-opacity-10]="activeItemIndex() === i"
+                class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors active-option {{ activeItemIndex() === i ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
               <span class="font-bold text-primary">{{ producto.codigo }}</span> - {{ producto.nombre }}
             </li>
           } @empty {
@@ -65,12 +70,13 @@ export class ProductoAutocomplete {
 
   // Emitimos el producto seleccionado al componente padre (o null si se borra)
   readonly productoSeleccionado = output<Producto | null>();
-
+  readonly enterPressed = output<void>();
   private readonly inputRef = viewChild<ElementRef<HTMLInputElement>>('inputElement');
-  
+
   readonly isOverlayOpen = signal(false);
   readonly triggerWidth = signal<number | string>('100%');
-  
+
+  readonly activeItemIndex = signal<number>(-1);
   // Estado interno seleccionado para el bypass
   private currentSelection: Producto | null = null;
 
@@ -85,13 +91,13 @@ export class ProductoAutocomplete {
   ];
 
   readonly query = toSignal(
-    this.searchInput.valueChanges.pipe(startWith('')), 
+    this.searchInput.valueChanges.pipe(startWith('')),
     { initialValue: '' }
   );
 
   readonly filteredProductos = computed(() => {
     const q = this.query().toLowerCase().trim();
-    if (!q) return []; 
+    if (!q) return [];
 
     const all = this.productos();
 
@@ -113,16 +119,17 @@ export class ProductoAutocomplete {
       this.triggerWidth.set(currentInput.nativeElement.offsetWidth);
     }
     this.isOverlayOpen.set(true);
-
-    const inputElement = event.target as HTMLInputElement;
-    inputElement.select();
+    (event.target as HTMLInputElement).select();
   }
 
   onTyping(): void {
-    // Si el usuario empieza a escribir, invalidamos la selección anterior
     if (this.currentSelection) {
       this.currentSelection = null;
       this.productoSeleccionado.emit(null);
+    }
+    this.activeItemIndex.set(-1); // Reiniciamos la navegación
+    if (!this.isOverlayOpen()) {
+      this.isOverlayOpen.set(true);
     }
   }
 
@@ -130,10 +137,60 @@ export class ProductoAutocomplete {
     this.currentSelection = p;
     this.searchInput.setValue(`${p.codigo} - ${p.nombre}`, { emitEvent: false });
     this.isOverlayOpen.set(false);
+    this.activeItemIndex.set(-1);
     this.productoSeleccionado.emit(p); // Notificamos al padre
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
+    const items = this.filteredProductos();
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault(); // Evita que el cursor se mueva dentro del input
+        if (!this.isOverlayOpen()) this.isOverlayOpen.set(true);
+        if (this.activeItemIndex() < items.length - 1) {
+          this.activeItemIndex.update(i => i + 1);
+          this.scrollToActiveItem();
+        }
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (this.activeItemIndex() > 0) {
+          this.activeItemIndex.update(i => i - 1);
+          this.scrollToActiveItem();
+        }
+        break;
+
+      case 'Enter':
+        // CASO 1: El overlay está abierto y hay un item seleccionado -> Seleccionamos el producto
+        if (this.isOverlayOpen() && this.activeItemIndex() >= 0) {
+          event.preventDefault();
+          this.selectProducto(items[this.activeItemIndex()]);
+        }
+        // CASO 2: El overlay está cerrado (ya seleccionó) -> Avisamos al padre para que consulte
+        else if (!this.isOverlayOpen()) {
+          event.preventDefault();
+          this.enterPressed.emit();
+        }
+        break;
+
+      case 'Escape':
+        this.closeOverlay();
+        break;
+    }
   }
 
   closeOverlay(): void {
     this.isOverlayOpen.set(false);
+  }
+
+  private scrollToActiveItem(): void {
+    setTimeout(() => {
+      const activeEl = document.querySelector('.active-option.bg-primary');
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: 'nearest' });
+      }
+    }, 0);
   }
 }

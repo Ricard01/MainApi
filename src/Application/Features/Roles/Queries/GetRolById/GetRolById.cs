@@ -5,7 +5,7 @@ namespace MainApi.Application.Features.Roles.Queries.GetRolById;
 
 public record GetRolByIdQuery : IRequest<RolModel>
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 }
 
 public class GetRolByIdQueryHandler : IRequestHandler<GetRolByIdQuery, RolModel>
