@@ -6,11 +6,14 @@ import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import {ThemeService} from "../../services/theme.service";
 import {AuthFacade} from '../../auth/data-access/state/auth.facade';
+import {MatDialog} from '@angular/material/dialog';
+import {ExistenciaComponent} from '../../../shared/components/existencia-costo';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-header',
 
-  imports: [CommonModule, MatToolbar, MatIconModule, MatButtonModule, MatMenuModule,],
+  imports: [CommonModule, MatToolbar, MatIconModule, MatButtonModule, MatMenuModule,MatTooltipModule],
   template: `
     @if (user(); as currentUser) {
       <mat-toolbar class="shadow-sm">
@@ -18,6 +21,11 @@ import {AuthFacade} from '../../auth/data-access/state/auth.facade';
         <button mat-icon-button (click)="collapsed.set(!collapsed())" aria-label="menu">
           <mat-icon svgIcon="menu"></mat-icon>
         </button>
+
+        <button class="ml-8"  mat-icon-button (click)="consultarExistencia()"  aria-label="existencia" matTooltip="Existencia">
+          <mat-icon>warehouse</mat-icon>
+        </button>
+
 
         <div class="flex-1"></div>
 
@@ -56,6 +64,7 @@ import {AuthFacade} from '../../auth/data-access/state/auth.facade';
 })
 export class Header {
   private auth = inject(AuthFacade);
+  private readonly dialog = inject(MatDialog);
   readonly DEFAULT_IMAGE = 'assets/imgs/user.png';
   user = this.auth.user;
 
@@ -68,6 +77,13 @@ export class Header {
 
   // Evento de logout (el contenedor llama al facade)
   @Output() logout = new EventEmitter<void>();
+
+  consultarExistencia() {
+    this.dialog.open(ExistenciaComponent, {
+      width: '450px',
+      autoFocus: 'input',
+    });
+  }
 
 
   // Fallback si la URL falla
