@@ -10,13 +10,15 @@ export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer
   registry.addSvgIcon('expand_more', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/expand_more.svg'));
   registry.addSvgIcon('home', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/home.svg'));
   registry.addSvgIcon('home_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/home_filled.svg'));
+  registry.addSvgIcon('article', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/article.svg'));
+  registry.addSvgIcon('article_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/article_filled.svg'));
   registry.addSvgIcon('user', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/user.svg'));
   registry.addSvgIcon('user_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/user_filled.svg'));
   registry.addSvgIcon('rol', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/rol.svg'));
   registry.addSvgIcon('rol_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/rol_filled.svg'));
   registry.addSvgIcon('sync_desktop', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/sync_desktop.svg'));
   registry.addSvgIcon('sync_desktop_filled', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/sync_desktop_filled.svg'));
-  
+
   registry.addSvgIcon('badge', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/employee.svg'));
   registry.addSvgIcon('search', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/search.svg'));
   registry.addSvgIcon('account_circle', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/account_circle.svg'));

@@ -12,6 +12,11 @@ export const items: MenuItem[] = [
     route: 'home',
   },
   {
+    icon: 'article',
+    label: 'cotización',
+    route: 'cotizacion',
+  },
+  {
     icon: 'user',
     label: 'Usuarios',
     route: 'usuarios',
