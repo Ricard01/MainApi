@@ -1,0 +1,30 @@
+<div class="relative w-full">
+
+  <input
+    type="text"
+    maxlength="10"
+    [value]="value()"
+    (input)="onInput($event)"
+    (keydown)="onKeyDown($event)"
+    (blur)="onTouched()"
+    placeholder="dd/MM/yyyy"
+    class="input-standard pr-10 w-full">
+
+  <button
+    type="button"
+    class="absolute right-2 top-1/2 -translate-y-1/2"
+    (click)="toggleCalendar()">
+    <mat-icon>calendar_month</mat-icon>
+  </button>
+
+  @if (mostrarCalendario()) {
+    <div class="absolute top-full left-0 mt-1 z-50 border rounded shadow-lg bg-(--mat-sys-surface-container-high) text-(--mat-sys-on-surface) border-(--mat-sys-outline-variant) min-w-75">
+
+      <mat-calendar
+        [selected]="null"
+        (selectedChange)="onCalendarSelected($event)">
+      </mat-calendar>
+
+    </div>
+  }
+</div>

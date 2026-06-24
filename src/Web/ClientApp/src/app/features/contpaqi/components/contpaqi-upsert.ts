@@ -15,11 +15,11 @@ import {
 import { finalize } from 'rxjs';
 import { ContpaqiApi } from '../data-access/contpaqi.api';
 import { ContpaqiConexion } from '../data-access/contpaqi.model';
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-contpaq-upsert',
-  imports: [FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './contpaqi-upsert.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

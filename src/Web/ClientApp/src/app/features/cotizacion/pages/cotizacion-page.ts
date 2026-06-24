@@ -1,11 +1,16 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {CotizacionHeader} from '../components/cotizacion-header/cotizacion-header';
 
 
 @Component({
   selector: 'app-cotizacion-page',
-  imports: [],
+  imports: [CotizacionHeader],
   template: `
-Cotizacion
+
+
+    <h2>Cotización PAGE</h2>
+    <app-cotizacion-header></app-cotizacion-header>
+
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

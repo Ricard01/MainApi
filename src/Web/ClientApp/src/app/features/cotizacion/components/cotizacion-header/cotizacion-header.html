@@ -1,0 +1,62 @@
+<form [formGroup]="form">
+
+  <label class="inline-flex items-center cursor-pointer">
+    <input type="checkbox" formControlName="isPersonaMoral" class="sr-only peer">
+    <div
+      class="relative w-9 h-5 bg-surface-container-high peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-outline after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-surface after:border-outline after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary">
+
+    </div>
+    <span class="ms-2 text-sm font-medium"
+          [class.text-primary]="form.controls.isPersonaMoral.value"
+          [class.text-on-teritary]="!form.controls.isPersonaMoral.value">
+          {{ form.controls.isPersonaMoral.value ? 'Persona Moral' : 'Persona Física' }}
+        </span>
+  </label>
+
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+    <agente-autocomplete
+      (agenteSeleccionado)="onAgenteSeleccionado($event)">
+    </agente-autocomplete>
+  </div>
+
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+
+    <div class="md:col-span-1 input-group">
+      <label for="cliente" class="label-standard">Cliente </label>
+      <input id="cliente" type="text" formControlName="cliente" class="input-standard">
+    </div>
+
+    <div class="md:col-span-1 input-group">
+      <label for="fecha" class="label-standard">Fecha </label>
+      <date-input formControlName="fecha"></date-input>
+    </div>
+
+    <div class="md:col-span-1 input-group">
+      <label for="serie" class="label-standard">Serie </label>
+      <input id="serie" type="text" formControlName="serie" class="input-standard">
+    </div>
+
+    <div class="md:col-span-3 input-group">
+      <label for="folio" class="label-standard">Folio</label>
+      <input id="folio" type="text" formControlName="folio" class="input-standard">
+    </div>
+
+    <div class="md:col-span-1 input-group">
+      <label for="contacto" class="label-standard">Contacto </label>
+      <input id="contacto" type="text" formControlName="contacto" class="input-standard">
+    </div>
+
+    <div class="md:col-span-1 input-group">
+      <label for="email" class="label-standard">Email </label>
+      <input id="email" type="text" formControlName="email" class="input-standard">
+    </div>
+
+    <div class="md:col-span-3 input-group">
+      <label for="telefono" class="label-standard">Teléfono</label>
+      <input id="telefono" type="text" formControlName="telefono" class="input-standard">
+    </div>
+
+  </div>
+</form>
