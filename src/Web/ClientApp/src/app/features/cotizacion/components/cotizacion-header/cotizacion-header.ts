@@ -6,12 +6,13 @@ import {DateInput} from '../../../../shared/components/date-input/date-input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatCalendarCellClassFunction, MatDatepickerModule} from '@angular/material/datepicker';
 import {MatInputModule} from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
 
 
 
 @Component({
   selector: 'app-cotizacion-header',
-  imports: [ReactiveFormsModule, AgenteAutocomplete, DateInput, MatFormFieldModule,MatDatepickerModule,MatInputModule],
+  imports: [ReactiveFormsModule, AgenteAutocomplete, DateInput, MatFormFieldModule,MatDatepickerModule,MatInputModule, MatIconModule],
   templateUrl: './cotizacion-header.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

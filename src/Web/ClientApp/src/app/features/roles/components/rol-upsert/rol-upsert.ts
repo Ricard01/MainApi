@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output} from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Permiso, PermisoGrupo, Rol, RolFormValue} from '../../data-acces/rol.model';
+import {MatIcon} from '@angular/material/icon';
 
 @Component({
   selector: 'app-rol-upsert',
-  imports: [ReactiveFormsModule,],
+  imports: [ReactiveFormsModule, MatIcon,],
   templateUrl: './rol-upsert.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

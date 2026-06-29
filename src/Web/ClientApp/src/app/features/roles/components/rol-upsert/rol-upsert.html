@@ -1,8 +1,17 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
 
-  <div class="form-header">
-    <h2 class="text-xl font-bold text-on-surface"> {{ this.rol() ? 'Editar Rol' : 'Nuevo Rol'}}</h2>
+  <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-outline-variant pb-4 gap-4">
+    <div class="flex items-center gap-4">
+      <div
+        class="p-3 bg-(--mat-sys-secondary-container) text-(--mat-sys-on-secondary-container) rounded-xl flex items-center justify-center">
+        <mat-icon class="scale-110">admin_panel_settings</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-on-surface"> {{ this.rol() ? 'Editar Rol' : 'Nuevo Rol' }}</h2>
+      </div>
+    </div>
   </div>
+
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
 

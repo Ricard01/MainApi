@@ -7,10 +7,11 @@ import {
   Validators
 } from "@angular/forms";
 import {RolListItem} from '../../../roles/data-acces/rol.model';
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-user-create',
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule,  MatIconModule],
   templateUrl: './user-create.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
