@@ -1,6 +1,6 @@
 # MainApi
 
-Esta es una solucion que serviria como base para futuros proyectos, Desarrollo con Net Core 9.0 y Angular 20 siguiendo los principios de Clean Architecture.
+Esta es una solucion que serviria como base para futuros proyectos, Desarrollo con Net Core 10.0 y Angular 20 siguiendo los principios de Clean Architecture.
 
 ## Migrations
 
@@ -23,7 +23,7 @@ dotnet ef migrations add CONTPAQi -p Infrastructure -s Web -o Data/Migrations -c
 
 ## Technologies
 
-* .NET Core 9.0
+* .NET Core 10.0
 * Angular 20
 * MediatR
 * FluentValidation

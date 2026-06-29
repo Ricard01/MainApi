@@ -1,6 +1,4 @@
-using Azure.Identity;
 using MainApi.Application.Common.Interfaces;
-using MainApi.Infrastructure.Data;
 using MainApi.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
