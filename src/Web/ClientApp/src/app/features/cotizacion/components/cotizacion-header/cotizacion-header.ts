@@ -1,24 +1,28 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete';
 import {Agente} from '../../../../shared/models/agente.model';
 import {DateInput} from '../../../../shared/components/date-input/date-input';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatCalendarCellClassFunction, MatDatepickerModule} from '@angular/material/datepicker';
+import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
-
+import {CotizacionApi} from '../../data-acces/cotizacion.api';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 
 @Component({
   selector: 'app-cotizacion-header',
-  imports: [ReactiveFormsModule, AgenteAutocomplete, DateInput, MatFormFieldModule,MatDatepickerModule,MatInputModule, MatIconModule],
+  imports: [ReactiveFormsModule, AgenteAutocomplete, DateInput, MatFormFieldModule, MatDatepickerModule, MatInputModule, MatIconModule],
   templateUrl: './cotizacion-header.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CotizacionHeader {
+export class CotizacionHeader implements OnInit {
 
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly cotizacionApi = inject(CotizacionApi);
+  private readonly destroyRef = inject(DestroyRef);
+
 
   readonly form = this.fb.group({
     isPersonaMoral: [true],
@@ -32,23 +36,30 @@ export class CotizacionHeader {
     telefono: [''],
   });
 
+  ngOnInit(): void {
+    this.cotizacionApi.getFolio()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+      next: (folioData) => {
+        if (folioData) {
+          this.form.patchValue({
+            serie: folioData.serie,
+            folio: String(folioData.folio)
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener el folio de cotización:', error);
+      }
+    });
+  }
+
   onAgenteSeleccionado(agente: Agente | null) {
     this.form.controls.agente.setValue(agente?.nombre!);
   }
 
-  dateClass: MatCalendarCellClassFunction<Date> = (cellDate, view) => {
-    // Only highligh dates inside the month view.
-    if (view === 'month') {
-      const date = cellDate.getDate();
 
-      // Highlight the 1st and 20th day of each month.
-      return date === 1 || date === 20 ? 'example-custom-date-class' : '';
-    }
-
-    return '';
-  };
   private getFechaHoy(): string {
-
     const hoy = new Date();
 
     return [
