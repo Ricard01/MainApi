@@ -10,9 +10,9 @@ public class Productos : EndpointGroupBase
             .MapGet(GetAllProducts);
     }
     
-    private Task<IEnumerable<ProductoItemDto>> GetAllProducts(ISender sender)
+    private Task<IEnumerable<ProductoItemDto>> GetAllProducts([AsParameters]GetAllProductosQuery query, ISender sender)
     {
-        return sender.Send(new GetAllProductosQuery());
+        return sender.Send(query);
     }
     
 }

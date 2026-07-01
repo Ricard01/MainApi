@@ -81,7 +81,7 @@ export class ProductoAutocomplete {
   private currentSelection: Producto | null = null;
 
   // Mock para el ejemplo (reemplazar por toSignal(this.productoApi.getAll()))
-  readonly productos = toSignal(this.productoApi.getAll(), { initialValue: [] });
+  readonly productos = toSignal(this.productoApi.getProductos(), { initialValue: [] });
 
   readonly searchInput = new FormControl<string>('', { nonNullable: true });
 
