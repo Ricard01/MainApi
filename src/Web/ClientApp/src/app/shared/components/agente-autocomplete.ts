@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OverlayModule, ConnectionPositionPair } from '@angular/cdk/overlay';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -95,6 +95,19 @@ export class AgenteAutocomplete {
     { initialValue: '' }
   );
 
+  constructor() {
+    effect(() => {
+      const items = this.filteredAgentes();
+      const hasQuery = this.query().trim().length > 0;
+
+      if (this.isOverlayOpen() && hasQuery && items.length > 0) {
+        this.activeItemIndex.set(0);
+      } else if (items.length === 0) {
+        this.activeItemIndex.set(-1);
+      }
+    });
+  }
+
   readonly filteredAgentes = computed(() => {
     const q = this.query().toLowerCase().trim();
     if (!q) return [];
@@ -163,10 +176,10 @@ export class AgenteAutocomplete {
         break;
 
       case 'Enter':
-        // CASO 1: El overlay está abierto y hay un item seleccionado -> Seleccionamos el agente
-        if (this.isOverlayOpen() && this.activeItemIndex() >= 0) {
+        // CASO 1: El overlay está abierto y hay opciones -> seleccionamos la activa o la primera.
+        if (this.isOverlayOpen() && items.length > 0) {
           event.preventDefault();
-          this.selectAgente(items[this.activeItemIndex()]);
+          this.selectAgente(items[this.getSafeActiveIndex(items)]);
         }
         // CASO 2: El overlay está cerrado (ya seleccionó) -> Avisamos al padre para que consulte
         else if (!this.isOverlayOpen()) {
@@ -174,6 +187,16 @@ export class AgenteAutocomplete {
           // this.enterPressed.emit();
         }
         break;
+
+      case 'Tab': {
+        const exactMatch = this.findExactCodeMatch(items);
+        if (exactMatch) {
+          this.selectAgente(exactMatch);
+        } else {
+          this.closeOverlay();
+        }
+        break;
+      }
 
       case 'Escape':
         this.closeOverlay();
@@ -192,5 +215,21 @@ export class AgenteAutocomplete {
         activeEl.scrollIntoView({ block: 'nearest' });
       }
     }, 0);
+  }
+
+  private getSafeActiveIndex(items: Agente[]): number {
+    const activeIndex = this.activeItemIndex();
+    return activeIndex >= 0 && activeIndex < items.length ? activeIndex : 0;
+  }
+
+  private findExactCodeMatch(items: Agente[]): Agente | null {
+    const query = this.normalizeCode(this.query());
+    if (!query) return null;
+
+    return items.find(item => this.normalizeCode(item.codigo) === query) ?? null;
+  }
+
+  private normalizeCode(value: string): string {
+    return value.trim().toLowerCase();
   }
 }

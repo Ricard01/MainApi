@@ -37,9 +37,15 @@ public class SearchProductosQueryHandler : IRequestHandler<SearchProductosQuery,
                                                p.CIDPRODUCTO Id,
                                                p.CCODIGOPRODUCTO Codigo,
                                                p.CNOMBREPRODUCTO Nombre,
+                                               p.CMETODOCOSTEO MetodoCosteo,
+                                               p.CCONTROLEXISTENCIA ControlExistencias, 
                                                p.CIDUNIDADBASE IdUnidad,
                                                u.CNOMBREUNIDAD UnidadMedida,
-                                               u.CABREVIATURA AbrevUnidadMedida
+                                               u.CABREVIATURA AbrevUnidadMedida,
+                                               p.CSTATUSPRODUCTO Estatus,
+                                               p.CPRECIO1 Precio1,
+                                               p.CPRECIO2 Precio2, 
+                                               p.CPRECIO3 Precio3
                                            FROM admProductos p
                                            LEFT JOIN admUnidadesMedidaPeso u  ON u.CIDUNIDAD = p.CIDUNIDADBASE
                                            WHERE p.CIDPRODUCTO > 0
@@ -61,7 +67,7 @@ public class SearchProductosQueryHandler : IRequestHandler<SearchProductosQuery,
         sqlBuilder.Append(" ORDER BY p.CCODIGOPRODUCTO");
 
         var query = sqlBuilder.ToString();
-    
+
         return await connection.QueryAsync<ProductoItemDto>(
             new CommandDefinition(query, new
             {

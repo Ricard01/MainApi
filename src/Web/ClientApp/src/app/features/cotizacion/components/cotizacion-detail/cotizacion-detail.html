@@ -1,2 +1,109 @@
+<form [formGroup]="form" class="form-container mt-4">
 
-<producto-autocomplete (productoSeleccionado)="onProductoSeleccionado($event)"></producto-autocomplete>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+    <div class="md:col-span-3 ">
+      <producto-autocomplete
+        [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
+        (productoSeleccionado)="onProductoSeleccionado($event)"></producto-autocomplete>
+    </div>
+
+    <div class="input-group">
+      <label for="um" class="label-form"> U.M. </label>
+
+      <div cdkOverlayOrigin #unidadOrigin="cdkOverlayOrigin" #unidadTrigger class="relative">
+        <input id="um"
+               type="text"
+               formControlName="unidad"
+               readonly
+               class="input-form pr-10 bg-surface-variant/40 cursor-default"
+               aria-readonly="true">
+
+        <button type="button"
+                class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
+                [disabled]="unidades().length === 0"
+                (click)="toggleUnidadMenu()"
+                aria-label="Seleccionar unidad de medida"
+                aria-haspopup="listbox"
+                [attr.aria-expanded]="isUnidadMenuOpen()">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <ng-template cdkConnectedOverlay
+                   [cdkConnectedOverlayOrigin]="unidadOrigin"
+                   [cdkConnectedOverlayOpen]="isUnidadMenuOpen()"
+                   [cdkConnectedOverlayPositions]="overlayPositions"
+                   [cdkConnectedOverlayWidth]="unidadMenuWidth()"
+                   [cdkConnectedOverlayHasBackdrop]="true"
+                   cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                   (backdropClick)="isUnidadMenuOpen.set(false)">
+
+        <ul class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
+            role="listbox">
+          @for (unidad of unidades(); track unidad.id) {
+            <li (click)="selectUnidad(unidad)"
+                role="option"
+                [attr.aria-selected]="selectedUnidad()?.id === unidad.id"
+                class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ selectedUnidad()?.id === unidad.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
+              <span class="truncate">
+                <span class="font-bold">{{ unidad.abreviatura }}</span> - {{ unidad.nombre }}
+              </span>
+
+              @if (selectedUnidad()?.id === unidad.id) {
+                <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              }
+            </li>
+          } @empty {
+            <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center">
+              Selecciona un producto
+            </li>
+          }
+        </ul>
+      </ng-template>
+    </div>
+
+    <div class="input-group">
+      <label for="cantidad" class="label-form"> Cantidad </label>
+      <input id="cantidad" type="number" class="input-form">
+    </div>
+
+    <div class="input-group">
+      <label for="precio" class="label-form">Precio</label>
+      <input id="precio" type="number" class="input-form">
+    </div>
+
+    <div class="input-group">
+      <label for="descto" class="label-form">Descto</label>
+      <input id="descto" type="number" class="input-form">
+    </div>
+
+    <div class="input-group">
+      <label for="iva" class="label-form">IVA 16%</label>
+      <input id="iva" type="number" class="input-form">
+    </div>
+
+    <div class="input-group">
+      <label for="isr" class="label-form">Ret ISR</label>
+      <input id="isr" type="number" class="input-form">
+    </div>
+
+    <div class="input-group">
+      <label for="neto" class="label-form">Neto</label>
+      <input id="neto" type="number" class="input-form">
+    </div>
+
+
+    <div class="input-group">
+      <label for="total" class="label-form">Total</label>
+      <input id="total" type="number" class="input-form">
+    </div>
+
+
+  </div>
+
+</form>

@@ -9,7 +9,7 @@ import {ProductoAutocomplete} from './producto-autocomplete';
 import {Producto} from '../models/producto.model';
 import {AlmacenSelect} from './almacen-select';
 import {ExistenciaApi} from '../services/existencia.api';
-import {ExistenciaCosto} from '../models/existenciaCosto.model';
+import {ExistenciaCosto} from '../models/existencia-costo.model';
 import {TipoProducto} from '../enums/producto.enum';
 import {EstatusCONTPAQi} from '../enums/EstatusCONTPAQi.enum';
 

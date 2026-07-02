@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {API_BASE_URL} from '../../app.config';
 import {HttpClient} from '@angular/common/http';
-import {ExistenciaCosto} from '../models/existenciaCosto.model';
+import {ExistenciaCosto} from '../models/existencia-costo.model';
 
 @Injectable({
   providedIn: 'root',

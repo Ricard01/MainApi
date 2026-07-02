@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   computed,
+  effect,
   inject,
   output,
   signal,
@@ -13,7 +14,7 @@ import {CommonModule} from '@angular/common';
 import {OverlayModule, ConnectionPositionPair} from '@angular/cdk/overlay';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {catchError, debounceTime, distinctUntilChanged, of, startWith, switchMap} from 'rxjs';
+import {catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, startWith, switchMap, tap} from 'rxjs';
 import {ProductoApi} from '../services/producto.api';
 import {Producto} from '../models/producto.model';
 import {TipoProducto} from '../enums/producto.enum';
@@ -108,23 +109,46 @@ export class ProductoAutocomplete {
     {initialValue: ''}
   );
 
-  readonly productos = toSignal(
+  readonly productSearchResult = toSignal(
     this.searchInput.valueChanges.pipe(
       startWith(''),
       debounceTime(250),
       distinctUntilChanged(),
       switchMap(value => {
-        console.log(value)
         const term = value.trim();
-        if (!term) return of([]);
+        if (!term) return of({term, productos: []});
 
         return this.productoApi.search(term, this.tiposProductos(), this.estatus()).pipe(
-          catchError(() => of([]))
+          tap(productos => console.log('Resultados de la API:', productos)),
+          map(productos => ({term, productos})),
+          catchError(() => of({term, productos: []}))
         );
       })
     ),
-    {initialValue: []}
+    {initialValue: {term: '', productos: []}}
   );
+
+  readonly productos = computed(() => {
+    const query = this.query().trim();
+    const searchResult = this.productSearchResult();
+
+    if (query !== searchResult.term) return [];
+
+    return searchResult.productos;
+  });
+
+  constructor() {
+    effect(() => {
+      const items = this.filteredProductos();
+      const hasQuery = this.query().trim().length > 0;
+
+      if (this.isOverlayOpen() && hasQuery && items.length > 0) {
+        this.activeItemIndex.set(0);
+      } else if (items.length === 0) {
+        this.activeItemIndex.set(-1);
+      }
+    });
+  }
 
   readonly filteredProductos = computed(() => {
     const q = this.query().toLowerCase().trim();
@@ -190,10 +214,10 @@ export class ProductoAutocomplete {
         break;
 
       case 'Enter':
-        // CASO 1: El overlay está abierto y hay un item seleccionado -> Seleccionamos el producto
-        if (this.isOverlayOpen() && this.activeItemIndex() >= 0) {
+        // CASO 1: El overlay está abierto y hay opciones -> seleccionamos la activa o la primera.
+        if (this.isOverlayOpen() && items.length > 0) {
           event.preventDefault();
-          this.selectProducto(items[this.activeItemIndex()]);
+          this.selectProducto(items[this.getSafeActiveIndex(items)]);
         }
         // CASO 2: El overlay está cerrado (ya seleccionó) -> Avisamos al padre para que consulte
         else if (!this.isOverlayOpen()) {
@@ -201,6 +225,19 @@ export class ProductoAutocomplete {
           this.enterPressed.emit();
         }
         break;
+
+      case 'Tab': {
+        const exactMatch = this.findExactCodeMatch(items);
+        if (exactMatch) {
+          this.selectProducto(exactMatch);
+        } else if (this.query().trim().length > 0) {
+          event.preventDefault();
+          void this.selectExactCodeAndMoveFocus(event.shiftKey);
+        } else {
+          this.closeOverlay();
+        }
+        break;
+      }
 
       case 'Escape':
         this.closeOverlay();
@@ -219,5 +256,64 @@ export class ProductoAutocomplete {
         activeEl.scrollIntoView({block: 'nearest'});
       }
     }, 0);
+  }
+
+  private getSafeActiveIndex(items: Producto[]): number {
+    const activeIndex = this.activeItemIndex();
+    return activeIndex >= 0 && activeIndex < items.length ? activeIndex : 0;
+  }
+
+  private findExactCodeMatch(items: Producto[]): Producto | null {
+    const query = this.normalizeCode(this.query());
+    if (!query) return null;
+
+    return items.find(item => this.normalizeCode(item.codigo) === query) ?? null;
+  }
+
+  private async selectExactCodeAndMoveFocus(reverse: boolean): Promise<void> {
+    const term = this.query().trim();
+
+    try {
+      const productos = await firstValueFrom(
+        this.productoApi.search(term, this.tiposProductos(), this.estatus()).pipe(
+          tap(productos => console.log('Resultados de la API:', productos)),
+          catchError(() => of([]))
+        )
+      );
+
+      const exactMatch = this.findExactCodeMatch(productos);
+      if (exactMatch) {
+        this.selectProducto(exactMatch);
+      } else {
+        this.closeOverlay();
+      }
+    } finally {
+      this.focusAdjacentElement(reverse);
+    }
+  }
+
+  private focusAdjacentElement(reverse: boolean): void {
+    const currentInput = this.inputRef()?.nativeElement;
+    if (!currentInput) return;
+
+    const focusableElements = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(element => element.tabIndex >= 0 && element.offsetParent !== null);
+
+    const currentIndex = focusableElements.indexOf(currentInput);
+    const nextIndex = currentIndex + (reverse ? -1 : 1);
+    const nextElement = focusableElements[nextIndex];
+
+    if (nextElement) {
+      nextElement.focus();
+    } else {
+      currentInput.blur();
+    }
+  }
+
+  private normalizeCode(value: string): string {
+    return value.trim().toLowerCase();
   }
 }

@@ -4,6 +4,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Producto} from '../models/producto.model';
 import {TipoProducto} from '../enums/producto.enum';
 import {EstatusCONTPAQi} from '../enums/EstatusCONTPAQi.enum';
+import {UnidadMedida} from '../models/unidad-medida.model';
 
 @Injectable({
   providedIn: 'root',
@@ -60,5 +61,9 @@ export class ProductoApi {
     return this.get(
       [TipoProducto.Servicio]
     );
+  }
+
+  getUnidadesMedida(productoId: number) {
+    return this.http.get<UnidadMedida[]>(`${this.baseUrl}/${productoId}/unidades-venta`);
   }
 }
