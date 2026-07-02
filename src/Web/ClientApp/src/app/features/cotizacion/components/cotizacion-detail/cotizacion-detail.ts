@@ -45,10 +45,10 @@ export class CotizacionDetail {
   readonly form = this.fb.group({
     codigo: '',
     producto: '',
-    cantidad: 1,
+    cantidad: '1.00',
     unidad: '',
     idUnidad: this.fb.control<number | null>(null),
-    precio: this.fb.control<number | null>(null),
+    precio: '',
     subtotal: '',
     total: '',
   });
@@ -66,7 +66,7 @@ export class CotizacionDetail {
     this.form.controls.producto.setValue(producto?.nombre ?? '');
     this.form.controls.unidad.setValue('');
     this.form.controls.idUnidad.setValue(null);
-    this.form.controls.precio.setValue(null);
+    this.form.controls.precio.setValue('');
 
     if (!producto) return;
 
@@ -130,12 +130,25 @@ export class CotizacionDetail {
 
   selectPrecio(precio: PrecioOption): void {
     this.selectedPrecio.set(precio);
-    this.form.controls.precio.setValue(precio.monto);
+    this.form.controls.precio.setValue(this.formatDecimal(precio.monto, 4));
     this.isPrecioMenuOpen.set(false);
   }
 
-  onPrecioManualInput(): void {
+  onCantidadInput(event: Event): void {
+    this.normalizeDecimalInput(event, 'cantidad', 2);
+  }
+
+  onCantidadBlur(): void {
+    this.formatControlDecimal('cantidad', 2);
+  }
+
+  onPrecioManualInput(event: Event): void {
     this.selectedPrecio.set(null);
+    this.normalizeDecimalInput(event, 'precio', 4);
+  }
+
+  onPrecioBlur(): void {
+    this.formatControlDecimal('precio', 4);
   }
 
   private createUnidadBase(producto: Producto): UnidadMedida {
@@ -153,6 +166,43 @@ export class CotizacionDetail {
       {id: 2, nombre: 'Precio 2', monto: producto.precio2},
       {id: 3, nombre: 'Precio 3', monto: producto.precio3},
     ];
+  }
+
+  private normalizeDecimalInput(event: Event, controlName: 'cantidad' | 'precio', decimals: number): void {
+    const input = event.target as HTMLInputElement;
+    const normalized = this.limitDecimalText(input.value, decimals);
+
+    if (input.value !== normalized) {
+      input.value = normalized;
+    }
+
+    this.form.controls[controlName].setValue(normalized, {emitEvent: false});
+  }
+
+  private formatControlDecimal(controlName: 'cantidad' | 'precio', decimals: number): void {
+    const control = this.form.controls[controlName];
+    const value = control.value;
+
+    if (value === '') return;
+
+    control.setValue(this.formatDecimal(value, decimals), {emitEvent: false});
+  }
+
+  private limitDecimalText(value: string, decimals: number): string {
+    const cleaned = value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+    if (cleaned === '') return '';
+
+    const [integerPart, ...decimalParts] = cleaned.split('.');
+    const integer = integerPart || '0';
+    const decimal = decimalParts.join('').slice(0, decimals);
+
+    return cleaned.includes('.') ? `${integer}.${decimal}` : integer;
+  }
+
+  private formatDecimal(value: string | number, decimals: number): string {
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed.toFixed(decimals) : '';
   }
 
 }
