@@ -2,14 +2,14 @@ using System.Text;
 using Dapper;
 using MainApi.Application.Common.Interfaces;
 using MainApi.Domain.Enums;
-using Microsoft.AspNetCore.Mvc;
+
 
 namespace MainApi.Application.CONTPAQi.Productos.Queries.GetAllProductos;
 
 public class GetAllProductosQuery : IRequest<IEnumerable<ProductoItemDto>>
 {
-    [FromQuery] public TipoProducto[]? Tipos { get; init; }
-    [FromQuery] public EstatusCONTPAQi? Estatus { get; set; } = EstatusCONTPAQi.Activo;
+   public TipoProducto[]? Tipos { get; init; }
+    public EstatusCONTPAQi? Estatus { get; set; } = EstatusCONTPAQi.Activo;
 }
 
 public class GetAllProductosQueryHandler : IRequestHandler<GetAllProductosQuery, IEnumerable<ProductoItemDto>>
@@ -45,11 +45,12 @@ public class GetAllProductosQueryHandler : IRequestHandler<GetAllProductosQuery,
         }
 
         var query = sqlBuilder.ToString();
-        return await connection.QueryAsync<ProductoItemDto>(query,
-            new
+    
+        return await connection.QueryAsync<ProductoItemDto>(
+            new CommandDefinition(query, new
             {
                 Tipos = request.Tipos,
                 Estatus = request.Estatus
-            });
+            }, cancellationToken: cancellationToken));
     }
 }

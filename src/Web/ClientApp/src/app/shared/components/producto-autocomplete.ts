@@ -1,12 +1,23 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, output, signal, viewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { OverlayModule, ConnectionPositionPair } from '@angular/cdk/overlay';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs/operators';
-import { ProductoApi } from '../services/producto.api';
-import { Producto } from '../models/producto.model';
-
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  output,
+  signal,
+  viewChild,
+  input
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {OverlayModule, ConnectionPositionPair} from '@angular/cdk/overlay';
+import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {catchError, debounceTime, distinctUntilChanged, of, startWith, switchMap} from 'rxjs';
+import {ProductoApi} from '../services/producto.api';
+import {Producto} from '../models/producto.model';
+import {TipoProducto} from '../enums/producto.enum';
+import {EstatusCONTPAQi} from '../enums/EstatusCONTPAQi.enum';
 
 
 @Component({
@@ -30,7 +41,7 @@ import { Producto } from '../models/producto.model';
                (keydown)="onKeyDown($event)"
                aria-autocomplete="list"
                role="combobox"
-               [attr.aria-expanded]="isOverlayOpen()" />
+               [attr.aria-expanded]="isOverlayOpen()"/>
       </div>
 
       <ng-template cdkConnectedOverlay
@@ -42,7 +53,9 @@ import { Producto } from '../models/producto.model';
                    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
                    (backdropClick)="closeOverlay()">
 
-        <ul id="autocomplete-list" class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50" role="listbox">
+        <ul id="autocomplete-list"
+            class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
+            role="listbox">
           @for (producto of filteredProductos(); track producto.id; let i = $index) {
             <li (mousedown)="$event.preventDefault(); selectProducto(producto)"
                 (mouseenter)="activeItemIndex.set(i)"
@@ -62,11 +75,13 @@ import { Producto } from '../models/producto.model';
       </ng-template>
     </div>
   `,
-  host: { class: 'block' },
+  host: {class: 'block'},
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductoAutocomplete {
   private readonly productoApi = inject(ProductoApi);
+  readonly tiposProductos = input<TipoProducto[]>([TipoProducto.Producto, TipoProducto.Paquete]);
+  readonly estatus = input<EstatusCONTPAQi | null>(EstatusCONTPAQi.Activo);
 
   // Emitimos el producto seleccionado al componente padre (o null si se borra)
   readonly productoSeleccionado = output<Producto | null>();
@@ -80,19 +95,35 @@ export class ProductoAutocomplete {
   // Estado interno seleccionado para el bypass
   private currentSelection: Producto | null = null;
 
-  // Mock para el ejemplo (reemplazar por toSignal(this.productoApi.getAll()))
-  readonly productos = toSignal(this.productoApi.getProductos(), { initialValue: [] });
 
-  readonly searchInput = new FormControl<string>('', { nonNullable: true });
+  readonly searchInput = new FormControl<string>('', {nonNullable: true});
 
   readonly overlayPositions = [
-    new ConnectionPositionPair({ originX: 'start', originY: 'bottom' }, { overlayX: 'start', overlayY: 'top' }, 0, 4),
-    new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'start', overlayY: 'bottom' }, 0, -4)
+    new ConnectionPositionPair({originX: 'start', originY: 'bottom'}, {overlayX: 'start', overlayY: 'top'}, 0, 4),
+    new ConnectionPositionPair({originX: 'start', originY: 'top'}, {overlayX: 'start', overlayY: 'bottom'}, 0, -4)
   ];
 
   readonly query = toSignal(
     this.searchInput.valueChanges.pipe(startWith('')),
-    { initialValue: '' }
+    {initialValue: ''}
+  );
+
+  readonly productos = toSignal(
+    this.searchInput.valueChanges.pipe(
+      startWith(''),
+      debounceTime(250),
+      distinctUntilChanged(),
+      switchMap(value => {
+        console.log(value)
+        const term = value.trim();
+        if (!term) return of([]);
+
+        return this.productoApi.search(term, this.tiposProductos(), this.estatus()).pipe(
+          catchError(() => of([]))
+        );
+      })
+    ),
+    {initialValue: []}
   );
 
   readonly filteredProductos = computed(() => {
@@ -106,11 +137,7 @@ export class ProductoAutocomplete {
       if (q === selectedLabel) return all.slice(0, 20);
     }
 
-    const terms = q.replace(/-/g, ' ').split(' ').filter(t => t.length > 0);
-    return all.filter(p => {
-      const searchable = `${p.codigo} ${p.nombre}`.toLowerCase();
-      return terms.every(term => searchable.includes(term));
-    }).slice(0, 20);
+    return all;
   });
 
   onInputFocus(event: Event): void {
@@ -135,7 +162,7 @@ export class ProductoAutocomplete {
 
   selectProducto(p: Producto): void {
     this.currentSelection = p;
-    this.searchInput.setValue(`${p.codigo} - ${p.nombre}`, { emitEvent: false });
+    this.searchInput.setValue(`${p.codigo} - ${p.nombre}`, {emitEvent: false});
     this.isOverlayOpen.set(false);
     this.activeItemIndex.set(-1);
     this.productoSeleccionado.emit(p); // Notificamos al padre
@@ -189,7 +216,7 @@ export class ProductoAutocomplete {
     setTimeout(() => {
       const activeEl = document.querySelector('.active-option.bg-primary');
       if (activeEl) {
-        activeEl.scrollIntoView({ block: 'nearest' });
+        activeEl.scrollIntoView({block: 'nearest'});
       }
     }, 0);
   }

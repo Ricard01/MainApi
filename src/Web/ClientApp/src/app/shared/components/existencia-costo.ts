@@ -2,20 +2,22 @@ import {ChangeDetectionStrategy, Component, inject, signal,} from '@angular/core
 import {CommonModule} from '@angular/common';
 import {MatDialogRef} from '@angular/material/dialog';
 import {OverlayModule} from '@angular/cdk/overlay';
-import {ReactiveFormsModule, FormControl, FormGroup, Validators, NonNullableFormBuilder,} from '@angular/forms';
-import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {ReactiveFormsModule, Validators, NonNullableFormBuilder,} from '@angular/forms';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {AlmacenApi} from '../services/almacen.api';
 import {ProductoAutocomplete} from './producto-autocomplete';
 import {Producto} from '../models/producto.model';
 import {AlmacenSelect} from './almacen-select';
 import {ExistenciaApi} from '../services/existencia.api';
 import {ExistenciaCosto} from '../models/existenciaCosto.model';
+import {TipoProducto} from '../enums/producto.enum';
+import {EstatusCONTPAQi} from '../enums/EstatusCONTPAQi.enum';
 
 @Component({
   selector: 'app-existencia-costo',
   imports: [CommonModule, OverlayModule, ReactiveFormsModule, AlmacenSelect, ProductoAutocomplete],
   template: `
-    <div class="bg-surface text-on-surface min-w-[450px] p-6 rounded-lg shadow-xl">
+    <div class="bg-surface text-on-surface min-w-112.5 p-6 rounded-lg shadow-xl">
 
       <!-- Header -->
       <div class="flex justify-between items-center mb-6 border-b border-outline-variant pb-3">
@@ -43,8 +45,9 @@ import {ExistenciaCosto} from '../models/existenciaCosto.model';
         </producto-autocomplete>
 
         @if (resultado(); as res) {
-          <div class="p-6 rounded-lg bg-primary/5 border border-primary/20 flex flex-col sm:flex-row justify-around items-center gap-6 text-center"
-               role="status">
+          <div
+            class="p-6 rounded-lg bg-primary/5 border border-primary/20 flex flex-col sm:flex-row justify-around items-center gap-6 text-center"
+            role="status">
 
             <div class="flex flex-col">
               <span class="text-xs font-semibold uppercase tracking-wider opacity-70 mb-1">Existencia</span>
@@ -105,7 +108,8 @@ export class ExistenciaComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly existenciaApi = inject(ExistenciaApi)
   private readonly almacenApi = inject(AlmacenApi);
-
+  protected readonly EstatusCONTPAQi = EstatusCONTPAQi;
+  protected readonly TipoProducto = TipoProducto;
 
   readonly buscando = signal(false);
   readonly resultado = signal<ExistenciaCosto | null>(null);
@@ -148,4 +152,6 @@ export class ExistenciaComponent {
   close(): void {
     this.dialogRef.close();
   }
+
+
 }
