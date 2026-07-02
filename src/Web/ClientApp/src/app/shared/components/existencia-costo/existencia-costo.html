@@ -1,0 +1,97 @@
+<div class="bg-surface text-on-surface min-w-112.5 p-6 rounded-lg shadow-xl">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 border-b border-outline-variant pb-3">
+    <h1 class="text-xl font-bold text-primary">Consultar Existencia</h1>
+
+    <button (click)="close()" class="text-on-surface-variant hover:text-error transition-colors"
+            aria-label="Cerrar">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  <!-- End Header -->
+
+  <form [formGroup]="form" class="flex flex-col gap-5">
+
+    <almacen-select
+      [almacenes]="almacenes()"
+      [selectedId]="form.controls.idAlmacen.value"
+      (almacenSeleccionado)="onAlmacenSeleccionado($event)">
+    </almacen-select>
+
+    <producto-autocomplete
+      (enterPressed)="consultar()"
+      (productoSeleccionado)="onProductoSeleccionado($event)">
+    </producto-autocomplete>
+
+    @if (resultado(); as res) {
+      @if (productoSeleccionado(); as producto) {
+
+        <div
+          class="p-6 rounded-lg bg-primary/5 border border-primary/20 flex flex-col sm:flex-row justify-around items-center gap-6 text-center"
+          role="status">
+
+
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-semibold uppercase tracking-wider opacity-70 mb-1">Existencia</span>
+            <span class="text-2xl font-black text-primary leading-none">
+          {{ res.existencia | number:'1.0-2' }}
+        </span>
+
+            <span class="text-[11px] font-bold text-secondary mt-1.5 uppercase tracking-wider opacity-50">
+          {{ producto.unidadMedida }}
+        </span>
+          </div>
+
+
+          <div class="hidden sm:block w-px h-12 bg-primary/20"></div>
+
+
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-semibold uppercase tracking-wider opacity-70 mb-1">Costo Promedio</span>
+            <span class="text-2xl font-black text-primary leading-none">
+          {{ res.costoPromedio | currency:'MXN':'$':'1.2-2' }}
+        </span>
+            <!-- Este espacio en blanco invisible mantiene la alineación idéntica a la Columna 1 -->
+            <span class="text-[11px] mt-1.5 select-none opacity-0" aria-hidden="true">&nbsp;</span>
+          </div>
+
+
+          <div class="hidden sm:block w-px h-12 bg-primary/20"></div>
+
+
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-semibold uppercase tracking-wider opacity-70 mb-1">Último Costo</span>
+            <span class="text-2xl font-black text-primary leading-none">
+          {{ res.ultimoCosto | currency:'MXN':'$':'1.2-2' }}
+        </span>
+            <!-- Mismo espacio en blanco invisible para balancear la fila completa -->
+            <span class="text-[11px] mt-1.5 select-none opacity-0" aria-hidden="true">&nbsp;</span>
+          </div>
+
+        </div>
+      }
+    }
+
+    <!-- Acciones -->
+    <div class="flex justify-end gap-2 pt-3">
+
+      <button type="button" (click)="close()"
+              class="px-4 py-2 text-sm font-medium hover:bg-surface-variant rounded-md transition-colors">
+        Cancelar
+      </button>
+
+      <button type="button" [disabled]="form.invalid" (click)="consultar()"
+              class="px-6 py-2 text-sm font-medium bg-primary text-on-primary rounded-md shadow-md hover:bg-primary/90 transition-all disabled:opacity-50">
+
+
+        Consultar
+
+      </button>
+
+    </div>
+
+  </form>
+</div>

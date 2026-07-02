@@ -14,7 +14,7 @@ import {CommonModule} from '@angular/common';
 import {OverlayModule, ConnectionPositionPair} from '@angular/cdk/overlay';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, startWith, switchMap, tap} from 'rxjs';
+import {catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, startWith, switchMap} from 'rxjs';
 import {ProductoApi} from '../services/producto.api';
 import {Producto} from '../models/producto.model';
 import {TipoProducto} from '../enums/producto.enum';
@@ -119,7 +119,6 @@ export class ProductoAutocomplete {
         if (!term) return of({term, productos: []});
 
         return this.productoApi.search(term, this.tiposProductos(), this.estatus()).pipe(
-          tap(productos => console.log('Resultados de la API:', productos)),
           map(productos => ({term, productos})),
           catchError(() => of({term, productos: []}))
         );
@@ -276,7 +275,6 @@ export class ProductoAutocomplete {
     try {
       const productos = await firstValueFrom(
         this.productoApi.search(term, this.tiposProductos(), this.estatus()).pipe(
-          tap(productos => console.log('Resultados de la API:', productos)),
           catchError(() => of([]))
         )
       );

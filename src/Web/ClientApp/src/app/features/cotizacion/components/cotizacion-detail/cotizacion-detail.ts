@@ -30,10 +30,6 @@ export class CotizacionDetail {
     new ConnectionPositionPair({originX: 'start', originY: 'top'}, {overlayX: 'start', overlayY: 'bottom'}, 0, -4)
   ];
 
-  constructor() {
-    console.log('CotizacionDetail constructor');
-  }
-
   readonly form = this.fb.group({
     codigo: '',
     producto: '',

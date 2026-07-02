@@ -7,7 +7,7 @@ import {CommonModule} from "@angular/common";
 import {ThemeService} from "../../services/theme.service";
 import {AuthFacade} from '../../auth/data-access/state/auth.facade';
 import {MatDialog} from '@angular/material/dialog';
-import {ExistenciaComponent} from '../../../shared/components/existencia-costo';
+import {ExistenciaComponent} from '../../../shared/components/existencia-costo/existencia-costo';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
