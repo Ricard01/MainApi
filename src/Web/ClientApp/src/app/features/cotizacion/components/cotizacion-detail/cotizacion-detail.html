@@ -74,7 +74,60 @@
 
     <div class="input-group">
       <label for="precio" class="label-form">Precio</label>
-      <input id="precio" type="number" class="input-form">
+
+      <div cdkOverlayOrigin #precioOrigin="cdkOverlayOrigin" #precioTrigger class="relative">
+        <input id="precio"
+               type="number"
+               formControlName="precio"
+               class="input-form pr-10"
+               (input)="onPrecioManualInput()">
+
+        <button type="button"
+                class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
+                [disabled]="precios().length === 0"
+                (click)="togglePrecioMenu()"
+                aria-label="Seleccionar precio"
+                aria-haspopup="listbox"
+                [attr.aria-expanded]="isPrecioMenuOpen()">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <ng-template cdkConnectedOverlay
+                   [cdkConnectedOverlayOrigin]="precioOrigin"
+                   [cdkConnectedOverlayOpen]="isPrecioMenuOpen()"
+                   [cdkConnectedOverlayPositions]="overlayPositions"
+                   [cdkConnectedOverlayWidth]="precioMenuWidth()"
+                   [cdkConnectedOverlayHasBackdrop]="true"
+                   cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                   (backdropClick)="isPrecioMenuOpen.set(false)">
+
+        <ul class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
+            role="listbox">
+          @for (precio of precios(); track precio.id) {
+            <li (click)="selectPrecio(precio)"
+                role="option"
+                [attr.aria-selected]="selectedPrecio()?.id === precio.id"
+                class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ selectedPrecio()?.id === precio.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
+              <span class="truncate">
+                <span class="font-bold">{{ precio.nombre }}</span> - {{ precio.monto | currency:'MXN':'$':'1.2-2' }}
+              </span>
+
+              @if (selectedPrecio()?.id === precio.id) {
+                <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              }
+            </li>
+          } @empty {
+            <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center">
+              Selecciona un producto
+            </li>
+          }
+        </ul>
+      </ng-template>
     </div>
 
     <div class="input-group">
