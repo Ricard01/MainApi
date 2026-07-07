@@ -1,0 +1,81 @@
+
+<div class="flex flex-col gap-1 relative">
+  <label for="agente-search" class="text-sm font-medium">
+    Agente
+  </label>
+
+  <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+    <input
+      #inputElement
+      id="agente-search"
+      type="text"
+      [formControl]="searchInput"
+      class="w-full rounded-md border border-outline bg-surface py-2 px-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+      autocomplete="off"
+      placeholder="Teclea el código o nombre..."
+      role="combobox"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="isPanelVisible()"
+      [attr.aria-controls]="isPanelVisible() ? 'agente-autocomplete-list' : null"
+      [attr.aria-activedescendant]="
+            activeItemIndex() >= 0
+              ? 'agente-option-' + activeItemIndex()
+              : null
+          "
+      (focus)="onInputFocus($event)"
+      (click)="onInputFocus($event)"
+      (input)="onTyping()"
+      (keydown)="onKeyDown($event)"
+    />
+  </div>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayOpen]="isPanelVisible()"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayWidth]="triggerWidth()"
+    [cdkConnectedOverlayHasBackdrop]="false"
+    [cdkConnectedOverlayPanelClass]="'agente-autocomplete-panel'"
+  >
+    <ul
+      id="agente-autocomplete-list"
+      class="mt-1 max-h-60 overflow-y-auto rounded-md border border-outline-variant bg-surface py-1 shadow-xl"
+      role="listbox"
+    >
+      @for (
+        agente of filteredAgentes();
+        track agente.id;
+        let i = $index
+        ) {
+        <li
+          #optionElement
+          [id]="'agente-option-' + i"
+          role="option"
+          [attr.aria-selected]="activeItemIndex() === i"
+          class="cursor-pointer border-b border-outline-variant px-4 py-2 text-sm transition-colors last:border-none"
+          [ngClass]="
+                activeItemIndex() === i
+                  ? 'active-option bg-primary/10 font-bold text-primary'
+                  : 'text-on-surface hover:bg-surface-variant'
+              "
+          (mousedown)="onOptionMouseDown($event, agente)"
+          (mouseenter)="activeItemIndex.set(i)"
+        >
+              <span class="font-bold text-primary">
+                {{ agente.codigo }}
+              </span>
+
+          - {{ agente.nombre }}
+        </li>
+      } @empty {
+        <li
+          class="px-4 py-3 text-center text-sm italic text-on-surface-variant"
+          role="alert"
+        >
+          No se encontró el agente "{{ query() }}"
+        </li>
+      }
+    </ul>
+  </ng-template>
+</div>

@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, output} from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
-import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete';
+import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete/agente-autocomplete';
 import {Agente} from '../../../../shared/models/agente.model';
 import {DateInput} from '../../../../shared/components/date-input/date-input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -27,6 +27,7 @@ export class CotizacionHeader implements OnInit {
 
   readonly form = this.fb.group({
     isPersonaMoral: [true],
+    idAgente: [0],
     agente: [''],
     cliente: [''],
     fecha: [this.getFechaHoy()],
@@ -60,7 +61,17 @@ export class CotizacionHeader implements OnInit {
   }
 
   onAgenteSeleccionado(agente: Agente | null) {
-    this.form.controls.agente.setValue(agente?.nombre!);
+    if (agente) {
+      this.form.patchValue({
+        idAgente: agente.id,
+        agente: `${agente.codigo} - ${agente.nombre}`
+      });
+    } else {
+      this.form.patchValue({
+        idAgente: 0,
+        agente: ''
+      });
+    }
   }
 
 
