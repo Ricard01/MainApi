@@ -15,70 +15,19 @@ import {OverlayModule, ConnectionPositionPair} from '@angular/cdk/overlay';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, startWith, switchMap} from 'rxjs';
-import {ProductoApi} from '../services/producto.api';
-import {Producto} from '../models/producto.model';
-import {TipoProducto} from '../enums/producto.enum';
-import {EstatusCONTPAQi} from '../enums/EstatusCONTPAQi.enum';
+import {ProductoApi} from '../../services/producto.api';
+import {Producto} from '../../models/producto.model';
+import {TipoProducto} from '../../enums/producto.enum';
+import {EstatusCONTPAQi} from '../../enums/EstatusCONTPAQi.enum';
 
 
 @Component({
   selector: 'producto-autocomplete',
   imports: [CommonModule, OverlayModule, ReactiveFormsModule],
-  template: `
-    <div class="flex flex-col gap-1 relative">
-      <label for="producto-search" class="text-sm font-medium">Producto</label>
-
-      <div cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <input id="producto-search"
-               type="text"
-               #inputElement
-               [formControl]="searchInput"
-               class="w-full rounded-md border border-outline bg-surface py-2 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-               autocomplete="off"
-               placeholder="Teclea el código o nombre..."
-               (focus)="onInputFocus($event)"
-               (click)="onInputFocus($event)"
-               (input)="onTyping()"
-               (keydown)="onKeyDown($event)"
-               aria-autocomplete="list"
-               role="combobox"
-               [attr.aria-expanded]="isOverlayOpen()"/>
-      </div>
-
-      <ng-template cdkConnectedOverlay
-                   [cdkConnectedOverlayOrigin]="trigger"
-                   [cdkConnectedOverlayOpen]="isOverlayOpen() && query().trim().length > 0"
-                   [cdkConnectedOverlayPositions]="overlayPositions"
-                   [cdkConnectedOverlayWidth]="triggerWidth()"
-                   [cdkConnectedOverlayHasBackdrop]="true"
-                   cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                   (backdropClick)="closeOverlay()">
-
-        <ul id="autocomplete-list"
-            class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
-            role="listbox">
-          @for (producto of filteredProductos(); track producto.id; let i = $index) {
-            <li (mousedown)="$event.preventDefault(); selectProducto(producto)"
-                (mouseenter)="activeItemIndex.set(i)"
-                role="option"
-                [attr.aria-selected]="activeItemIndex() === i"
-                [class.bg-primary]="activeItemIndex() === i"
-                [class.bg-opacity-10]="activeItemIndex() === i"
-                class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors active-option {{ activeItemIndex() === i ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
-              <span class="font-bold text-primary">{{ producto.codigo }}</span> - {{ producto.nombre }}
-            </li>
-          } @empty {
-            <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center" role="alert">
-              No se encontró el producto "{{ query() }}"
-            </li>
-          }
-        </ul>
-      </ng-template>
-    </div>
-  `,
-  host: {class: 'block'},
+  templateUrl: './producto-autocomplete.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class ProductoAutocomplete {
   private readonly productoApi = inject(ProductoApi);
   readonly tiposProductos = input<TipoProducto[]>([TipoProducto.Producto, TipoProducto.Paquete]);

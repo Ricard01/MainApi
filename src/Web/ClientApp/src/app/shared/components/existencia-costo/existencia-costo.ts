@@ -5,11 +5,11 @@ import {OverlayModule} from '@angular/cdk/overlay';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder,} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {AlmacenApi} from '../../services/almacen.api';
-import {ProductoAutocomplete} from '../producto-autocomplete';
 import {Producto} from '../../models/producto.model';
 import {AlmacenSelect} from '../almacen-select';
 import {ExistenciaApi} from '../../services/existencia.api';
 import {ExistenciaCosto} from '../../models/existencia-costo.model';
+import {ProductoAutocomplete} from '../producto-autocomplete/producto-autocomplete';
 
 @Component({
   selector: 'app-existencia-costo',

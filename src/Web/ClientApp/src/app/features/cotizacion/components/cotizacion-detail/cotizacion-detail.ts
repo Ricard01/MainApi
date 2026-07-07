@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, ElementRef, effect, inject, input, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
-import {ProductoAutocomplete} from '../../../../shared/components/producto-autocomplete';
+import {ProductoAutocomplete} from '../../../../shared/components/producto-autocomplete/producto-autocomplete';
 import {Producto} from '../../../../shared/models/producto.model';
 import {TipoProducto} from '../../../../shared/enums/producto.enum';
 import {OverlayModule, ConnectionPositionPair} from '@angular/cdk/overlay';
