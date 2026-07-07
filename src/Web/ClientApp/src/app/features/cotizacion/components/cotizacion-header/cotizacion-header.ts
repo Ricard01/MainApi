@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, output} from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete';
 import {Agente} from '../../../../shared/models/agente.model';
@@ -22,6 +22,7 @@ export class CotizacionHeader implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly cotizacionApi = inject(CotizacionApi);
   private readonly destroyRef = inject(DestroyRef);
+  readonly personaMoralChange = output<boolean>();
 
 
   readonly form = this.fb.group({
@@ -37,6 +38,10 @@ export class CotizacionHeader implements OnInit {
   });
 
   ngOnInit(): void {
+    this.form.controls.isPersonaMoral.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.personaMoralChange.emit(value));
+
     this.cotizacionApi.getFolio()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

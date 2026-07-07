@@ -79,6 +79,16 @@
         (productoSeleccionado)="onProductoSeleccionado($event)"></producto-autocomplete>
     </div>
 
+    <div class="md:col-span-3 input-group">
+      <label for="observaciones" class="label-form">Observaciones</label>
+      <textarea id="observaciones"
+                type="text"
+                rows="1"
+                formControlName="observaciones"
+                class="input-form h-8.5 min-h-8.5  overflow-hidden "> </textarea>
+    </div>
+
+
     <div class="input-group">
       <label for="precio" class="label-form">Precio</label>
 
@@ -142,28 +152,53 @@
 
     <div class="input-group">
       <label for="descto" class="label-form">Descto</label>
-      <input id="descto" type="number" class="input-form">
+      <div class="relative">
+        <input id="descto"
+               type="text"
+               inputmode="decimal"
+               formControlName="descuento"
+               class="input-form pr-11"
+               (input)="onDescuentoInput($event)"
+               (blur)="onDescuentoBlur()">
+
+        <button type="button"
+                class="absolute inset-y-0 right-1 my-1 flex w-8 items-center justify-center rounded text-sm font-bold text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary"
+                (click)="toggleDescuentoTipo()"
+                [attr.aria-label]="descuentoTipo() === 'porcentaje' ? 'Cambiar descuento a importe' : 'Cambiar descuento a porcentaje'">
+          {{ descuentoTipo() === 'porcentaje' ? '%' : '$' }}
+        </button>
+      </div>
     </div>
 
     <div class="input-group">
       <label for="iva" class="label-form">IVA 16%</label>
-      <input id="iva" type="number" class="input-form">
+      <input id="iva"
+             type="text"
+             formControlName="iva"
+             readonly
+             class="input-form bg-surface-variant/40 cursor-default"
+             aria-readonly="true">
     </div>
 
     <div class="input-group">
       <label for="isr" class="label-form">Ret ISR</label>
-      <input id="isr" type="number" class="input-form">
-    </div>
-
-    <div class="input-group">
-      <label for="neto" class="label-form">Neto</label>
-      <input id="neto" type="number" class="input-form">
+      <input id="isr"
+             type="text"
+             formControlName="isr"
+             readonly
+             class="input-form bg-surface-variant/40 cursor-default"
+             aria-readonly="true">
     </div>
 
 
     <div class="input-group">
       <label for="total" class="label-form">Total</label>
-      <input id="total" type="number" class="input-form">
+      <input id="total"
+             type="text"
+             formControlName="total"
+             readonly
+             class="input-form bg-surface-variant/40 cursor-default font-semibold"
+             aria-readonly="true">
     </div>
 
 
