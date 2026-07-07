@@ -2,6 +2,15 @@
 
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
 
+    <!-- PRODUCTO -->
+    <div class="md:col-span-4">
+      <producto-autocomplete
+        [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
+        (productoSeleccionado)="onProductoSeleccionado($event)"></producto-autocomplete>
+    </div>
+
+
+    <!-- CANTIDAD -->
     <div class="input-group">
       <label for="cantidad" class="label-form"> Cantidad </label>
       <input id="cantidad"
@@ -13,6 +22,7 @@
              (blur)="onCantidadBlur()">
     </div>
 
+    <!-- U.M. -->
     <div class="input-group">
       <label for="um" class="label-form"> U.M. </label>
 
@@ -73,22 +83,8 @@
       </ng-template>
     </div>
 
-    <div class="md:col-span-3 ">
-      <producto-autocomplete
-        [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
-        (productoSeleccionado)="onProductoSeleccionado($event)"></producto-autocomplete>
-    </div>
 
-    <div class="md:col-span-3 input-group">
-      <label for="observaciones" class="label-form">Observaciones</label>
-      <textarea id="observaciones"
-                type="text"
-                rows="1"
-                formControlName="observaciones"
-                class="input-form h-8.5 min-h-8.5  overflow-hidden "> </textarea>
-    </div>
-
-
+    <!-- PRECIO -->
     <div class="input-group">
       <label for="precio" class="label-form">Precio</label>
 
@@ -150,8 +146,9 @@
       </ng-template>
     </div>
 
+    <!-- DESCTO %-->
     <div class="input-group">
-      <label for="descto" class="label-form">Descto</label>
+      <label for="descto" class="label-form">Descto %</label>
       <div class="relative">
         <input id="descto"
                type="text"
@@ -170,6 +167,26 @@
       </div>
     </div>
 
+    <!-- DESCTO $-->
+    <div class="input-group">
+      <label for="descto" class="label-form">Descto $</label>
+      <div class="relative">
+        <input id="descto"
+               type="text"
+               inputmode="decimal"
+               formControlName="descuento"
+               class="input-form pr-11"
+               (input)="onDescuentoInput($event)"
+               (blur)="onDescuentoBlur()">
+
+        <button type="button"
+                class="absolute inset-y-0 right-1 my-1 flex w-8 items-center justify-center rounded text-sm font-bold text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary">
+          {{ '$' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- IVA -->
     <div class="input-group">
       <label for="iva" class="label-form">IVA 16%</label>
       <input id="iva"
@@ -180,6 +197,7 @@
              aria-readonly="true">
     </div>
 
+    <!-- ISR -->
     <div class="input-group">
       <label for="isr" class="label-form">Ret ISR</label>
       <input id="isr"
@@ -190,7 +208,7 @@
              aria-readonly="true">
     </div>
 
-
+    <!-- TOTAL -->
     <div class="input-group">
       <label for="total" class="label-form">Total</label>
       <input id="total"
@@ -201,7 +219,18 @@
              aria-readonly="true">
     </div>
 
+  </div>
 
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <!-- DESCRIPCION -->
+    <div class="md:col-span-3 input-group">
+      <label for="observaciones" class="label-form">Descripcion</label>
+      <textarea id="observaciones"
+                type="text"
+                rows="1"
+                formControlName="observaciones"
+                class="input-form h-8.5 min-h-8.5  overflow-hidden "> </textarea>
+    </div>
   </div>
 
 </form>
