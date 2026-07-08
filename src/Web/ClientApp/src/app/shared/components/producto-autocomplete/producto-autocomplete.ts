@@ -30,6 +30,7 @@ import {EstatusCONTPAQi} from '../../enums/EstatusCONTPAQi.enum';
 
 export class ProductoAutocomplete {
   private readonly productoApi = inject(ProductoApi);
+  readonly inputId = input('producto-search');
   readonly tiposProductos = input<TipoProducto[]>([TipoProducto.Producto, TipoProducto.Paquete]);
   readonly estatus = input<EstatusCONTPAQi | null>(EstatusCONTPAQi.Activo);
 

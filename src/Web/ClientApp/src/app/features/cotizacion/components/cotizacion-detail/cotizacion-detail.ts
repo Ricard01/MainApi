@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, ElementRef, effect, inject, input, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, WritableSignal, effect, inject, input, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormControl, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
+import {FormArray, FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {ProductoAutocomplete} from '../../../../shared/components/producto-autocomplete/producto-autocomplete';
 import {Producto} from '../../../../shared/models/producto.model';
 import {TipoProducto} from '../../../../shared/enums/producto.enum';
@@ -9,6 +9,7 @@ import {ProductoApi} from '../../../../shared/services/producto.api';
 import {UnidadMedida} from '../../../../shared/models/unidad-medida.model';
 import {MatIconModule} from '@angular/material/icon';
 import {MatIconButton} from '@angular/material/button';
+import {catchError, of} from 'rxjs';
 
 interface PrecioOption {
   id: 1 | 2 | 3;
@@ -17,6 +18,48 @@ interface PrecioOption {
 }
 
 type DescuentoModo = 'porcentaje' | 'importe';
+
+interface DetalleControls {
+  idProducto: FormControl<number>;
+  codigo: FormControl<string>;
+  producto: FormControl<string>;
+  observaciones: FormControl<string>;
+  cantidad: FormControl<string>;
+  unidad: FormControl<string>;
+  idUnidad: FormControl<number | null>;
+  precio: FormControl<string>;
+  descuento: FormControl<string>;
+  iva: FormControl<string>;
+  isr: FormControl<string>;
+  subtotal: FormControl<string>;
+  total: FormControl<string>;
+}
+
+type DetalleForm = FormGroup<DetalleControls>;
+
+interface DetalleState {
+  id: string;
+  selectedProductoId: number | null;
+  unidades: WritableSignal<UnidadMedida[]>;
+  selectedUnidad: WritableSignal<UnidadMedida | null>;
+  isUnidadMenuOpen: WritableSignal<boolean>;
+  unidadMenuWidth: WritableSignal<number | string>;
+  precios: WritableSignal<PrecioOption[]>;
+  selectedPrecio: WritableSignal<PrecioOption | null>;
+  isPrecioMenuOpen: WritableSignal<boolean>;
+  precioMenuWidth: WritableSignal<number | string>;
+  descuentoModo: WritableSignal<DescuentoModo>;
+  descuentoPorcentajeInput: FormControl<string>;
+}
+
+interface TotalesDetalle {
+  productos: number;
+  subtotal: number;
+  descuento: number;
+  iva: number;
+  isr: number;
+  total: number;
+}
 
 @Component({
   selector: 'app-cotizacion-detail',
@@ -29,20 +72,17 @@ export class CotizacionDetail {
   readonly isPersonaMoral = input(true);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly productoApi = inject(ProductoApi);
-  private selectedProductoId: number | null = null;
-  private readonly unidadTriggerRef = viewChild<ElementRef<HTMLElement>>('unidadTrigger');
-  private readonly precioTriggerRef = viewChild<ElementRef<HTMLElement>>('precioTrigger');
+  private rowId = 0;
 
-  readonly unidades = signal<UnidadMedida[]>([]);
-  readonly selectedUnidad = signal<UnidadMedida | null>(null);
-  readonly isUnidadMenuOpen = signal(false);
-  readonly unidadMenuWidth = signal<number | string>('100%');
-  readonly precios = signal<PrecioOption[]>([]);
-  readonly selectedPrecio = signal<PrecioOption | null>(null);
-  readonly isPrecioMenuOpen = signal(false);
-  readonly precioMenuWidth = signal<number | string>('100%');
-  readonly descuentoModo = signal<DescuentoModo>('porcentaje');
-  readonly descuentoPorcentajeInput = this.fb.control('0.00');
+  readonly detalleStates: DetalleState[] = [];
+  readonly resumen = signal<TotalesDetalle>({
+    productos: 0,
+    subtotal: 0,
+    descuento: 0,
+    iva: 0,
+    isr: 0,
+    total: 0,
+  });
 
   readonly overlayPositions = [
     new ConnectionPositionPair({originX: 'start', originY: 'bottom'}, {overlayX: 'start', overlayY: 'top'}, 0, 4),
@@ -50,164 +90,228 @@ export class CotizacionDetail {
   ];
 
   readonly form = this.fb.group({
-    idProducto:0,
-    codigo: '',
-    producto: '',
-    observaciones: '',
-    cantidad: '1.00',
-    unidad: '',
-    idUnidad: this.fb.control<number | null>(null),
-    precio: '',
-    descuento: '0.00',
-    iva: '',
-    isr: '',
-    subtotal: '',
-    total: '',
+    detalles: this.fb.array<DetalleForm>([]),
   });
 
   private readonly personaMoralEffect = effect(() => {
     this.isPersonaMoral();
-    this.recalculateAmounts();
+    this.detalleForms().forEach((_, index) => this.recalculateAmounts(index));
   });
 
-  onProductoSeleccionado(producto: Producto | null) {
-    this.selectedProductoId = producto?.id ?? null;
-    this.isUnidadMenuOpen.set(false);
-    this.isPrecioMenuOpen.set(false);
-    this.unidades.set([]);
-    this.selectedUnidad.set(null);
-    this.precios.set([]);
-    this.selectedPrecio.set(null);
+  constructor() {
+    this.addProducto();
+  }
 
-    this.form.controls.codigo.setValue(producto?.codigo ?? '');
-    this.form.controls.producto.setValue(producto?.nombre ?? '');
-    this.resetProductDependentValues();
-    this.recalculateAmounts();
+  get detalles(): FormArray<DetalleForm> {
+    return this.form.controls.detalles;
+  }
+
+  detalleForms(): DetalleForm[] {
+    return this.detalles.controls;
+  }
+
+  addProducto(): void {
+    this.detalles.push(this.createDetalleForm());
+    this.detalleStates.push(this.createDetalleState());
+    this.updateResumen();
+  }
+
+  removeProducto(index: number): void {
+    if (this.detalles.length <= 1) return;
+
+    this.detalles.removeAt(index);
+    this.detalleStates.splice(index, 1);
+    this.updateResumen();
+  }
+
+  onProductoSeleccionado(producto: Producto | null, index: number): void {
+    const row = this.rowAt(index);
+    const state = this.stateAt(index);
+
+    state.selectedProductoId = producto?.id ?? null;
+    state.isUnidadMenuOpen.set(false);
+    state.isPrecioMenuOpen.set(false);
+    state.unidades.set([]);
+    state.selectedUnidad.set(null);
+    state.precios.set([]);
+    state.selectedPrecio.set(null);
+
+    row.controls.idProducto.setValue(producto?.id ?? 0);
+    row.controls.codigo.setValue(producto?.codigo ?? '');
+    row.controls.producto.setValue(producto?.nombre ?? '');
+    this.resetProductDependentValues(index);
+    this.recalculateAmounts(index);
 
     if (!producto) return;
 
     const unidadBase = this.createUnidadBase(producto);
-    this.selectUnidad(unidadBase);
+    this.selectUnidad(unidadBase, index);
     const precios = this.createPrecios(producto);
-    this.precios.set(precios);
-    this.selectPrecio(precios[0]);
+    state.precios.set(precios);
+    this.selectPrecio(precios[0], index);
 
-    this.productoApi.getUnidadesMedida(producto.id).subscribe({
-      next: unidades => {
-        if (this.selectedProductoId !== producto.id) return;
+    this.productoApi.getUnidadesMedida(producto.id).pipe(
+      catchError(() => of([unidadBase]))
+    ).subscribe(unidades => {
+      const currentIndex = this.detalleStates.indexOf(state);
+      if (currentIndex < 0 || state.selectedProductoId !== producto.id) return;
 
-        const disponibles = unidades.length > 0 ? unidades : [unidadBase];
-        const principal = disponibles.find(unidad => unidad.esPrincipal)
-          ?? disponibles.find(unidad => unidad.id === producto.idUnidad)
-          ?? disponibles[0];
+      const disponibles = unidades.length > 0 ? unidades : [unidadBase];
+      const principal = disponibles.find(unidad => unidad.esPrincipal)
+        ?? disponibles.find(unidad => unidad.id === producto.idUnidad)
+        ?? disponibles[0];
 
-        this.unidades.set(disponibles);
-        this.selectUnidad(principal);
-      },
-      error: () => {
-        if (this.selectedProductoId !== producto.id) return;
-
-        this.unidades.set([unidadBase]);
-        this.selectUnidad(unidadBase);
-      }
+      state.unidades.set(disponibles);
+      this.selectUnidad(principal, currentIndex);
     });
   }
 
-  toggleUnidadMenu(): void {
-    if (this.unidades().length === 0) return;
-    this.isPrecioMenuOpen.set(false);
+  toggleUnidadMenu(index: number, trigger: HTMLElement): void {
+    const state = this.stateAt(index);
+    if (state.unidades().length === 0) return;
 
-    const trigger = this.unidadTriggerRef();
-    if (trigger) {
-      this.unidadMenuWidth.set(trigger.nativeElement.offsetWidth);
+    state.isPrecioMenuOpen.set(false);
+    state.unidadMenuWidth.set(trigger.offsetWidth);
+    state.isUnidadMenuOpen.update(open => !open);
+  }
+
+  selectUnidad(unidad: UnidadMedida, index: number): void {
+    const row = this.rowAt(index);
+    const state = this.stateAt(index);
+
+    state.selectedUnidad.set(unidad);
+    row.controls.idUnidad.setValue(unidad.id);
+    row.controls.unidad.setValue(unidad.abreviatura || unidad.nombre);
+    state.isUnidadMenuOpen.set(false);
+  }
+
+  togglePrecioMenu(index: number, trigger: HTMLElement): void {
+    const state = this.stateAt(index);
+    if (state.precios().length === 0) return;
+
+    state.isUnidadMenuOpen.set(false);
+    state.precioMenuWidth.set(trigger.offsetWidth);
+    state.isPrecioMenuOpen.update(open => !open);
+  }
+
+  selectPrecio(precio: PrecioOption, index: number): void {
+    const row = this.rowAt(index);
+    const state = this.stateAt(index);
+
+    state.selectedPrecio.set(precio);
+    row.controls.precio.setValue(this.formatDecimal(precio.monto, 4));
+    state.isPrecioMenuOpen.set(false);
+    this.updateDescuentoImporteIfPercentageMode(index);
+    this.recalculateAmounts(index);
+  }
+
+  onCantidadInput(event: Event, index: number): void {
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.cantidad, 2);
+    this.updateDescuentoImporteIfPercentageMode(index);
+    this.recalculateAmounts(index);
+  }
+
+  onCantidadBlur(index: number): void {
+    this.formatControlDecimal(this.rowAt(index).controls.cantidad, 2);
+    this.updateDescuentoImporteIfPercentageMode(index);
+    this.recalculateAmounts(index);
+  }
+
+  onPrecioManualInput(event: Event, index: number): void {
+    this.stateAt(index).selectedPrecio.set(null);
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.precio, 4);
+    this.updateDescuentoImporteIfPercentageMode(index);
+    this.recalculateAmounts(index);
+  }
+
+  onPrecioBlur(index: number): void {
+    this.formatControlDecimal(this.rowAt(index).controls.precio, 4);
+    this.updateDescuentoImporteIfPercentageMode(index);
+    this.recalculateAmounts(index);
+  }
+
+  onDescuentoPorcentajeInput(event: Event, index: number): void {
+    const state = this.stateAt(index);
+
+    state.descuentoModo.set('porcentaje');
+    this.normalizeDecimalInput(event, state.descuentoPorcentajeInput, 2);
+    this.updateDescuentoImporteFromPorcentaje(index);
+    this.recalculateAmounts(index);
+  }
+
+  onDescuentoPorcentajeBlur(index: number): void {
+    const state = this.stateAt(index);
+
+    if (state.descuentoPorcentajeInput.value === '') {
+      state.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
     }
 
-    this.isUnidadMenuOpen.update(open => !open);
+    this.formatControlDecimal(state.descuentoPorcentajeInput, 2);
+    this.updateDescuentoImporteFromPorcentaje(index);
+    this.recalculateAmounts(index);
   }
 
-  selectUnidad(unidad: UnidadMedida): void {
-    this.selectedUnidad.set(unidad);
-    this.form.controls.idUnidad.setValue(unidad.id);
-    this.form.controls.unidad.setValue(unidad.abreviatura || unidad.nombre);
-    this.isUnidadMenuOpen.set(false);
+  onDescuentoImporteInput(event: Event, index: number): void {
+    const state = this.stateAt(index);
+
+    state.descuentoModo.set('importe');
+    state.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.descuento, 2);
+    this.recalculateAmounts(index);
   }
 
-  togglePrecioMenu(): void {
-    if (this.precios().length === 0) return;
-    this.isUnidadMenuOpen.set(false);
+  onDescuentoImporteBlur(index: number): void {
+    const descuento = this.rowAt(index).controls.descuento;
 
-    const trigger = this.precioTriggerRef();
-    if (trigger) {
-      this.precioMenuWidth.set(trigger.nativeElement.offsetWidth);
+    if (descuento.value === '') {
+      descuento.setValue('0.00', {emitEvent: false});
     }
 
-    this.isPrecioMenuOpen.update(open => !open);
+    this.formatControlDecimal(descuento, 2);
+    this.recalculateAmounts(index);
   }
 
-  selectPrecio(precio: PrecioOption): void {
-    this.selectedPrecio.set(precio);
-    this.form.controls.precio.setValue(this.formatDecimal(precio.monto, 4));
-    this.isPrecioMenuOpen.set(false);
-    this.updateDescuentoImporteIfPercentageMode();
-    this.recalculateAmounts();
+  private createDetalleForm(): DetalleForm {
+    return new FormGroup<DetalleControls>({
+      idProducto: this.fb.control(0),
+      codigo: this.fb.control(''),
+      producto: this.fb.control(''),
+      observaciones: this.fb.control(''),
+      cantidad: this.fb.control('1.00'),
+      unidad: this.fb.control(''),
+      idUnidad: this.fb.control<number | null>(null),
+      precio: this.fb.control(''),
+      descuento: this.fb.control('0.00'),
+      iva: this.fb.control(''),
+      isr: this.fb.control(''),
+      subtotal: this.fb.control(''),
+      total: this.fb.control(''),
+    });
   }
 
-  onCantidadInput(event: Event): void {
-    this.normalizeDecimalInput(event, 'cantidad', 2);
-    this.updateDescuentoImporteIfPercentageMode();
-    this.recalculateAmounts();
+  private createDetalleState(): DetalleState {
+    return {
+      id: `detalle-${++this.rowId}`,
+      selectedProductoId: null,
+      unidades: signal<UnidadMedida[]>([]),
+      selectedUnidad: signal<UnidadMedida | null>(null),
+      isUnidadMenuOpen: signal(false),
+      unidadMenuWidth: signal<number | string>('100%'),
+      precios: signal<PrecioOption[]>([]),
+      selectedPrecio: signal<PrecioOption | null>(null),
+      isPrecioMenuOpen: signal(false),
+      precioMenuWidth: signal<number | string>('100%'),
+      descuentoModo: signal<DescuentoModo>('porcentaje'),
+      descuentoPorcentajeInput: this.fb.control('0.00'),
+    };
   }
 
-  onCantidadBlur(): void {
-    this.formatControlDecimal('cantidad', 2);
-    this.updateDescuentoImporteIfPercentageMode();
-    this.recalculateAmounts();
+  private rowAt(index: number): DetalleForm {
+    return this.detalles.at(index);
   }
 
-  onPrecioManualInput(event: Event): void {
-    this.selectedPrecio.set(null);
-    this.normalizeDecimalInput(event, 'precio', 4);
-    this.updateDescuentoImporteIfPercentageMode();
-    this.recalculateAmounts();
-  }
-
-  onPrecioBlur(): void {
-    this.formatControlDecimal('precio', 4);
-    this.updateDescuentoImporteIfPercentageMode();
-    this.recalculateAmounts();
-  }
-
-  onDescuentoPorcentajeInput(event: Event): void {
-    this.descuentoModo.set('porcentaje');
-    this.normalizeStandaloneDecimalInput(event, this.descuentoPorcentajeInput, 2);
-    this.updateDescuentoImporteFromPorcentaje();
-    this.recalculateAmounts();
-  }
-
-  onDescuentoPorcentajeBlur(): void {
-    if (this.descuentoPorcentajeInput.value === '') {
-      this.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
-    }
-
-    this.formatStandaloneDecimal(this.descuentoPorcentajeInput, 2);
-    this.updateDescuentoImporteFromPorcentaje();
-    this.recalculateAmounts();
-  }
-
-  onDescuentoImporteInput(event: Event): void {
-    this.descuentoModo.set('importe');
-    this.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
-    this.normalizeDecimalInput(event, 'descuento', 2);
-    this.recalculateAmounts();
-  }
-
-  onDescuentoImporteBlur(): void {
-    if (this.form.controls.descuento.value === '') {
-      this.form.controls.descuento.setValue('0.00', {emitEvent: false});
-    }
-
-    this.formatControlDecimal('descuento', 2);
-    this.recalculateAmounts();
+  private stateAt(index: number): DetalleState {
+    return this.detalleStates[index];
   }
 
   private createUnidadBase(producto: Producto): UnidadMedida {
@@ -219,11 +323,14 @@ export class CotizacionDetail {
     };
   }
 
-  private resetProductDependentValues(): void {
-    this.descuentoModo.set('porcentaje');
-    this.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
+  private resetProductDependentValues(index: number): void {
+    const row = this.rowAt(index);
+    const state = this.stateAt(index);
 
-    this.form.patchValue({
+    state.descuentoModo.set('porcentaje');
+    state.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
+
+    row.patchValue({
       observaciones: '',
       cantidad: '1.00',
       unidad: '',
@@ -245,22 +352,7 @@ export class CotizacionDetail {
     ];
   }
 
-  private normalizeDecimalInput(event: Event, controlName: 'cantidad' | 'precio' | 'descuento', decimals: number): void {
-    const input = event.target as HTMLInputElement;
-    const normalized = this.limitDecimalText(input.value, decimals);
-
-    if (input.value !== normalized) {
-      input.value = normalized;
-    }
-
-    this.form.controls[controlName].setValue(normalized, {emitEvent: false});
-  }
-
-  private normalizeStandaloneDecimalInput(
-    event: Event,
-    control: FormControl<string>,
-    decimals: number
-  ): void {
+  private normalizeDecimalInput(event: Event, control: FormControl<string>, decimals: number): void {
     const input = event.target as HTMLInputElement;
     const normalized = this.limitDecimalText(input.value, decimals);
 
@@ -271,16 +363,7 @@ export class CotizacionDetail {
     control.setValue(normalized, {emitEvent: false});
   }
 
-  private formatControlDecimal(controlName: 'cantidad' | 'precio' | 'descuento', decimals: number): void {
-    const control = this.form.controls[controlName];
-    const value = control.value;
-
-    if (value === '') return;
-
-    control.setValue(this.formatDecimal(value, decimals), {emitEvent: false});
-  }
-
-  private formatStandaloneDecimal(control: FormControl<string>, decimals: number): void {
+  private formatControlDecimal(control: FormControl<string>, decimals: number): void {
     const value = control.value;
 
     if (value === '') return;
@@ -305,38 +388,70 @@ export class CotizacionDetail {
     return Number.isFinite(parsed) ? parsed.toFixed(decimals) : '';
   }
 
-  private recalculateAmounts(): void {
-    const cantidad = this.parseDecimal(this.form.controls.cantidad.value);
-    const precio = this.parseDecimal(this.form.controls.precio.value);
+  private recalculateAmounts(index: number): void {
+    const row = this.rowAt(index);
+    const cantidad = this.parseDecimal(row.controls.cantidad.value);
+    const precio = this.parseDecimal(row.controls.precio.value);
     const importeBruto = cantidad * precio;
-    const descuento = this.parseDecimal(this.form.controls.descuento.value);
-    const baseImpuesto = importeBruto - descuento;
+    const descuento = this.parseDecimal(row.controls.descuento.value);
+    const baseImpuesto = Math.max(importeBruto - descuento, 0);
     const iva = this.roundCurrency(baseImpuesto * 0.16);
     const isr = this.isPersonaMoral() ? this.roundCurrency(baseImpuesto * 0.0125) : 0;
     const total = this.roundCurrency(baseImpuesto - isr + iva);
 
-    this.form.patchValue({
+    row.patchValue({
       subtotal: this.formatDecimal(importeBruto, 2),
       iva: this.formatDecimal(iva, 2),
       isr: this.formatDecimal(isr, 2),
       total: this.formatDecimal(total, 2),
     }, {emitEvent: false});
+
+    this.updateResumen();
   }
 
-  private updateDescuentoImporteFromPorcentaje(): void {
-    const cantidad = this.parseDecimal(this.form.controls.cantidad.value);
-    const precio = this.parseDecimal(this.form.controls.precio.value);
-    const porcentaje = this.parseDecimal(this.descuentoPorcentajeInput.value);
+  private updateDescuentoImporteFromPorcentaje(index: number): void {
+    const row = this.rowAt(index);
+    const state = this.stateAt(index);
+    const cantidad = this.parseDecimal(row.controls.cantidad.value);
+    const precio = this.parseDecimal(row.controls.precio.value);
+    const porcentaje = this.parseDecimal(state.descuentoPorcentajeInput.value);
     const importeBruto = cantidad * precio;
     const descuentoImporte = this.roundCurrency(importeBruto * (porcentaje / 100));
 
-    this.form.controls.descuento.setValue(this.formatDecimal(descuentoImporte, 2), {emitEvent: false});
+    row.controls.descuento.setValue(this.formatDecimal(descuentoImporte, 2), {emitEvent: false});
   }
 
-  private updateDescuentoImporteIfPercentageMode(): void {
-    if (this.descuentoModo() !== 'porcentaje') return;
+  private updateDescuentoImporteIfPercentageMode(index: number): void {
+    if (this.stateAt(index).descuentoModo() !== 'porcentaje') return;
 
-    this.updateDescuentoImporteFromPorcentaje();
+    this.updateDescuentoImporteFromPorcentaje(index);
+  }
+
+  private updateResumen(): void {
+    const resumen = this.detalleForms().reduce<TotalesDetalle>((acc, row) => ({
+      productos: acc.productos + (row.controls.idProducto.value > 0 ? 1 : 0),
+      subtotal: acc.subtotal + this.parseDecimal(row.controls.subtotal.value),
+      descuento: acc.descuento + this.parseDecimal(row.controls.descuento.value),
+      iva: acc.iva + this.parseDecimal(row.controls.iva.value),
+      isr: acc.isr + this.parseDecimal(row.controls.isr.value),
+      total: acc.total + this.parseDecimal(row.controls.total.value),
+    }), {
+      productos: 0,
+      subtotal: 0,
+      descuento: 0,
+      iva: 0,
+      isr: 0,
+      total: 0,
+    });
+
+    this.resumen.set({
+      productos: resumen.productos,
+      subtotal: this.roundCurrency(resumen.subtotal),
+      descuento: this.roundCurrency(resumen.descuento),
+      iva: this.roundCurrency(resumen.iva),
+      isr: this.roundCurrency(resumen.isr),
+      total: this.roundCurrency(resumen.total),
+    });
   }
 
   private parseDecimal(value: string): number {
@@ -348,5 +463,4 @@ export class CotizacionDetail {
   private roundCurrency(value: number): number {
     return Math.round((value + Number.EPSILON) * 100) / 100;
   }
-
 }

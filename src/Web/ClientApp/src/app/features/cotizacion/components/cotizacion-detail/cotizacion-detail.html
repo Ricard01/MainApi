@@ -1,4 +1,12 @@
-<form [formGroup]="form" class=" flex flex-col gap-4 p-2 rounded-lg shadow-sm border border-outline-variant mt-4">
+<form [formGroup]="form" class="flex flex-col gap-4 p-2 rounded-lg shadow-sm border border-outline-variant mt-4">
+  <div class="flex justify-start">
+    <button type="button"
+            class="inline-flex h-9 items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 text-sm font-medium text-primary transition-colors hover:bg-primary/15 focus:outline-none focus:ring-1 focus:ring-primary"
+            (click)="addProducto()">
+      <mat-icon class="!inline-flex !h-5 !w-5 !items-center !justify-center !text-xl !leading-none">add</mat-icon>
+      <span class="leading-none">Agregar producto</span>
+    </button>
+  </div>
 
   <div class="hidden md:grid grid-cols-12 gap-4 rounded-lg p-2 border-outline-variant font-medium text-sm
             bg-emerald-100 text-emerald-900
@@ -14,233 +22,218 @@
     <div class="md:col-span-1">Total</div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+  <div formArrayName="detalles" class="flex flex-col gap-4">
+    @for (detalle of detalleForms(); track detalleStates[$index].id; let i = $index) {
+      <section [formGroupName]="i" class="flex flex-col gap-3 border-b border-outline-variant pb-4 last:border-b-0 last:pb-0">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-4">
+            <producto-autocomplete
+              [inputId]="'producto-search-' + detalleStates[i].id"
+              [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
+              (productoSeleccionado)="onProductoSeleccionado($event, i)">
+            </producto-autocomplete>
+          </div>
 
-    <!-- PRODUCTO -->
-    <div class="md:col-span-4">
-      <producto-autocomplete
-        [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
-        (productoSeleccionado)="onProductoSeleccionado($event)"></producto-autocomplete>
-    </div>
+          <div class="input-group">
+            <input [id]="'cantidad-' + detalleStates[i].id"
+                   formControlName="cantidad"
+                   type="text"
+                   inputmode="decimal"
+                   class="input-form"
+                   (input)="onCantidadInput($event, i)"
+                   (blur)="onCantidadBlur(i)">
+          </div>
 
+          <div class="input-group">
+            <div cdkOverlayOrigin #unidadOrigin="cdkOverlayOrigin" #unidadTrigger class="relative">
+              <input [id]="'um-' + detalleStates[i].id"
+                     type="text"
+                     formControlName="unidad"
+                     readonly
+                     class="input-form pr-10 bg-surface-variant/40 cursor-default"
+                     aria-readonly="true">
 
-    <!-- CANTIDAD -->
-    <div class="input-group">
-      <input id="cantidad"
-             formControlName="cantidad"
-             type="text"
-             inputmode="decimal"
-             class="input-form"
-             (input)="onCantidadInput($event)"
-             (blur)="onCantidadBlur()">
-    </div>
-
-    <!-- U.M. -->
-    <div class="input-group">
-      <div cdkOverlayOrigin #unidadOrigin="cdkOverlayOrigin" #unidadTrigger class="relative">
-        <input id="um"
-               type="text"
-               formControlName="unidad"
-               readonly
-               class="input-form pr-10 bg-surface-variant/40 cursor-default"
-               aria-readonly="true">
-
-        <button type="button"
-                class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
-                [disabled]="unidades().length === 0"
-                (click)="toggleUnidadMenu()"
-                aria-label="Seleccionar unidad de medida"
-                aria-haspopup="listbox"
-                [attr.aria-expanded]="isUnidadMenuOpen()">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-      </div>
-
-      <ng-template cdkConnectedOverlay
-                   [cdkConnectedOverlayOrigin]="unidadOrigin"
-                   [cdkConnectedOverlayOpen]="isUnidadMenuOpen()"
-                   [cdkConnectedOverlayPositions]="overlayPositions"
-                   [cdkConnectedOverlayWidth]="unidadMenuWidth()"
-                   [cdkConnectedOverlayHasBackdrop]="true"
-                   cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                   (backdropClick)="isUnidadMenuOpen.set(false)">
-
-        <ul
-          class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
-          role="listbox">
-          @for (unidad of unidades(); track unidad.id) {
-            <li (click)="selectUnidad(unidad)"
-                role="option"
-                [attr.aria-selected]="selectedUnidad()?.id === unidad.id"
-                class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ selectedUnidad()?.id === unidad.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
-              <span class="truncate">
-                <span class="font-bold">{{ unidad.abreviatura }}</span> - {{ unidad.nombre }}
-              </span>
-
-              @if (selectedUnidad()?.id === unidad.id) {
-                <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              <button type="button"
+                      class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
+                      [disabled]="detalleStates[i].unidades().length === 0"
+                      (click)="toggleUnidadMenu(i, unidadTrigger)"
+                      aria-label="Seleccionar unidad de medida"
+                      aria-haspopup="listbox"
+                      [attr.aria-expanded]="detalleStates[i].isUnidadMenuOpen()">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
                 </svg>
-              }
-            </li>
-          } @empty {
-            <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center">
-              Selecciona un producto
-            </li>
-          }
-        </ul>
-      </ng-template>
-    </div>
+              </button>
+            </div>
 
+            <ng-template cdkConnectedOverlay
+                         [cdkConnectedOverlayOrigin]="unidadOrigin"
+                         [cdkConnectedOverlayOpen]="detalleStates[i].isUnidadMenuOpen()"
+                         [cdkConnectedOverlayPositions]="overlayPositions"
+                         [cdkConnectedOverlayWidth]="detalleStates[i].unidadMenuWidth()"
+                         [cdkConnectedOverlayHasBackdrop]="true"
+                         cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                         (backdropClick)="detalleStates[i].isUnidadMenuOpen.set(false)">
+              <ul
+                class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
+                role="listbox">
+                @for (unidad of detalleStates[i].unidades(); track unidad.id) {
+                  <li (click)="selectUnidad(unidad, i)"
+                      role="option"
+                      [attr.aria-selected]="detalleStates[i].selectedUnidad()?.id === unidad.id"
+                      class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ detalleStates[i].selectedUnidad()?.id === unidad.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
+                    <span class="truncate">
+                      <span class="font-bold">{{ unidad.abreviatura }}</span> - {{ unidad.nombre }}
+                    </span>
 
-    <!-- PRECIO -->
-    <div class="input-group">
-      <div cdkOverlayOrigin #precioOrigin="cdkOverlayOrigin" #precioTrigger class="relative">
-        <input id="precio"
-               type="text"
-               inputmode="decimal"
-               formControlName="precio"
-               class="input-form pr-10"
-               (input)="onPrecioManualInput($event)"
-               (blur)="onPrecioBlur()">
+                    @if (detalleStates[i].selectedUnidad()?.id === unidad.id) {
+                      <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    }
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center">
+                    Selecciona un producto
+                  </li>
+                }
+              </ul>
+            </ng-template>
+          </div>
 
-        <button type="button"
-                class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
-                [disabled]="precios().length === 0"
-                (click)="togglePrecioMenu()"
-                aria-label="Seleccionar precio"
-                aria-haspopup="listbox"
-                [attr.aria-expanded]="isPrecioMenuOpen()">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-      </div>
+          <div class="input-group">
+            <div cdkOverlayOrigin #precioOrigin="cdkOverlayOrigin" #precioTrigger class="relative">
+              <input [id]="'precio-' + detalleStates[i].id"
+                     type="text"
+                     inputmode="decimal"
+                     formControlName="precio"
+                     class="input-form pr-10"
+                     (input)="onPrecioManualInput($event, i)"
+                     (blur)="onPrecioBlur(i)">
 
-      <ng-template cdkConnectedOverlay
-                   [cdkConnectedOverlayOrigin]="precioOrigin"
-                   [cdkConnectedOverlayOpen]="isPrecioMenuOpen()"
-                   [cdkConnectedOverlayPositions]="overlayPositions"
-                   [cdkConnectedOverlayWidth]="precioMenuWidth()"
-                   [cdkConnectedOverlayHasBackdrop]="true"
-                   cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                   (backdropClick)="isPrecioMenuOpen.set(false)">
-
-        <ul
-          class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
-          role="listbox">
-          @for (precio of precios(); track precio.id) {
-            <li (click)="selectPrecio(precio)"
-                role="option"
-                [attr.aria-selected]="selectedPrecio()?.id === precio.id"
-                class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ selectedPrecio()?.id === precio.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
-              <span class="truncate">
-                <span class="font-bold">{{ precio.nombre }}</span> - {{ precio.monto | currency:'MXN':'$':'1.4-4' }}
-              </span>
-
-              @if (selectedPrecio()?.id === precio.id) {
-                <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              <button type="button"
+                      class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
+                      [disabled]="detalleStates[i].precios().length === 0"
+                      (click)="togglePrecioMenu(i, precioTrigger)"
+                      aria-label="Seleccionar precio"
+                      aria-haspopup="listbox"
+                      [attr.aria-expanded]="detalleStates[i].isPrecioMenuOpen()">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
                 </svg>
-              }
-            </li>
-          } @empty {
-            <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center">
-              Selecciona un producto
-            </li>
-          }
-        </ul>
-      </ng-template>
-    </div>
+              </button>
+            </div>
 
-    <!-- DESCTO %-->
-    <div class="input-group">
-      <input id="desctoPorcentaje"
-             type="text"
-             inputmode="decimal"
-             [formControl]="descuentoPorcentajeInput"
-             class="input-form"
-             (input)="onDescuentoPorcentajeInput($event)"
-             (blur)="onDescuentoPorcentajeBlur()">
-    </div>
+            <ng-template cdkConnectedOverlay
+                         [cdkConnectedOverlayOrigin]="precioOrigin"
+                         [cdkConnectedOverlayOpen]="detalleStates[i].isPrecioMenuOpen()"
+                         [cdkConnectedOverlayPositions]="overlayPositions"
+                         [cdkConnectedOverlayWidth]="detalleStates[i].precioMenuWidth()"
+                         [cdkConnectedOverlayHasBackdrop]="true"
+                         cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                         (backdropClick)="detalleStates[i].isPrecioMenuOpen.set(false)">
+              <ul
+                class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
+                role="listbox">
+                @for (precio of detalleStates[i].precios(); track precio.id) {
+                  <li (click)="selectPrecio(precio, i)"
+                      role="option"
+                      [attr.aria-selected]="detalleStates[i].selectedPrecio()?.id === precio.id"
+                      class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ detalleStates[i].selectedPrecio()?.id === precio.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
+                    <span class="truncate">
+                      <span class="font-bold">{{ precio.nombre }}</span> - {{ precio.monto | currency:'MXN':'$':'1.4-4' }}
+                    </span>
 
-    <!-- DESCTO $-->
-    <div class="input-group">
-      <input id="desctoImporte"
-             type="text"
-             inputmode="decimal"
-             formControlName="descuento"
-             class="input-form"
-             (input)="onDescuentoImporteInput($event)"
-             (blur)="onDescuentoImporteBlur()">
-    </div>
+                    @if (detalleStates[i].selectedPrecio()?.id === precio.id) {
+                      <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    }
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-sm text-on-surface-variant italic text-center">
+                    Selecciona un producto
+                  </li>
+                }
+              </ul>
+            </ng-template>
+          </div>
 
-    <!-- IVA -->
-    <div class="input-group">
-      <input id="iva"
-             type="text"
-             formControlName="iva"
-             readonly
-             class="input-form bg-surface-variant/40 cursor-default"
-             aria-readonly="true">
-    </div>
+          <div class="input-group">
+            <input [id]="'descto-porcentaje-' + detalleStates[i].id"
+                   type="text"
+                   inputmode="decimal"
+                   [formControl]="detalleStates[i].descuentoPorcentajeInput"
+                   class="input-form"
+                   (input)="onDescuentoPorcentajeInput($event, i)"
+                   (blur)="onDescuentoPorcentajeBlur(i)">
+          </div>
 
-    <!-- ISR -->
-    <div class="input-group">
-      <input id="isr"
-             type="text"
-             formControlName="isr"
-             readonly
-             class="input-form bg-surface-variant/40 cursor-default"
-             aria-readonly="true">
-    </div>
+          <div class="input-group">
+            <input [id]="'descto-importe-' + detalleStates[i].id"
+                   type="text"
+                   inputmode="decimal"
+                   formControlName="descuento"
+                   class="input-form"
+                   (input)="onDescuentoImporteInput($event, i)"
+                   (blur)="onDescuentoImporteBlur(i)">
+          </div>
 
-    <!-- TOTAL -->
-    <div class="input-group">
-      <input id="total"
-             type="text"
-             formControlName="total"
-             readonly
-             class="input-form bg-surface-variant/40 cursor-default font-semibold"
-             aria-readonly="true">
-    </div>
+          <div class="input-group">
+            <input [id]="'iva-' + detalleStates[i].id"
+                   type="text"
+                   formControlName="iva"
+                   readonly
+                   class="input-form bg-surface-variant/40 cursor-default"
+                   aria-readonly="true">
+          </div>
 
+          <div class="input-group">
+            <input [id]="'isr-' + detalleStates[i].id"
+                   type="text"
+                   formControlName="isr"
+                   readonly
+                   class="input-form bg-surface-variant/40 cursor-default"
+                   aria-readonly="true">
+          </div>
 
+          <div class="input-group">
+            <input [id]="'total-' + detalleStates[i].id"
+                   type="text"
+                   formControlName="total"
+                   readonly
+                   class="input-form bg-surface-variant/40 cursor-default font-semibold"
+                   aria-readonly="true">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-4 input-group">
+            <textarea [id]="'observaciones-' + detalleStates[i].id"
+                      placeholder="Descripcion"
+                      rows="1"
+                      formControlName="observaciones"
+                      class="input-form h-8.5 min-h-8.5 overflow-hidden"></textarea>
+          </div>
+
+          <div class="md:col-span-8 flex justify-end pb-1">
+            <button matIconButton
+                    class="!flex !h-8 !w-8 !items-center !justify-center rounded-md border border-error/30 bg-error/10 text-error transition-colors hover:bg-error/15 disabled:opacity-40 disabled:cursor-not-allowed"
+                    [disabled]="detalleForms().length === 1"
+                    (click)="removeProducto(i)"
+                    aria-label="Eliminar producto">
+              <mat-icon class="!h-5 !w-5 !text-xl">delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </section>
+    }
   </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-    <!-- DESCRIPCION -->
-    <div class="md:col-span-4 input-group">
-
-      <textarea id="observaciones"
-                placeholder="Descripcion"
-                type="text"
-                rows="1"
-                formControlName="observaciones"
-                class="input-form h-8.5 min-h-8.5  overflow-hidden "> </textarea>
-    </div>
-
-    <div class="md:col-span-8 flex justify-end pb-1">
-      <button matIconButton
-              class="accent disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Eliminar">
-        <mat-icon svgIcon="delete"></mat-icon>
-      </button>
-    </div>
-  </div>
-
 </form>
 
-<div class=" flex flex-col p-2 ">
-
+<div class="flex flex-col p-2">
   <div class="hidden md:grid grid-cols-12 rounded-lg p-2 border-outline-variant font-medium text-sm">
-
-    <!-- Primera columna - ocupa 2 filas -->
-    <div class="md:col-span-4 row-span-2 flex items-center">
-      + Agregar Producto
-    </div>
+    <div class="md:col-span-4 row-span-2 flex items-center"></div>
 
     <div
       class="md:col-span-8 grid grid-cols-8 gap-4 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 rounded p-2">
@@ -254,13 +247,12 @@
 
     <div
       class="md:col-span-8 grid grid-cols-8 gap-4 bg-emerald-50 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 rounded p-2">
-      <div class="md:col-span-3">1</div>
-      <div class="md:col-span-1">$600</div>
-      <div class="md:col-span-1">$0</div>
-      <div class="md:col-span-1">$96</div>
-      <div class="md:col-span-1">$7.50</div>
-      <div class="md:col-span-1">$688.50</div>
+      <div class="md:col-span-3">{{ resumen().productos }}</div>
+      <div class="md:col-span-1">{{ resumen().subtotal | currency:'MXN':'$':'1.2-2' }}</div>
+      <div class="md:col-span-1">{{ resumen().descuento | currency:'MXN':'$':'1.2-2' }}</div>
+      <div class="md:col-span-1">{{ resumen().iva | currency:'MXN':'$':'1.2-2' }}</div>
+      <div class="md:col-span-1">{{ resumen().isr | currency:'MXN':'$':'1.2-2' }}</div>
+      <div class="md:col-span-1">{{ resumen().total | currency:'MXN':'$':'1.2-2' }}</div>
     </div>
   </div>
-
 </div>
