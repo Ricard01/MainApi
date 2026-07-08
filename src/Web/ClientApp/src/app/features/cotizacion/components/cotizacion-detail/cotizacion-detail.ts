@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, ElementRef, effect, inject, input, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
+import {FormControl, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {ProductoAutocomplete} from '../../../../shared/components/producto-autocomplete/producto-autocomplete';
 import {Producto} from '../../../../shared/models/producto.model';
 import {TipoProducto} from '../../../../shared/enums/producto.enum';
@@ -15,7 +15,7 @@ interface PrecioOption {
   monto: number;
 }
 
-type DescuentoTipo = 'porcentaje' | 'importe';
+type DescuentoModo = 'porcentaje' | 'importe';
 
 @Component({
   selector: 'app-cotizacion-detail',
@@ -40,7 +40,8 @@ export class CotizacionDetail {
   readonly selectedPrecio = signal<PrecioOption | null>(null);
   readonly isPrecioMenuOpen = signal(false);
   readonly precioMenuWidth = signal<number | string>('100%');
-  readonly descuentoTipo = signal<DescuentoTipo>('porcentaje');
+  readonly descuentoModo = signal<DescuentoModo>('porcentaje');
+  readonly descuentoPorcentajeInput = this.fb.control('0.00');
 
   readonly overlayPositions = [
     new ConnectionPositionPair({originX: 'start', originY: 'bottom'}, {overlayX: 'start', overlayY: 'top'}, 0, 4),
@@ -55,7 +56,7 @@ export class CotizacionDetail {
     unidad: '',
     idUnidad: this.fb.control<number | null>(null),
     precio: '',
-    descuento: '',
+    descuento: '0.00',
     iva: '',
     isr: '',
     subtotal: '',
@@ -147,42 +148,65 @@ export class CotizacionDetail {
     this.selectedPrecio.set(precio);
     this.form.controls.precio.setValue(this.formatDecimal(precio.monto, 4));
     this.isPrecioMenuOpen.set(false);
+    this.updateDescuentoImporteIfPercentageMode();
     this.recalculateAmounts();
   }
 
   onCantidadInput(event: Event): void {
     this.normalizeDecimalInput(event, 'cantidad', 2);
+    this.updateDescuentoImporteIfPercentageMode();
     this.recalculateAmounts();
   }
 
   onCantidadBlur(): void {
     this.formatControlDecimal('cantidad', 2);
+    this.updateDescuentoImporteIfPercentageMode();
     this.recalculateAmounts();
   }
 
   onPrecioManualInput(event: Event): void {
     this.selectedPrecio.set(null);
     this.normalizeDecimalInput(event, 'precio', 4);
+    this.updateDescuentoImporteIfPercentageMode();
     this.recalculateAmounts();
   }
 
   onPrecioBlur(): void {
     this.formatControlDecimal('precio', 4);
+    this.updateDescuentoImporteIfPercentageMode();
     this.recalculateAmounts();
   }
 
-  onDescuentoInput(event: Event): void {
+  onDescuentoPorcentajeInput(event: Event): void {
+    this.descuentoModo.set('porcentaje');
+    this.normalizeStandaloneDecimalInput(event, this.descuentoPorcentajeInput, 2);
+    this.updateDescuentoImporteFromPorcentaje();
+    this.recalculateAmounts();
+  }
+
+  onDescuentoPorcentajeBlur(): void {
+    if (this.descuentoPorcentajeInput.value === '') {
+      this.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
+    }
+
+    this.formatStandaloneDecimal(this.descuentoPorcentajeInput, 2);
+    this.updateDescuentoImporteFromPorcentaje();
+    this.recalculateAmounts();
+  }
+
+  onDescuentoImporteInput(event: Event): void {
+    this.descuentoModo.set('importe');
+    this.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
     this.normalizeDecimalInput(event, 'descuento', 2);
     this.recalculateAmounts();
   }
 
-  onDescuentoBlur(): void {
-    this.formatControlDecimal('descuento', 2);
-    this.recalculateAmounts();
-  }
+  onDescuentoImporteBlur(): void {
+    if (this.form.controls.descuento.value === '') {
+      this.form.controls.descuento.setValue('0.00', {emitEvent: false});
+    }
 
-  toggleDescuentoTipo(): void {
-    this.descuentoTipo.update(tipo => tipo === 'porcentaje' ? 'importe' : 'porcentaje');
+    this.formatControlDecimal('descuento', 2);
     this.recalculateAmounts();
   }
 
@@ -214,8 +238,31 @@ export class CotizacionDetail {
     this.form.controls[controlName].setValue(normalized, {emitEvent: false});
   }
 
+  private normalizeStandaloneDecimalInput(
+    event: Event,
+    control: FormControl<string>,
+    decimals: number
+  ): void {
+    const input = event.target as HTMLInputElement;
+    const normalized = this.limitDecimalText(input.value, decimals);
+
+    if (input.value !== normalized) {
+      input.value = normalized;
+    }
+
+    control.setValue(normalized, {emitEvent: false});
+  }
+
   private formatControlDecimal(controlName: 'cantidad' | 'precio' | 'descuento', decimals: number): void {
     const control = this.form.controls[controlName];
+    const value = control.value;
+
+    if (value === '') return;
+
+    control.setValue(this.formatDecimal(value, decimals), {emitEvent: false});
+  }
+
+  private formatStandaloneDecimal(control: FormControl<string>, decimals: number): void {
     const value = control.value;
 
     if (value === '') return;
@@ -243,11 +290,8 @@ export class CotizacionDetail {
   private recalculateAmounts(): void {
     const cantidad = this.parseDecimal(this.form.controls.cantidad.value);
     const precio = this.parseDecimal(this.form.controls.precio.value);
-    const descuentoCapturado = this.parseDecimal(this.form.controls.descuento.value);
     const importeBruto = cantidad * precio;
-    const descuento = this.descuentoTipo() === 'porcentaje'
-      ? importeBruto * (descuentoCapturado / 100)
-      : descuentoCapturado;
+    const descuento = this.parseDecimal(this.form.controls.descuento.value);
     const baseImpuesto = importeBruto - descuento;
     const iva = this.roundCurrency(baseImpuesto * 0.16);
     const isr = this.isPersonaMoral() ? this.roundCurrency(baseImpuesto * 0.0125) : 0;
@@ -259,6 +303,22 @@ export class CotizacionDetail {
       isr: this.formatDecimal(isr, 2),
       total: this.formatDecimal(total, 2),
     }, {emitEvent: false});
+  }
+
+  private updateDescuentoImporteFromPorcentaje(): void {
+    const cantidad = this.parseDecimal(this.form.controls.cantidad.value);
+    const precio = this.parseDecimal(this.form.controls.precio.value);
+    const porcentaje = this.parseDecimal(this.descuentoPorcentajeInput.value);
+    const importeBruto = cantidad * precio;
+    const descuentoImporte = this.roundCurrency(importeBruto * (porcentaje / 100));
+
+    this.form.controls.descuento.setValue(this.formatDecimal(descuentoImporte, 2), {emitEvent: false});
+  }
+
+  private updateDescuentoImporteIfPercentageMode(): void {
+    if (this.descuentoModo() !== 'porcentaje') return;
+
+    this.updateDescuentoImporteFromPorcentaje();
   }
 
   private parseDecimal(value: string): number {

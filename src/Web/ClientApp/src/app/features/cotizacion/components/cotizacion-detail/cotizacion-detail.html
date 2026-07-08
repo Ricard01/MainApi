@@ -148,42 +148,26 @@
 
     <!-- DESCTO %-->
     <div class="input-group">
-      <label for="descto" class="label-form">Descto %</label>
-      <div class="relative">
-        <input id="descto"
-               type="text"
-               inputmode="decimal"
-               formControlName="descuento"
-               class="input-form pr-11"
-               (input)="onDescuentoInput($event)"
-               (blur)="onDescuentoBlur()">
-
-        <button type="button"
-                class="absolute inset-y-0 right-1 my-1 flex w-8 items-center justify-center rounded text-sm font-bold text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary"
-                (click)="toggleDescuentoTipo()"
-                [attr.aria-label]="descuentoTipo() === 'porcentaje' ? 'Cambiar descuento a importe' : 'Cambiar descuento a porcentaje'">
-          {{ descuentoTipo() === 'porcentaje' ? '%' : '$' }}
-        </button>
-      </div>
+      <label for="desctoPorcentaje" class="label-form">Descto %</label>
+      <input id="desctoPorcentaje"
+             type="text"
+             inputmode="decimal"
+             [formControl]="descuentoPorcentajeInput"
+             class="input-form"
+             (input)="onDescuentoPorcentajeInput($event)"
+             (blur)="onDescuentoPorcentajeBlur()">
     </div>
 
     <!-- DESCTO $-->
     <div class="input-group">
-      <label for="descto" class="label-form">Descto $</label>
-      <div class="relative">
-        <input id="descto"
-               type="text"
-               inputmode="decimal"
-               formControlName="descuento"
-               class="input-form pr-11"
-               (input)="onDescuentoInput($event)"
-               (blur)="onDescuentoBlur()">
-
-        <button type="button"
-                class="absolute inset-y-0 right-1 my-1 flex w-8 items-center justify-center rounded text-sm font-bold text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary">
-          {{ '$' }}
-        </button>
-      </div>
+      <label for="desctoImporte" class="label-form">Descto $</label>
+      <input id="desctoImporte"
+             type="text"
+             inputmode="decimal"
+             formControlName="descuento"
+             class="input-form"
+             (input)="onDescuentoImporteInput($event)"
+             (blur)="onDescuentoImporteBlur()">
     </div>
 
     <!-- IVA -->
