@@ -1,7 +1,8 @@
-<form [formGroup]="form" class="form-container mt-4">
+<form [formGroup]="form" class=" flex flex-col gap-4 p-2 rounded-lg shadow-sm border border-outline-variant mt-4">
 
-  <div
-    class="hidden md:grid grid-cols-12 gap-4 rounded-lg bg-emerald-100 p-2 border-outline-variant font-medium text-sm">
+  <div class="hidden md:grid grid-cols-12 gap-4 rounded-lg p-2 border-outline-variant font-medium text-sm
+            bg-emerald-100 text-emerald-900
+            dark:bg-emerald-950 dark:text-emerald-200">
     <div class="md:col-span-4">Producto</div>
     <div class="md:col-span-1">Cantidad</div>
     <div class="md:col-span-1">U.M.</div>
@@ -231,41 +232,35 @@
   </div>
 
 </form>
-<div class=" md:grid grid-cols-12 gap-4 rounded-lg bg-emerald-50 p-2 border-outline-variant font-medium text-sm">
-  <div class="input-group col-span-4">
-  <button type="button">+ Agregar Producto</button>
+
+<div class=" flex flex-col p-2 ">
+
+  <div class="hidden md:grid grid-cols-12 rounded-lg p-2 border-outline-variant font-medium text-sm">
+
+    <!-- Primera columna - ocupa 2 filas -->
+    <div class="md:col-span-4 row-span-2 flex items-center">
+      + Agregar Producto
+    </div>
+
+    <div
+      class="md:col-span-8 grid grid-cols-8 gap-4 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 rounded p-2">
+      <div class="md:col-span-3">Total Productos</div>
+      <div class="md:col-span-1">Subtotal</div>
+      <div class="md:col-span-1">Descuentos</div>
+      <div class="md:col-span-1">IVA</div>
+      <div class="md:col-span-1">ISR</div>
+      <div class="md:col-span-1">Total</div>
+    </div>
+
+    <div
+      class="md:col-span-8 grid grid-cols-8 gap-4 bg-emerald-50 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 rounded p-2">
+      <div class="md:col-span-3">1</div>
+      <div class="md:col-span-1">$600</div>
+      <div class="md:col-span-1">$0</div>
+      <div class="md:col-span-1">$96</div>
+      <div class="md:col-span-1">$7.50</div>
+      <div class="md:col-span-1">$688.50</div>
+    </div>
   </div>
-  <div class="input-group col-span-3">
-    <label for="totalProductos" class="label-form">Total Productos</label>
-    <label for="totalProductos" class="label-form">3</label>
-  </div>
-
-  <div class="input-group">
-    <label for="totalProductos" class="label-form">Subtotal</label>
-    <label for="totalProductos" class="label-form">100</label>
-  </div>
-
-  <div class="input-group">
-    <label for="totalProductos" class="label-form">Descuentos</label>
-    <label for="totalProductos" class="label-form">100</label>
-  </div>
-
-
-  <div class="input-group">
-    <label for="totalProductos" class="label-form">IVA</label>
-    <label for="totalProductos" class="label-form">160</label>
-  </div>
-
-  <div class="input-group">
-    <label for="totalProductos" class="label-form">ISR</label>
-    <label for="totalProductos" class="label-form">160</label>
-  </div>
-
-
-  <div class="input-group">
-    <label for="totalProductos" class="label-form">TOTAL</label>
-    <label for="totalProductos" class="label-form">1600</label>
-  </div>
-
 
 </div>
