@@ -21,10 +21,14 @@
       (almacenSeleccionado)="onAlmacenSeleccionado($event)">
     </almacen-select>
 
-    <producto-autocomplete
-      (enterPressed)="consultar()"
-      (productoSeleccionado)="onProductoSeleccionado($event)">
-    </producto-autocomplete>
+    <div>
+      <label for="producto" class="label-form">Producto </label>
+      <producto-autocomplete
+        (enterPressed)="consultar()"
+        (productoSeleccionado)="onProductoSeleccionado($event)">
+      </producto-autocomplete>
+
+    </div>
 
     @if (resultado(); as res) {
       @if (productoSeleccionado(); as producto) {

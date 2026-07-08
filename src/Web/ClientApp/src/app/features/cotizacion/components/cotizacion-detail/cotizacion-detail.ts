@@ -8,6 +8,7 @@ import {OverlayModule, ConnectionPositionPair} from '@angular/cdk/overlay';
 import {ProductoApi} from '../../../../shared/services/producto.api';
 import {UnidadMedida} from '../../../../shared/models/unidad-medida.model';
 import {MatIconModule} from '@angular/material/icon';
+import {MatIconButton} from '@angular/material/button';
 
 interface PrecioOption {
   id: 1 | 2 | 3;
@@ -19,7 +20,7 @@ type DescuentoModo = 'porcentaje' | 'importe';
 
 @Component({
   selector: 'app-cotizacion-detail',
-  imports: [CommonModule, ProductoAutocomplete, ReactiveFormsModule, OverlayModule, MatIconModule],
+  imports: [CommonModule, ProductoAutocomplete, ReactiveFormsModule, OverlayModule, MatIconModule, MatIconButton],
   templateUrl: './cotizacion-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -49,6 +50,7 @@ export class CotizacionDetail {
   ];
 
   readonly form = this.fb.group({
+    idProducto:0,
     codigo: '',
     producto: '',
     observaciones: '',
@@ -79,9 +81,7 @@ export class CotizacionDetail {
 
     this.form.controls.codigo.setValue(producto?.codigo ?? '');
     this.form.controls.producto.setValue(producto?.nombre ?? '');
-    this.form.controls.unidad.setValue('');
-    this.form.controls.idUnidad.setValue(null);
-    this.form.controls.precio.setValue('');
+    this.resetProductDependentValues();
     this.recalculateAmounts();
 
     if (!producto) return;
@@ -217,6 +217,24 @@ export class CotizacionDetail {
       abreviatura: producto.abrevUnidadMedida,
       esPrincipal: true,
     };
+  }
+
+  private resetProductDependentValues(): void {
+    this.descuentoModo.set('porcentaje');
+    this.descuentoPorcentajeInput.setValue('0.00', {emitEvent: false});
+
+    this.form.patchValue({
+      observaciones: '',
+      cantidad: '1.00',
+      unidad: '',
+      idUnidad: null,
+      precio: '',
+      descuento: '0.00',
+      iva: '',
+      isr: '',
+      subtotal: '',
+      total: '',
+    }, {emitEvent: false});
   }
 
   private createPrecios(producto: Producto): PrecioOption[] {

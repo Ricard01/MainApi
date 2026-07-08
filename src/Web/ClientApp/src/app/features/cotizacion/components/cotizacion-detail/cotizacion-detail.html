@@ -1,5 +1,18 @@
 <form [formGroup]="form" class="form-container mt-4">
 
+  <div
+    class="hidden md:grid grid-cols-12 gap-4 rounded-lg bg-emerald-100 p-2 border-outline-variant font-medium text-sm">
+    <div class="md:col-span-4">Producto</div>
+    <div class="md:col-span-1">Cantidad</div>
+    <div class="md:col-span-1">U.M.</div>
+    <div class="md:col-span-1">Precio U.</div>
+    <div class="md:col-span-1">Descto %</div>
+    <div class="md:col-span-1">Descto $</div>
+    <div class="md:col-span-1">IVA 16%</div>
+    <div class="md:col-span-1">Ret ISR</div>
+    <div class="md:col-span-1">Total</div>
+  </div>
+
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
 
     <!-- PRODUCTO -->
@@ -12,7 +25,6 @@
 
     <!-- CANTIDAD -->
     <div class="input-group">
-      <label for="cantidad" class="label-form"> Cantidad </label>
       <input id="cantidad"
              formControlName="cantidad"
              type="text"
@@ -24,8 +36,6 @@
 
     <!-- U.M. -->
     <div class="input-group">
-      <label for="um" class="label-form"> U.M. </label>
-
       <div cdkOverlayOrigin #unidadOrigin="cdkOverlayOrigin" #unidadTrigger class="relative">
         <input id="um"
                type="text"
@@ -86,8 +96,6 @@
 
     <!-- PRECIO -->
     <div class="input-group">
-      <label for="precio" class="label-form">Precio</label>
-
       <div cdkOverlayOrigin #precioOrigin="cdkOverlayOrigin" #precioTrigger class="relative">
         <input id="precio"
                type="text"
@@ -148,7 +156,6 @@
 
     <!-- DESCTO %-->
     <div class="input-group">
-      <label for="desctoPorcentaje" class="label-form">Descto %</label>
       <input id="desctoPorcentaje"
              type="text"
              inputmode="decimal"
@@ -160,7 +167,6 @@
 
     <!-- DESCTO $-->
     <div class="input-group">
-      <label for="desctoImporte" class="label-form">Descto $</label>
       <input id="desctoImporte"
              type="text"
              inputmode="decimal"
@@ -172,7 +178,6 @@
 
     <!-- IVA -->
     <div class="input-group">
-      <label for="iva" class="label-form">IVA 16%</label>
       <input id="iva"
              type="text"
              formControlName="iva"
@@ -183,7 +188,6 @@
 
     <!-- ISR -->
     <div class="input-group">
-      <label for="isr" class="label-form">Ret ISR</label>
       <input id="isr"
              type="text"
              formControlName="isr"
@@ -194,7 +198,6 @@
 
     <!-- TOTAL -->
     <div class="input-group">
-      <label for="total" class="label-form">Total</label>
       <input id="total"
              type="text"
              formControlName="total"
@@ -203,18 +206,66 @@
              aria-readonly="true">
     </div>
 
+
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
     <!-- DESCRIPCION -->
-    <div class="md:col-span-3 input-group">
-      <label for="observaciones" class="label-form">Descripcion</label>
+    <div class="md:col-span-4 input-group">
+
       <textarea id="observaciones"
+                placeholder="Descripcion"
                 type="text"
                 rows="1"
                 formControlName="observaciones"
                 class="input-form h-8.5 min-h-8.5  overflow-hidden "> </textarea>
     </div>
+
+    <div class="md:col-span-8 flex justify-end pb-1">
+      <button matIconButton
+              class="accent disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Eliminar">
+        <mat-icon svgIcon="delete"></mat-icon>
+      </button>
+    </div>
   </div>
 
 </form>
+<div class=" md:grid grid-cols-12 gap-4 rounded-lg bg-emerald-50 p-2 border-outline-variant font-medium text-sm">
+  <div class="input-group col-span-4">
+  <button type="button">+ Agregar Producto</button>
+  </div>
+  <div class="input-group col-span-3">
+    <label for="totalProductos" class="label-form">Total Productos</label>
+    <label for="totalProductos" class="label-form">3</label>
+  </div>
+
+  <div class="input-group">
+    <label for="totalProductos" class="label-form">Subtotal</label>
+    <label for="totalProductos" class="label-form">100</label>
+  </div>
+
+  <div class="input-group">
+    <label for="totalProductos" class="label-form">Descuentos</label>
+    <label for="totalProductos" class="label-form">100</label>
+  </div>
+
+
+  <div class="input-group">
+    <label for="totalProductos" class="label-form">IVA</label>
+    <label for="totalProductos" class="label-form">160</label>
+  </div>
+
+  <div class="input-group">
+    <label for="totalProductos" class="label-form">ISR</label>
+    <label for="totalProductos" class="label-form">160</label>
+  </div>
+
+
+  <div class="input-group">
+    <label for="totalProductos" class="label-form">TOTAL</label>
+    <label for="totalProductos" class="label-form">1600</label>
+  </div>
+
+
+</div>
