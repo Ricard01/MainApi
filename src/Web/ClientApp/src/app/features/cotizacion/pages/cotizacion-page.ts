@@ -7,12 +7,8 @@ import {CotizacionDetail} from '../components/cotizacion-detail/cotizacion-detai
   selector: 'app-cotizacion-page',
   imports: [CotizacionHeader, CotizacionDetail],
   template: `
-
-
-    <h2>Cotización PAGE</h2>
     <app-cotizacion-header (personaMoralChange)="isPersonaMoral.set($event)"></app-cotizacion-header>
     <app-cotizacion-detail [isPersonaMoral]="isPersonaMoral()"></app-cotizacion-detail>
-
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
