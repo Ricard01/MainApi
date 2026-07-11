@@ -13,8 +13,8 @@ export const items: MenuItem[] = [
   },
   {
     icon: 'article',
-    label: 'cotización',
-    route: 'cotizacion',
+    label: 'Cotizaciones',
+    route: 'cotizaciones',
   },
   {
     icon: 'user',

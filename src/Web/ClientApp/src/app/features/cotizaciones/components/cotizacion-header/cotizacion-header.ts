@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, output} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  output
+} from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete/agente-autocomplete';
 import {Agente} from '../../../../shared/models/agente.model';
@@ -37,6 +46,7 @@ export class CotizacionHeader implements OnInit {
     email: [''],
     telefono: [''],
   });
+  @Output() regresar = new EventEmitter<unknown>();
 
   ngOnInit(): void {
     this.form.controls.isPersonaMoral.valueChanges

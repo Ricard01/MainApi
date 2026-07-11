@@ -1,4 +1,4 @@
-export const cotizacionRoutes = [
+export const cotizacionesRoutes = [
   {
     path: '',
     children: [
