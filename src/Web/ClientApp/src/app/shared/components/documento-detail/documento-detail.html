@@ -42,7 +42,7 @@
                    inputmode="decimal"
                    class="input-form"
                    (input)="onCantidadInput($event, i)"
-                   (blur)="onCantidadBlur(i)">
+                   (blur)="onCantidadBlur($event, i)">
           </div>
 
           <div class="input-group">
@@ -110,7 +110,7 @@
                      formControlName="precio"
                      class="input-form pr-10"
                      (input)="onPrecioManualInput($event, i)"
-                     (blur)="onPrecioBlur(i)">
+                     (blur)="onPrecioBlur($event, i)">
 
               <button type="button"
                       class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
@@ -165,10 +165,10 @@
             <input [id]="'descto-porcentaje-' + detalleStates()[i].id"
                    type="text"
                    inputmode="decimal"
-                   [formControl]="detalleStates()[i].descuentoPorcentajeInput"
+                   formControlName="descuentoPorcentaje"
                    class="input-form"
                    (input)="onDescuentoPorcentajeInput($event, i)"
-                   (blur)="onDescuentoPorcentajeBlur(i)">
+                   (blur)="onDescuentoPorcentajeBlur($event, i)">
           </div>
 
           <div class="input-group">
@@ -178,7 +178,7 @@
                    formControlName="descuento"
                    class="input-form"
                    (input)="onDescuentoImporteInput($event, i)"
-                   (blur)="onDescuentoImporteBlur(i)">
+                   (blur)="onDescuentoImporteBlur($event, i)">
           </div>
 
           <div class="input-group">

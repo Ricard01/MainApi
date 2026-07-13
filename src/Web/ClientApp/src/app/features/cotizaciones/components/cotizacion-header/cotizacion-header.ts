@@ -2,13 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  EventEmitter,
   inject,
   OnInit,
-  Output,
   output
 } from '@angular/core';
-import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
+import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete/agente-autocomplete';
 import {Agente} from '../../../../shared/models/agente.model';
 import {DateInput} from '../../../../shared/components/date-input/date-input';
@@ -37,16 +35,15 @@ export class CotizacionHeader implements OnInit {
   readonly form = this.fb.group({
     isPersonaMoral: [true],
     idAgente: [0],
-    agente: [''],
-    cliente: [''],
-    fecha: [this.getFechaHoy()],
+    agente: ['', Validators.required],
+    cliente: ['',Validators.maxLength(20)],
+    fecha: [this.getFechaHoy(),  Validators.required],
     serie: [''],
-    folio: [''],
-    contacto: [''],
-    email: [''],
-    telefono: [''],
+    folio: ['',  Validators.required],
+    contacto: ['', Validators.maxLength(20)],
+    email: ['',Validators.maxLength(50)],
+    telefono: ['',Validators.maxLength(50)],
   });
-  @Output() regresar = new EventEmitter<unknown>();
 
   ngOnInit(): void {
     this.form.controls.isPersonaMoral.valueChanges
