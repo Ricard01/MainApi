@@ -47,6 +47,10 @@ interface DetalleState {
   selectedPrecio: WritableSignal<PrecioOption | null>;
   isPrecioMenuOpen: WritableSignal<boolean>;
   precioMenuWidth: WritableSignal<number | string>;
+  cantidadDisplay: WritableSignal<string>;
+  precioDisplay: WritableSignal<string>;
+  descuentoPorcentajeDisplay: WritableSignal<string>;
+  descuentoDisplay: WritableSignal<string>;
 }
 
 interface TotalesDetalle {
@@ -197,63 +201,65 @@ export class DocumentoDetail {
     const state = this.stateAt(index);
 
     state.selectedPrecio.set(precio);
-    row.controls.precio.setValue(this.roundDecimal(precio.monto, 4));
+    row.controls.precio.setValue(this.roundCurrency(precio.monto));
+    state.precioDisplay.set(this.formatDecimal(row.controls.precio.value));
     state.isPrecioMenuOpen.set(false);
     this.updateDescuentoImporteIfPercentageMode(index);
     this.recalculateAmounts(index);
   }
 
   onCantidadInput(event: Event, index: number): void {
-    this.normalizeDecimalInput(event, this.rowAt(index).controls.cantidad, 2);
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.cantidad, this.stateAt(index).cantidadDisplay);
     this.updateDescuentoImporteIfPercentageMode(index);
     this.recalculateAmounts(index);
   }
 
   onCantidadBlur(event: Event, index: number): void {
-    this.formatControlDecimal(this.rowAt(index).controls.cantidad, 2);
-    this.formatInputDecimal(event, this.rowAt(index).controls.cantidad.value, 2);
+    this.formatControlDecimal(this.rowAt(index).controls.cantidad);
+    this.formatInputDecimal(event, this.rowAt(index).controls.cantidad.value, this.stateAt(index).cantidadDisplay);
     this.updateDescuentoImporteIfPercentageMode(index);
     this.recalculateAmounts(index);
   }
 
   onPrecioManualInput(event: Event, index: number): void {
     this.stateAt(index).selectedPrecio.set(null);
-    this.normalizeDecimalInput(event, this.rowAt(index).controls.precio, 4);
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.precio, this.stateAt(index).precioDisplay);
     this.updateDescuentoImporteIfPercentageMode(index);
     this.recalculateAmounts(index);
   }
 
   onPrecioBlur(event: Event, index: number): void {
-    this.formatControlDecimal(this.rowAt(index).controls.precio, 4);
-    this.formatInputDecimal(event, this.rowAt(index).controls.precio.value, 4);
+    this.formatControlDecimal(this.rowAt(index).controls.precio);
+    this.formatInputDecimal(event, this.rowAt(index).controls.precio.value, this.stateAt(index).precioDisplay);
     this.updateDescuentoImporteIfPercentageMode(index);
     this.recalculateAmounts(index);
   }
 
   onDescuentoPorcentajeInput(event: Event, index: number): void {
-    this.normalizeDecimalInput(event, this.rowAt(index).controls.descuentoPorcentaje, 2);
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.descuentoPorcentaje, this.stateAt(index).descuentoPorcentajeDisplay);
     this.updateDescuentoImporteFromPorcentaje(index);
     this.recalculateAmounts(index);
   }
 
   onDescuentoPorcentajeBlur(event: Event, index: number): void {
-    this.formatControlDecimal(this.rowAt(index).controls.descuentoPorcentaje, 2);
-    this.formatInputDecimal(event, this.rowAt(index).controls.descuentoPorcentaje.value, 2);
+    this.formatControlDecimal(this.rowAt(index).controls.descuentoPorcentaje);
+    this.formatInputDecimal(event, this.rowAt(index).controls.descuentoPorcentaje.value, this.stateAt(index).descuentoPorcentajeDisplay);
     this.updateDescuentoImporteFromPorcentaje(index);
     this.recalculateAmounts(index);
   }
 
   onDescuentoImporteInput(event: Event, index: number): void {
+    this.stateAt(index).descuentoPorcentajeDisplay.set('0.00');
     this.rowAt(index).controls.descuentoPorcentaje.setValue(0, {emitEvent: false});
-    this.normalizeDecimalInput(event, this.rowAt(index).controls.descuento, 2);
+    this.normalizeDecimalInput(event, this.rowAt(index).controls.descuento, this.stateAt(index).descuentoDisplay);
     this.recalculateAmounts(index);
   }
 
   onDescuentoImporteBlur(event: Event, index: number): void {
     const descuento = this.rowAt(index).controls.descuento;
 
-    this.formatControlDecimal(descuento, 2);
-    this.formatInputDecimal(event, descuento.value, 2);
+    this.formatControlDecimal(descuento);
+    this.formatInputDecimal(event, descuento.value, this.stateAt(index).descuentoDisplay);
     this.recalculateAmounts(index);
   }
 
@@ -288,6 +294,10 @@ export class DocumentoDetail {
       selectedPrecio: signal<PrecioOption | null>(null),
       isPrecioMenuOpen: signal(false),
       precioMenuWidth: signal<number | string>('100%'),
+      cantidadDisplay: signal('1.00'),
+      precioDisplay: signal('0.00'),
+      descuentoPorcentajeDisplay: signal('0.00'),
+      descuentoDisplay: signal('0.00'),
     };
   }
 
@@ -310,6 +320,8 @@ export class DocumentoDetail {
 
   private resetProductDependentValues(index: number): void {
     const row = this.rowAt(index);
+    const state = this.stateAt(index);
+
     row.patchValue({
       observaciones: '',
       cantidad: 1,
@@ -323,6 +335,14 @@ export class DocumentoDetail {
       neto: 0,
       total: 0,
     }, {emitEvent: false});
+    this.resetDecimalDisplays(state);
+  }
+
+  private resetDecimalDisplays(state: DetalleState): void {
+    state.cantidadDisplay.set('1.00');
+    state.precioDisplay.set('0.00');
+    state.descuentoPorcentajeDisplay.set('0.00');
+    state.descuentoDisplay.set('0.00');
   }
 
   private createPrecios(producto: Producto): PrecioOption[] {
@@ -333,48 +353,45 @@ export class DocumentoDetail {
     ];
   }
 
-  private normalizeDecimalInput(event: Event, control: FormControl<number>, decimals: number): void {
+  private normalizeDecimalInput(event: Event, control: FormControl<number>, display: WritableSignal<string>): void {
     const input = event.target as HTMLInputElement;
-    const normalized = this.limitDecimalText(input.value, decimals);
+    const normalized = this.limitDecimalText(input.value);
 
     if (input.value !== normalized) {
       input.value = normalized;
     }
 
+    display.set(normalized);
     control.setValue(this.parseDecimal(normalized), {emitEvent: false});
   }
 
-  private formatControlDecimal(control: FormControl<number>, decimals: number): void {
-    control.setValue(this.roundDecimal(control.value, decimals), {emitEvent: false});
+  private formatControlDecimal(control: FormControl<number>): void {
+    control.setValue(this.roundCurrency(control.value), {emitEvent: false});
   }
 
-  private formatInputDecimal(event: Event, value: number, decimals: number): void {
+  private formatInputDecimal(event: Event, value: number, display: WritableSignal<string>): void {
     const input = event.target as HTMLInputElement;
+    const formatted = this.formatDecimal(value);
 
-    input.value = this.formatDecimal(value, decimals);
+    display.set(formatted);
+    input.value = formatted;
   }
 
-  private limitDecimalText(value: string, decimals: number): string {
+  private limitDecimalText(value: string): string {
     const cleaned = value.replace(/,/g, '.').replace(/[^\d.]/g, '');
     if (cleaned === '') return '';
 
     const [integerPart, ...decimalParts] = cleaned.split('.');
     const integer = integerPart || '0';
-    const decimal = decimalParts.join('').slice(0, decimals);
+    const decimal = decimalParts.join('').slice(0, 2);
 
     return cleaned.includes('.') ? `${integer}.${decimal}` : integer;
   }
 
-  private formatDecimal(value: string | number, decimals: number): string {
+  protected formatDecimal(value: string | number): string {
     const parsed = Number(value);
 
-    return Number.isFinite(parsed) ? parsed.toFixed(decimals) : '';
-  }
-
-  private roundDecimal(value: number, decimals: number): number {
-    const factor = 10 ** decimals;
-
-    return Math.round((value + Number.EPSILON) * factor) / factor;
+    return Number.isFinite(parsed) ? parsed.toFixed(2) : '0.00';
   }
 
   private recalculateAmounts(index: number): void {
@@ -400,6 +417,7 @@ export class DocumentoDetail {
 
   private updateDescuentoImporteFromPorcentaje(index: number): void {
     const row = this.rowAt(index);
+    const state = this.stateAt(index);
     const cantidad = row.controls.cantidad.value;
     const precio = row.controls.precio.value;
     const porcentaje = row.controls.descuentoPorcentaje.value;
@@ -407,6 +425,7 @@ export class DocumentoDetail {
     const descuentoImporte = this.roundCurrency(importeBruto * (porcentaje / 100));
 
     row.controls.descuento.setValue(descuentoImporte, {emitEvent: false});
+    state.descuentoDisplay.set(this.formatDecimal(descuentoImporte));
   }
 
   private updateDescuentoImporteIfPercentageMode(index: number): void {

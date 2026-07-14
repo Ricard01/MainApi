@@ -37,7 +37,7 @@
 
           <div class="input-group">
             <input [id]="'cantidad-' + detalleStates()[i].id"
-                   formControlName="cantidad"
+                   [value]="detalleStates()[i].cantidadDisplay()"
                    type="text"
                    inputmode="decimal"
                    class="input-form"
@@ -107,7 +107,7 @@
               <input [id]="'precio-' + detalleStates()[i].id"
                      type="text"
                      inputmode="decimal"
-                     formControlName="precio"
+                     [value]="detalleStates()[i].precioDisplay()"
                      class="input-form pr-10"
                      (input)="onPrecioManualInput($event, i)"
                      (blur)="onPrecioBlur($event, i)">
@@ -143,7 +143,7 @@
                       class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ detalleStates()[i].selectedPrecio()?.id === precio.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
                     <span class="truncate">
                       <span
-                        class="font-bold">{{ precio.nombre }}</span> - {{ precio.monto | currency:'MXN':'$':'1.4-4' }}
+                        class="font-bold">{{ precio.nombre }}</span> - {{ precio.monto | currency:'MXN':'$':'1.2-2' }}
                     </span>
 
                     @if (detalleStates()[i].selectedPrecio()?.id === precio.id) {
@@ -165,7 +165,7 @@
             <input [id]="'descto-porcentaje-' + detalleStates()[i].id"
                    type="text"
                    inputmode="decimal"
-                   formControlName="descuentoPorcentaje"
+                   [value]="detalleStates()[i].descuentoPorcentajeDisplay()"
                    class="input-form"
                    (input)="onDescuentoPorcentajeInput($event, i)"
                    (blur)="onDescuentoPorcentajeBlur($event, i)">
@@ -175,7 +175,7 @@
             <input [id]="'descto-importe-' + detalleStates()[i].id"
                    type="text"
                    inputmode="decimal"
-                   formControlName="descuento"
+                   [value]="detalleStates()[i].descuentoDisplay()"
                    class="input-form"
                    (input)="onDescuentoImporteInput($event, i)"
                    (blur)="onDescuentoImporteBlur($event, i)">
@@ -184,7 +184,7 @@
           <div class="input-group">
             <input [id]="'iva-' + detalleStates()[i].id"
                    type="text"
-                   formControlName="iva"
+                   [value]="formatDecimal(detalle.controls.iva.value)"
                    readonly
                    class="input-form bg-surface-variant/40 cursor-default"
                    aria-readonly="true">
@@ -193,7 +193,7 @@
           <div class="input-group">
             <input [id]="'isr-' + detalleStates()[i].id"
                    type="text"
-                   formControlName="isr"
+                   [value]="formatDecimal(detalle.controls.isr.value)"
                    readonly
                    class="input-form bg-surface-variant/40 cursor-default"
                    aria-readonly="true">
@@ -202,7 +202,7 @@
           <div class="input-group">
             <input [id]="'total-' + detalleStates()[i].id"
                    type="text"
-                   formControlName="total"
+                   [value]="formatDecimal(detalle.controls.total.value)"
                    readonly
                    class="input-form bg-surface-variant/40 cursor-default font-semibold"
                    aria-readonly="true">
