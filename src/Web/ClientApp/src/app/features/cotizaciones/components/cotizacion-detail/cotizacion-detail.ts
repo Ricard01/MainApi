@@ -10,6 +10,7 @@ import {DocumentoDetalleValue, TotalesDetalle} from '../../../../shared/models/d
 })
 export class CotizacionDetail {
   readonly isPersonaMoral = input(true);
+  readonly actionsDisabled = input(false);
   readonly guardar = output<void>();
   private readonly documentoDetail = viewChild.required(DocumentoDetail);
 

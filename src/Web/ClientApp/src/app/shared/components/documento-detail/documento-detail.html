@@ -23,21 +23,21 @@
   </div>
 
   <div formArrayName="detalles" class="flex flex-col gap-4">
-    @for (detalle of detalleForms(); track detalleStates()[$index].id; let i = $index) {
+    @for (state of detalleStates(); track state.id; let i = $index) {
       <section [formGroupName]="i"
                class="flex flex-col gap-3 border-b border-outline-variant pb-4 last:border-b-0 last:pb-0">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
           <div class="md:col-span-4">
             <producto-autocomplete
-              [inputId]="'producto-search-' + detalleStates()[i].id"
+              [inputId]="'producto-search-' + state.id"
               [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
               (productoSeleccionado)="onProductoSeleccionado($event, i)">
             </producto-autocomplete>
           </div>
 
           <div class="input-group">
-            <input [id]="'cantidad-' + detalleStates()[i].id"
-                   [value]="detalleStates()[i].cantidadDisplay()"
+            <input [id]="'cantidad-' + state.id"
+                   [value]="state.cantidadDisplay()"
                    type="text"
                    inputmode="decimal"
                    class="input-form"
@@ -47,7 +47,7 @@
 
           <div class="input-group">
             <div cdkOverlayOrigin #unidadOrigin="cdkOverlayOrigin" #unidadTrigger class="relative">
-              <input [id]="'um-' + detalleStates()[i].id"
+              <input [id]="'um-' + state.id"
                      type="text"
                      formControlName="unidad"
                      readonly
@@ -56,11 +56,11 @@
 
               <button type="button"
                       class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
-                      [disabled]="detalleStates()[i].unidades().length === 0"
+                      [disabled]="state.unidades().length === 0"
                       (click)="toggleUnidadMenu(i, unidadTrigger)"
                       aria-label="Seleccionar unidad de medida"
                       aria-haspopup="listbox"
-                      [attr.aria-expanded]="detalleStates()[i].isUnidadMenuOpen()">
+                      [attr.aria-expanded]="state.isUnidadMenuOpen()">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
                 </svg>
@@ -69,25 +69,25 @@
 
             <ng-template cdkConnectedOverlay
                          [cdkConnectedOverlayOrigin]="unidadOrigin"
-                         [cdkConnectedOverlayOpen]="detalleStates()[i].isUnidadMenuOpen()"
+                         [cdkConnectedOverlayOpen]="state.isUnidadMenuOpen()"
                          [cdkConnectedOverlayPositions]="overlayPositions"
-                         [cdkConnectedOverlayWidth]="detalleStates()[i].unidadMenuWidth()"
+                         [cdkConnectedOverlayWidth]="state.unidadMenuWidth()"
                          [cdkConnectedOverlayHasBackdrop]="true"
                          cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                         (backdropClick)="detalleStates()[i].isUnidadMenuOpen.set(false)">
+                         (backdropClick)="state.isUnidadMenuOpen.set(false)">
               <ul
                 class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
                 role="listbox">
-                @for (unidad of detalleStates()[i].unidades(); track unidad.id) {
+                @for (unidad of state.unidades(); track unidad.id) {
                   <li (click)="selectUnidad(unidad, i)"
                       role="option"
-                      [attr.aria-selected]="detalleStates()[i].selectedUnidad()?.id === unidad.id"
-                      class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ detalleStates()[i].selectedUnidad()?.id === unidad.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
+                      [attr.aria-selected]="state.selectedUnidad()?.id === unidad.id"
+                      class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ state.selectedUnidad()?.id === unidad.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
                     <span class="truncate">
                       <span class="font-bold">{{ unidad.abreviatura }}</span> - {{ unidad.nombre }}
                     </span>
 
-                    @if (detalleStates()[i].selectedUnidad()?.id === unidad.id) {
+                    @if (state.selectedUnidad()?.id === unidad.id) {
                       <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                       </svg>
@@ -104,21 +104,21 @@
 
           <div class="input-group">
             <div cdkOverlayOrigin #precioOrigin="cdkOverlayOrigin" #precioTrigger class="relative">
-              <input [id]="'precio-' + detalleStates()[i].id"
+              <input [id]="'precio-' + state.id"
                      type="text"
                      inputmode="decimal"
-                     [value]="detalleStates()[i].precioDisplay()"
+                     [value]="state.precioDisplay()"
                      class="input-form pr-10"
                      (input)="onPrecioManualInput($event, i)"
                      (blur)="onPrecioBlur($event, i)">
 
               <button type="button"
                       class="absolute inset-y-0 right-1 my-1 flex w-7 items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-primary disabled:opacity-40"
-                      [disabled]="detalleStates()[i].precios().length === 0"
+                      [disabled]="state.precios().length === 0"
                       (click)="togglePrecioMenu(i, precioTrigger)"
                       aria-label="Seleccionar precio"
                       aria-haspopup="listbox"
-                      [attr.aria-expanded]="detalleStates()[i].isPrecioMenuOpen()">
+                      [attr.aria-expanded]="state.isPrecioMenuOpen()">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
                 </svg>
@@ -127,26 +127,26 @@
 
             <ng-template cdkConnectedOverlay
                          [cdkConnectedOverlayOrigin]="precioOrigin"
-                         [cdkConnectedOverlayOpen]="detalleStates()[i].isPrecioMenuOpen()"
+                         [cdkConnectedOverlayOpen]="state.isPrecioMenuOpen()"
                          [cdkConnectedOverlayPositions]="overlayPositions"
-                         [cdkConnectedOverlayWidth]="detalleStates()[i].precioMenuWidth()"
+                         [cdkConnectedOverlayWidth]="state.precioMenuWidth()"
                          [cdkConnectedOverlayHasBackdrop]="true"
                          cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                         (backdropClick)="detalleStates()[i].isPrecioMenuOpen.set(false)">
+                         (backdropClick)="state.isPrecioMenuOpen.set(false)">
               <ul
                 class="bg-surface border border-outline-variant shadow-xl rounded-md mt-1 max-h-60 overflow-y-auto py-1 z-50"
                 role="listbox">
-                @for (precio of detalleStates()[i].precios(); track precio.id) {
+                @for (precio of state.precios(); track precio.id) {
                   <li (click)="selectPrecio(precio, i)"
                       role="option"
-                      [attr.aria-selected]="detalleStates()[i].selectedPrecio()?.id === precio.id"
-                      class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ detalleStates()[i].selectedPrecio()?.id === precio.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
+                      [attr.aria-selected]="state.selectedPrecio()?.id === precio.id"
+                      class="px-4 py-2 cursor-pointer text-sm border-b border-outline-variant last:border-none transition-colors flex justify-between items-center gap-3 {{ state.selectedPrecio()?.id === precio.id ? 'bg-primary/10 font-bold text-primary' : 'hover:bg-surface-variant text-on-surface' }}">
                     <span class="truncate">
                       <span
                         class="font-bold">{{ precio.nombre }}</span> - {{ precio.monto | currency:'MXN':'$':'1.2-2' }}
                     </span>
 
-                    @if (detalleStates()[i].selectedPrecio()?.id === precio.id) {
+                    @if (state.selectedPrecio()?.id === precio.id) {
                       <svg class="w-4 h-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                       </svg>
@@ -162,47 +162,47 @@
           </div>
 
           <div class="input-group">
-            <input [id]="'descto-porcentaje-' + detalleStates()[i].id"
+            <input [id]="'descto-porcentaje-' + state.id"
                    type="text"
                    inputmode="decimal"
-                   [value]="detalleStates()[i].descuentoPorcentajeDisplay()"
+                   [value]="state.descuentoPorcentajeDisplay()"
                    class="input-form"
                    (input)="onDescuentoPorcentajeInput($event, i)"
                    (blur)="onDescuentoPorcentajeBlur($event, i)">
           </div>
 
           <div class="input-group">
-            <input [id]="'descto-importe-' + detalleStates()[i].id"
+            <input [id]="'descto-importe-' + state.id"
                    type="text"
                    inputmode="decimal"
-                   [value]="detalleStates()[i].descuentoDisplay()"
+                   [value]="state.descuentoDisplay()"
                    class="input-form"
                    (input)="onDescuentoImporteInput($event, i)"
                    (blur)="onDescuentoImporteBlur($event, i)">
           </div>
 
           <div class="input-group">
-            <input [id]="'iva-' + detalleStates()[i].id"
+            <input [id]="'iva-' + state.id"
                    type="text"
-                   [value]="formatDecimal(detalle.controls.iva.value)"
+                   [value]="formatDecimal(detalleForms()[i].controls.iva.value)"
                    readonly
                    class="input-form bg-surface-variant/40 cursor-default"
                    aria-readonly="true">
           </div>
 
           <div class="input-group">
-            <input [id]="'isr-' + detalleStates()[i].id"
+            <input [id]="'isr-' + state.id"
                    type="text"
-                   [value]="formatDecimal(detalle.controls.isr.value)"
+                   [value]="formatDecimal(detalleForms()[i].controls.isr.value)"
                    readonly
                    class="input-form bg-surface-variant/40 cursor-default"
                    aria-readonly="true">
           </div>
 
           <div class="input-group">
-            <input [id]="'total-' + detalleStates()[i].id"
+            <input [id]="'total-' + state.id"
                    type="text"
-                   [value]="formatDecimal(detalle.controls.total.value)"
+                   [value]="formatDecimal(detalleForms()[i].controls.total.value)"
                    readonly
                    class="input-form bg-surface-variant/40 cursor-default font-semibold"
                    aria-readonly="true">
@@ -211,7 +211,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
           <div class="md:col-span-4 input-group">
-            <textarea [id]="'observaciones-' + detalleStates()[i].id"
+            <textarea [id]="'observaciones-' + state.id"
                       placeholder="Descripcion"
                       rows="1"
                       formControlName="observaciones"
@@ -278,19 +278,22 @@
   <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
 
     <button type="button"
-            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5">
+            [disabled]="areActionsDisabled()"
+            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
       <mat-icon class="text-base h-5 w-5">visibility</mat-icon>
       Vista Previa
     </button>
 
     <button type="button"
-            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5">
+            [disabled]="areActionsDisabled()"
+            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
       <mat-icon class="text-base h-5 w-5">picture_as_pdf</mat-icon>
       PDF
     </button>
 
     <button type="button"
-            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5">
+            [disabled]="areActionsDisabled()"
+            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
       <mat-icon class="text-base h-5 w-5">send</mat-icon>
       Enviar
     </button>
@@ -302,6 +305,7 @@
     </button>
 
     <button type="button"
+            [disabled]="areActionsDisabled()"
             (click)="guardar.emit()"
             class="px-4 py-2 text-sm font-medium text-on-primary bg-primary rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed  transition-colors flex items-center gap-1.5">
       <mat-icon class="text-base h-5 w-5">save</mat-icon>

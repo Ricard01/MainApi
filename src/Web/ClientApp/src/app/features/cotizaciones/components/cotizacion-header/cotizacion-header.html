@@ -82,22 +82,40 @@
 
     <div class="input-group md:col-span-4">
       <label for="cliente" class="label-form">Cliente</label>
-      <input id="cliente" type="text" formControlName="cliente" class="input-form">
+      <input id="cliente" type="text" maxlength="50" formControlName="cliente" class="input-form"
+             [class.border-error]="form.controls.cliente.invalid && form.controls.cliente.touched"
+             [attr.aria-invalid]="form.controls.cliente.invalid && form.controls.cliente.touched ? 'true' : null">
+
+      @if (form.controls.cliente.invalid && form.controls.cliente.touched) {
+        <span class="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
+        @if (form.controls.cliente.errors?.['required']) { El nombre del cliente es obligatorio. }
+          @if (form.controls.cliente.errors?.['maxlength']) { Máximo 50 caracteres. }
+      </span>
+      }
+
     </div>
 
     <div class="input-group md:col-span-3">
       <label for="contacto" class="label-form">Contacto</label>
-      <input id="contacto" type="text" formControlName="contacto" class="input-form">
+      <input id="contacto" type="text" maxlength="50" formControlName="contacto" class="input-form"
+             [class.border-error]="form.controls.cliente.invalid && form.controls.cliente.touched"
+             [attr.aria-invalid]="form.controls.cliente.invalid && form.controls.cliente.touched ? 'true' : null">
+
+      @if (form.controls.contacto.invalid && form.controls.contacto.touched) {
+        <span class="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
+          @if (form.controls.contacto.errors?.['maxlength']) { Máximo 20 caracteres. }
+      </span>
+      }
     </div>
 
     <div class="input-group md:col-span-3">
       <label for="email" class="label-form">Email</label>
-      <input id="email" type="text" formControlName="email" class="input-form">
+      <input id="email" type="text" maxlength="50" formControlName="email" class="input-form">
     </div>
 
     <div class="input-group md:col-span-2">
       <label for="telefono" class="label-form">Teléfono</label>
-      <input id="telefono" type="text" formControlName="telefono" class="input-form">
+      <input id="telefono" type="text" maxlength="50" formControlName="telefono" class="input-form">
     </div>
 
   </div>

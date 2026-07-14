@@ -23,10 +23,13 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
       </button>
     </div>
 
-    <app-cotizacion-header (personaMoralChange)="isPersonaMoral.set($event)"></app-cotizacion-header>
+    <app-cotizacion-header
+      (personaMoralChange)="isPersonaMoral.set($event)">
+    </app-cotizacion-header>
 
     <app-cotizacion-detail
       [isPersonaMoral]="isPersonaMoral()"
+      [actionsDisabled]="!isHeaderValid()"
       (guardar)="onGuardar()">
     </app-cotizacion-detail>
   `,
@@ -38,16 +41,22 @@ export class CotizacionPage {
   private readonly cotizacionApi = inject(CotizacionApi);
   private readonly snackbar = inject(SnackbarService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly header = viewChild.required(CotizacionHeader);
+  private readonly header = viewChild(CotizacionHeader);
   private readonly detail = viewChild.required(CotizacionDetail);
 
   onRegresar() {
     this.router.navigate(['/cotizaciones']);
   }
 
+  isHeaderValid(): boolean {
+    return this.header()?.isValid() ?? false;
+  }
+
   onGuardar(): void {
     const header = this.header();
     const detail = this.detail();
+
+    if (!header) return;
 
     if (!header.isValid() || !detail.isValid()) {
       header.markAsTouched();
@@ -72,7 +81,7 @@ export class CotizacionPage {
   }
 
   private buildCreateCommand(): CreateCotizacionCommand {
-    const header = this.header().getValue();
+    const header = this.header()!.getValue();
     const resumen = this.detail().getResumenValue();
     const productos = this.detail().getDetallesValue().map(detalle => ({
       idProducto: detalle.idProducto,

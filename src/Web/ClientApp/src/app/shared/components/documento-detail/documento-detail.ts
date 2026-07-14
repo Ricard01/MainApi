@@ -29,6 +29,7 @@ import {
 export class DocumentoDetail {
   protected readonly TipoProducto = TipoProducto;
   readonly isPersonaMoral = input(true);
+  readonly actionsDisabled = input(false);
   readonly guardar = output<void>();
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly productoApi = inject(ProductoApi);
@@ -86,6 +87,10 @@ export class DocumentoDetail {
 
   getResumenValue(): TotalesDetalle {
     return this.resumen();
+  }
+
+  areActionsDisabled(): boolean {
+    return this.actionsDisabled() || this.form.invalid || this.resumen().productos <= 0;
   }
 
   addProducto(): void {

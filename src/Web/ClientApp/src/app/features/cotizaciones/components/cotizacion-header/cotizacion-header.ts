@@ -36,7 +36,7 @@ export class CotizacionHeader implements OnInit {
     isPersonaMoral: [true],
     idAgente: [0],
     agente: ['', Validators.required],
-    cliente: ['',Validators.maxLength(20)],
+    cliente: ['',[Validators.required, Validators.maxLength(50)]],
     fecha: [this.getFechaHoy(),  Validators.required],
     serie: [''],
     folio: ['',  Validators.required],
