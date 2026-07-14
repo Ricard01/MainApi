@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, WritableSignal, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, WritableSignal, effect, inject, input, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormArray, FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {ConnectionPositionPair, OverlayModule} from '@angular/cdk/overlay';
@@ -10,57 +10,14 @@ import {Producto} from '../../models/producto.model';
 import {TipoProducto} from '../../enums/producto.enum';
 import {ProductoApi} from '../../services/producto.api';
 import {UnidadMedida} from '../../models/unidad-medida.model';
-
-interface PrecioOption {
-  id: 1 | 2 | 3;
-  nombre: string;
-  monto: number;
-}
-
-interface DetalleControls {
-  idProducto: FormControl<number>;
-  codigo: FormControl<string>;
-  producto: FormControl<string>;
-  observaciones: FormControl<string>;
-  cantidad: FormControl<number>;
-  unidad: FormControl<string>;
-  idUnidad: FormControl<number | null>;
-  precio: FormControl<number>;
-  descuentoPorcentaje: FormControl<number>;
-  descuento: FormControl<number>;
-  iva: FormControl<number>;
-  isr: FormControl<number>;
-  neto: FormControl<number>;
-  total: FormControl<number>;
-}
-
-type DetalleForm = FormGroup<DetalleControls>;
-
-interface DetalleState {
-  id: string;
-  selectedProductoId: number | null;
-  unidades: WritableSignal<UnidadMedida[]>;
-  selectedUnidad: WritableSignal<UnidadMedida | null>;
-  isUnidadMenuOpen: WritableSignal<boolean>;
-  unidadMenuWidth: WritableSignal<number | string>;
-  precios: WritableSignal<PrecioOption[]>;
-  selectedPrecio: WritableSignal<PrecioOption | null>;
-  isPrecioMenuOpen: WritableSignal<boolean>;
-  precioMenuWidth: WritableSignal<number | string>;
-  cantidadDisplay: WritableSignal<string>;
-  precioDisplay: WritableSignal<string>;
-  descuentoPorcentajeDisplay: WritableSignal<string>;
-  descuentoDisplay: WritableSignal<string>;
-}
-
-interface TotalesDetalle {
-  productos: number;
-  subtotal: number;
-  descuento: number;
-  iva: number;
-  isr: number;
-  total: number;
-}
+import {
+  DetalleControls,
+  DetalleForm,
+  DetalleState,
+  DocumentoDetalleValue,
+  PrecioOption,
+  TotalesDetalle
+} from '../../models/documento.model';
 
 @Component({
   selector: 'documento-detail',
@@ -72,6 +29,7 @@ interface TotalesDetalle {
 export class DocumentoDetail {
   protected readonly TipoProducto = TipoProducto;
   readonly isPersonaMoral = input(true);
+  readonly guardar = output<void>();
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly productoApi = inject(ProductoApi);
   private rowId = 0;
@@ -110,6 +68,24 @@ export class DocumentoDetail {
 
   detalleForms(): DetalleForm[] {
     return this.detalles.controls;
+  }
+
+  isValid(): boolean {
+    return this.form.valid && this.getDetallesValue().length > 0;
+  }
+
+  markAsTouched(): void {
+    this.form.markAllAsTouched();
+  }
+
+  getDetallesValue(): DocumentoDetalleValue[] {
+    return this.detalleForms()
+      .map(row => row.getRawValue())
+      .filter(detalle => detalle.idProducto > 0);
+  }
+
+  getResumenValue(): TotalesDetalle {
+    return this.resumen();
   }
 
   addProducto(): void {

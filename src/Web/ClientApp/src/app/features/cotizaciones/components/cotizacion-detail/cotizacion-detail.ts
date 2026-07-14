@@ -1,5 +1,6 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
-import {DocumentoDetail} from '../../../../shared/components/documento-detail/documento-detail';
+import {ChangeDetectionStrategy, Component, input, output, viewChild} from '@angular/core';
+import { DocumentoDetail } from '../../../../shared/components/documento-detail/documento-detail';
+import {DocumentoDetalleValue, TotalesDetalle} from '../../../../shared/models/documento.model';
 
 @Component({
   selector: 'app-cotizacion-detail',
@@ -9,4 +10,22 @@ import {DocumentoDetail} from '../../../../shared/components/documento-detail/do
 })
 export class CotizacionDetail {
   readonly isPersonaMoral = input(true);
+  readonly guardar = output<void>();
+  private readonly documentoDetail = viewChild.required(DocumentoDetail);
+
+  isValid(): boolean {
+    return this.documentoDetail().isValid();
+  }
+
+  markAsTouched(): void {
+    this.documentoDetail().markAsTouched();
+  }
+
+  getDetallesValue(): DocumentoDetalleValue[] {
+    return this.documentoDetail().getDetallesValue();
+  }
+
+  getResumenValue(): TotalesDetalle {
+    return this.documentoDetail().getResumenValue();
+  }
 }

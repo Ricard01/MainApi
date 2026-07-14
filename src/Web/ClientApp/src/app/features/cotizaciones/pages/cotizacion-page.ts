@@ -1,8 +1,12 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild} from '@angular/core';
 import {CotizacionHeader} from '../components/cotizacion-header/cotizacion-header';
 import {CotizacionDetail} from '../components/cotizacion-detail/cotizacion-detail';
 import {Router} from '@angular/router';
 import {MatIcon} from '@angular/material/icon';
+import {CotizacionApi} from '../data-acces/cotizacion.api';
+import {CreateCotizacionCommand} from '../data-acces/cotizacion.model';
+import {SnackbarService} from '../../../shared/services/snackbar.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -20,25 +24,86 @@ import {MatIcon} from '@angular/material/icon';
     </div>
 
     <app-cotizacion-header (personaMoralChange)="isPersonaMoral.set($event)"></app-cotizacion-header>
-    <app-cotizacion-detail [isPersonaMoral]="isPersonaMoral()"></app-cotizacion-detail>
+
+    <app-cotizacion-detail
+      [isPersonaMoral]="isPersonaMoral()"
+      (guardar)="onGuardar()">
+    </app-cotizacion-detail>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CotizacionPage {
   readonly isPersonaMoral = signal(true);
   private readonly router = inject(Router);
+  private readonly cotizacionApi = inject(CotizacionApi);
+  private readonly snackbar = inject(SnackbarService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly header = viewChild.required(CotizacionHeader);
+  private readonly detail = viewChild.required(CotizacionDetail);
 
   onRegresar() {
     this.router.navigate(['/cotizaciones']);
   }
 
-  // onSave(){
-  //   this.cotizacionApi.create(command)
-  //     .subscribe({
-  //       next: data => { }
-  //     })
-  //
-  // }
+  onGuardar(): void {
+    const header = this.header();
+    const detail = this.detail();
+
+    if (!header.isValid() || !detail.isValid()) {
+      header.markAsTouched();
+      detail.markAsTouched();
+      this.snackbar.error('Revisa los datos de la cotización antes de guardar');
+      return;
+    }
+
+    const command = this.buildCreateCommand();
+
+    this.cotizacionApi.create(command)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.snackbar.success('Cotización guardada correctamente');
+          this.router.navigate(['/cotizaciones']);
+        },
+        error: () => {
+          this.snackbar.error('No fue posible guardar la cotización');
+        }
+      });
+  }
+
+  private buildCreateCommand(): CreateCotizacionCommand {
+    const header = this.header().getValue();
+    const resumen = this.detail().getResumenValue();
+    const productos = this.detail().getDetallesValue().map(detalle => ({
+      idProducto: detalle.idProducto,
+      idUnidadMedida: detalle.idUnidad ?? 0,
+      cantidad: detalle.cantidad,
+      precio: detalle.precio,
+      observacion: detalle.observaciones,
+      descuentoPorcentaje: detalle.descuentoPorcentaje,
+      descuento: detalle.descuento,
+      neto: detalle.neto,
+      iva: detalle.iva,
+      isr: detalle.isr,
+      total: detalle.total,
+    }));
+
+    return {
+      id: 0,
+      fecha: header.fecha,
+      serie: header.serie,
+      folio: Number(header.folio) || 0,
+      idAgente: header.idAgente,
+      isPersonaMoral: header.isPersonaMoral,
+      cliente: header.cliente,
+      contacto: header.contacto,
+      email: header.email,
+      telefono: header.telefono,
+      productos,
+      totalProductos: resumen.productos,
+      total: resumen.total,
+    };
+  }
 
 
 

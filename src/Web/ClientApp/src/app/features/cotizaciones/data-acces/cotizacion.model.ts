@@ -27,3 +27,16 @@ export interface Productos {
   isr: number;
   total: number;
 }
+
+export interface CotizacionHeaderValue {
+  isPersonaMoral: boolean;
+  idAgente: number;
+  agente: string;
+  cliente: string;
+  fecha: string;
+  serie: string;
+  folio: string;
+  contacto: string;
+  email: string;
+  telefono: string;
+}

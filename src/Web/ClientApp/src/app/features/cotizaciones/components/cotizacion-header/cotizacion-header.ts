@@ -16,7 +16,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {CotizacionApi} from '../../data-acces/cotizacion.api';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-
+import {CotizacionHeaderValue} from '../../data-acces/cotizacion.model';
 
 @Component({
   selector: 'app-cotizacion-header',
@@ -81,6 +81,17 @@ export class CotizacionHeader implements OnInit {
     }
   }
 
+  isValid(): boolean {
+    return this.form.valid;
+  }
+
+  markAsTouched(): void {
+    this.form.markAllAsTouched();
+  }
+
+  getValue(): CotizacionHeaderValue {
+    return this.form.getRawValue();
+  }
 
   private getFechaHoy(): string {
     const hoy = new Date();

@@ -1,1 +1,4 @@
-<documento-detail [isPersonaMoral]="isPersonaMoral()"></documento-detail>
+<documento-detail
+  [isPersonaMoral]="isPersonaMoral()"
+  (guardar)="guardar.emit()">
+</documento-detail>
