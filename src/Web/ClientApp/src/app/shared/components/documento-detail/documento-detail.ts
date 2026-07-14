@@ -437,7 +437,7 @@ export class DocumentoDetail {
 
   private updateResumen(): void {
     const resumen = this.detalleForms().reduce<TotalesDetalle>((acc, row) => ({
-      productos: acc.productos + (row.controls.idProducto.value > 0 ? 1 : 0),
+      productos: acc.productos + (row.controls.idProducto.value > 0 ? row.controls.cantidad.value : 0),
       subtotal: acc.subtotal + row.controls.neto.value,
       descuento: acc.descuento + row.controls.descuento.value,
       iva: acc.iva + row.controls.iva.value,
@@ -453,7 +453,7 @@ export class DocumentoDetail {
     });
 
     this.resumen.set({
-      productos: resumen.productos,
+      productos: this.roundCurrency(resumen.productos),
       subtotal: this.roundCurrency(resumen.subtotal),
       descuento: this.roundCurrency(resumen.descuento),
       iva: this.roundCurrency(resumen.iva),
