@@ -98,8 +98,8 @@
     <div class="input-group md:col-span-3">
       <label for="contacto" class="label-form">Contacto</label>
       <input id="contacto" type="text" maxlength="50" formControlName="contacto" class="input-form"
-             [class.border-error]="form.controls.cliente.invalid && form.controls.cliente.touched"
-             [attr.aria-invalid]="form.controls.cliente.invalid && form.controls.cliente.touched ? 'true' : null">
+             [class.border-error]="form.controls.contacto.invalid && form.controls.contacto.touched"
+             [attr.aria-invalid]="form.controls.contacto.invalid && form.controls.contacto.touched ? 'true' : null">
 
       @if (form.controls.contacto.invalid && form.controls.contacto.touched) {
         <span class="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
