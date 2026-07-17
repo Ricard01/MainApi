@@ -2,6 +2,7 @@
 using MainApi.Infrastructure.CONTPAQi.Config;
 using MainApi.Infrastructure.CONTPAQi.Database;
 using MainApi.Infrastructure.CONTPAQi.Security;
+using MainApi.Infrastructure.CONTPAQi.Services;
 using MainApi.Infrastructure.Data;
 using MainApi.Infrastructure.Data.Interceptors;
 using MainApi.Infrastructure.Services;
@@ -38,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<IEncryptionService, EncryptionService>();
         services.AddScoped<ContpaqiConnectionStringFactory>();
         services.AddScoped<IContpaqiSqlConnection, ContpaqiSqlConnection>();
+        services.AddScoped<IDocumentoContpaqiService, DocumentoContpaqiService>();
 
         services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
         services.AddScoped<IPasswordService, PasswordService>();
