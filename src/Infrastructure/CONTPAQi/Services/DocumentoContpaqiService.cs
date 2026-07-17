@@ -177,12 +177,12 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                 documento.CIDDOCUMENTO,
                 CIDDOCUMENTODE = (int)documento.CIDDOCUMENTODE,
                 documento.CIDCONCEPTODOCUMENTO,
-                documento.CSERIEDOCUMENTO,
+                CSERIEDOCUMENTO = ToContpaqiVarChar(documento.CSERIEDOCUMENTO, AdmDocumentosColumnLengths.SerieDocumento),
                 CFOLIO = ToContpaqiFloat(documento.CFOLIO),
                 documento.CFECHA,
                 documento.CIDCLIENTEPROVEEDOR,
-                documento.CRAZONSOCIAL,
-                documento.CRFC,
+                CRAZONSOCIAL = ToContpaqiVarChar(documento.CRAZONSOCIAL, AdmDocumentosColumnLengths.RazonSocial),
+                CRFC = ToContpaqiVarChar(documento.CRFC, AdmDocumentosColumnLengths.Rfc),
                 documento.CIDAGENTE,
                 documento.CFECHAVENCIMIENTO,
                 documento.CFECHAPRONTOPAGO,
@@ -190,8 +190,8 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                 documento.CFECHAULTIMOINTERES,
                 documento.CIDMONEDA,
                 CTIPOCAMBIO = ToContpaqiFloat(documento.CTIPOCAMBIO),
-                documento.CREFERENCIA,
-                documento.COBSERVACIONES,
+                CREFERENCIA = ToContpaqiVarChar(documento.CREFERENCIA, AdmDocumentosColumnLengths.Referencia),
+                COBSERVACIONES = ToNullableContpaqiVarChar(documento.COBSERVACIONES, AdmDocumentosColumnLengths.Observaciones),
                 documento.CNATURALEZA,
                 documento.CUSACLIENTE,
                 documento.CAFECTADO,
@@ -205,16 +205,16 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                 CTOTAL = ToContpaqiFloat(documento.CTOTAL),
                 CPENDIENTE = ToContpaqiFloat(documento.CPENDIENTE),
                 CTOTALUNIDADES = ToContpaqiFloat(documento.CTOTALUNIDADES),
-                documento.CTEXTOEXTRA1,
-                documento.CTEXTOEXTRA2,
-                documento.CTEXTOEXTRA3,
-                documento.CDESTINATARIO,
+                CTEXTOEXTRA1 = ToContpaqiVarChar(documento.CTEXTOEXTRA1, AdmDocumentosColumnLengths.TextoExtra),
+                CTEXTOEXTRA2 = ToContpaqiVarChar(documento.CTEXTOEXTRA2, AdmDocumentosColumnLengths.TextoExtra),
+                CTEXTOEXTRA3 = ToContpaqiVarChar(documento.CTEXTOEXTRA3, AdmDocumentosColumnLengths.TextoExtra),
+                CDESTINATARIO = ToContpaqiVarChar(documento.CDESTINATARIO, AdmDocumentosColumnLengths.Destinatario),
                 documento.CBANOBSERVACIONES,
-                documento.CTIMESTAMP,
+                CTIMESTAMP = ToContpaqiVarChar(documento.CTIMESTAMP, AdmDocumentosColumnLengths.TimeStamp),
                 CUNIDADESPENDIENTES = ToContpaqiFloat(documento.CUNIDADESPENDIENTES),
                 CIMPCHEQPAQ = ToContpaqiFloat(documento.CIMPCHEQPAQ),
-                documento.CGUIDDOCUMENTO,
-                documento.CUSUARIO,
+                CGUIDDOCUMENTO = ToContpaqiVarChar(documento.CGUIDDOCUMENTO, AdmDocumentosColumnLengths.GuidDocumento),
+                CUSUARIO = ToContpaqiVarChar(documento.CUSUARIO, AdmDocumentosColumnLengths.Usuario),
                 documento.CSISTORIG
             },
             transaction,
@@ -305,7 +305,7 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                     CRETENCION1 = ToContpaqiFloat(movimiento.CRETENCION1),
                     CPORCENTAJERETENCION1 = ToContpaqiFloat(movimiento.CPORCENTAJERETENCION1),
                     CTOTAL = ToContpaqiFloat(movimiento.CTOTAL),
-                    movimiento.COBSERVAMOV,
+                    COBSERVAMOV = ToNullableContpaqiVarChar(movimiento.COBSERVAMOV, AdmMovimientosColumnLengths.Observaciones),
                     movimiento.CFECHA
                 },
                 transaction,
@@ -342,5 +342,34 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
     {
         // Conversion explicita al tipo que corresponde con SQL Server float en tablas CONTPAQi.
         return decimal.ToDouble(value);
+    }
+
+    private static DbString ToContpaqiVarChar(string? value, int length)
+    {
+        var text = value ?? string.Empty;
+
+        return new DbString
+        {
+            Value = text.Length <= length ? text : text[..length],
+            IsAnsi = true,
+            IsFixedLength = false,
+            Length = length
+        };
+    }
+
+    private static DbString ToNullableContpaqiVarChar(string? value, int length)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new DbString
+            {
+                Value = null,
+                IsAnsi = true,
+                IsFixedLength = false,
+                Length = length
+            };
+        }
+
+        return ToContpaqiVarChar(value, length);
     }
 }

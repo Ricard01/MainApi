@@ -19,8 +19,6 @@ public class Cotizaciones : EndpointGroupBase
     
     private Task<int> CreateCotizacion(ISender sender, CreateCotizacionCommand command)
     {
-        // Angular hace POST a este endpoint y ASP.NET llena el command con el JSON recibido.
-        // Desde aqui ya no se ejecuta logica: se manda el command a MediatR para que lo atienda su handler.
         return sender.Send(command);
     }
 }

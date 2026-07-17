@@ -7,14 +7,19 @@ public static class CreateCotizacionMapper
 {
     public static CrearDocumentoContpaqiRequest ToDocumentoContpaqi(CreateCotizacionCommand request)
     {
+        var razonSocial = request.IsPersonaMoral
+            ? "Cotización Persona Moral"
+            : "Cotización Persona Fisica";
+
         return new CrearDocumentoContpaqiRequest
         {
             Config = DocumentoContpaqiConfigs.Cotizacion,
             Fecha = ParseFecha(request.Fecha),
-            Serie = request.Serie,
+            Serie = request.Serie.Trim(),
             Folio = request.Folio,
             IdCliente = request.IsPersonaMoral ? 338: 1,
-            RazonSocial = request.IsPersonaMoral ? "Cotización Persona Moral": "Cotización Persona Fisica",
+            RazonSocial = razonSocial,
+            Rfc = string.Empty,
             TextoExtra1 = request.Cliente,
             TextoExtra2 = request.Email,
             TextoExtra3 = request.Telefono,

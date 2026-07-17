@@ -30,14 +30,14 @@ public static class DocumentoContpaqiMapper
             CIDDOCUMENTO = idDocumento,
             CIDDOCUMENTODE = request.Config.TipoDocumento,
             CIDCONCEPTODOCUMENTO = request.Config.ConceptoDocumento,
-            CSERIEDOCUMENTO = request.Serie,
+            CSERIEDOCUMENTO = MaxLength(request.Serie.Trim(), 11),
             CFOLIO = request.Folio,
             CFECHA = request.Fecha,
             CIDCLIENTEPROVEEDOR = request.IdCliente,
-            CRAZONSOCIAL = request.RazonSocial,
-            CRFC = request.Rfc,
+            CRAZONSOCIAL = request.RazonSocial ?? string.Empty,
+            CRFC = request.Rfc ?? string.Empty,
             CIDAGENTE = request.IdAgente,
-            CREFERENCIA = request.Referencia,
+            CREFERENCIA = request.Referencia ?? string.Empty,
             CFECHAVENCIMIENTO = request.Fecha,
             CFECHAPRONTOPAGO = request.Fecha,
             CFECHAENTREGARECEPCION = request.Fecha,
@@ -58,10 +58,10 @@ public static class DocumentoContpaqiMapper
             CTOTAL = resumen.Total,
             CPENDIENTE = resumen.Total,
             CTOTALUNIDADES = resumen.TotalUnidades,
-            CTEXTOEXTRA1 = request.TextoExtra1,
-            CTEXTOEXTRA2 = request.TextoExtra2,
-            CTEXTOEXTRA3 = request.TextoExtra3,
-            CDESTINATARIO = request.RazonSocial,
+            CTEXTOEXTRA1 = request.TextoExtra1 ?? string.Empty,
+            CTEXTOEXTRA2 = request.TextoExtra2 ?? string.Empty,
+            CTEXTOEXTRA3 = request.TextoExtra3 ?? string.Empty,
+            CDESTINATARIO = request.RazonSocial ?? string.Empty,
             CBANOBSERVACIONES = string.IsNullOrWhiteSpace(request.Observaciones) ? 0 : 1,
             CTIMESTAMP = CrearTimestampContpaqi(),
             CUNIDADESPENDIENTES = resumen.TotalUnidades,
@@ -130,5 +130,10 @@ public static class DocumentoContpaqiMapper
     private static string CrearTimestampContpaqi()
     {
         return DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss:fff", CultureInfo.InvariantCulture);
+    }
+
+    private static string MaxLength(string value, int length)
+    {
+        return value.Length <= length ? value : value[..length];
     }
 }
