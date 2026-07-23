@@ -19,13 +19,12 @@ public class GetFolioCotizacionQueryHandler : IRequestHandler<GetFolioCotizacion
         await using var connection = await _sqlConnection.CreateAsync();
 
         const string query = $"""
-                        SELECT CSERIEPOROMISION Serie, 
-                               CNOFOLIO Folio
-                        FROM admConceptos
-                        where CIDCONCEPTODOCUMENTO=1 -- Cotizacion 
-                        """;
-        
+                              SELECT CSERIEPOROMISION Serie, 
+                                  CAST(CNOFOLIO AS INT) + 1 AS Folio
+                              FROM admConceptos
+                              where CIDCONCEPTODOCUMENTO=1 -- Cotizacion 
+                              """;
+
         return await connection.QuerySingleAsync<FolioCotizacion>(query);
     }
-    
 }

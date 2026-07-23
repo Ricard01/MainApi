@@ -17,9 +17,9 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         var idDocumento = await ObtenerSiguienteIdDocumentoAsync(connection, transaction, cancellationToken);
 
         // Modo debug: por ahora solo insertamos admDocumentos.
-        // var idMovimientoInicial = await ObtenerSiguienteIdMovimientoAsync(connection, transaction, cancellationToken);
-        // var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimientoInicial);
-        var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimientoInicial: 0);
+        var idMovimientoInicial = await ObtenerSiguienteIdMovimientoAsync(connection, transaction, cancellationToken);
+        var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimientoInicial);
+  
 
         // 2. Calculamos importes del documento a partir de sus movimientos.
         var resumen = DocumentoContpaqiMapper.CalcularResumen(movimientos);
@@ -30,8 +30,8 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         // 4. En este modo debug solo se inserta el encabezado del documento.
         await InsertDocumentoAsync(connection, transaction, documento, cancellationToken);
 
-        // await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
-        // await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
+         await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
+         await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
 
         // Pendiente: admAcumulados debe copiarse/validarse contra SQL Profiler.
         // No conviene inventarlo porque CONTPAQi actualiza varios tipos/dimensiones.
@@ -323,7 +323,6 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                            UPDATE admConceptos
                            SET CNOFOLIO = @Folio
                            WHERE CIDCONCEPTODOCUMENTO = @Concepto
-                             AND CSERIEPOROMISION = @Serie;
                            """;
 
         return connection.ExecuteAsync(new CommandDefinition(
@@ -332,7 +331,6 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
             {
                 Folio = ToContpaqiFloat(documento.CFOLIO),
                 Concepto = documento.CIDCONCEPTODOCUMENTO,
-                Serie = documento.CSERIEDOCUMENTO
             },
             transaction,
             cancellationToken: cancellationToken));

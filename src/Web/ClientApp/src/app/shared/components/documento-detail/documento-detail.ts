@@ -189,6 +189,12 @@ export class DocumentoDetail {
     this.recalculateAmounts(index);
   }
 
+  verProducto() {
+    // console.log('Formulario completo:', this.form.getRawValue());
+    // console.log('Productos válidos:', this.getDetallesValue());
+    console.log('Resumen:', this.getResumenValue());
+  }
+
   onCantidadInput(event: Event, index: number): void {
     this.normalizeDecimalInput(event, this.rowAt(index).controls.cantidad, this.stateAt(index).cantidadDisplay);
     this.updateDescuentoImporteIfPercentageMode(index);

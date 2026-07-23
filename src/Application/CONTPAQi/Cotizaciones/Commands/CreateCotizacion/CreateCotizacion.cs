@@ -5,8 +5,7 @@ namespace MainApi.Application.CONTPAQi.Cotizaciones.Commands.CreateCotizacion;
 
 public record CreateCotizacionCommand : IRequest<int>
 {
-    // Este record representa el JSON que llega desde Angular para crear la cotizacion.
-    // El handler regresa el CIDDOCUMENTO generado en CONTPAQi.
+    // Representa el JSON que llega desde Angular
     public int Id { get; init; }
     public string Fecha { get; init; } = string.Empty;
     public string Serie { get; init; } = string.Empty;
@@ -51,21 +50,21 @@ public class CreateCotizacionCommandHandler : IRequestHandler<CreateCotizacionCo
 
     public async Task<int> Handle(CreateCotizacionCommand request, CancellationToken cancellationToken)
     {
-        // 1. Abrimos la conexion a la empresa de CONTPAQi configurada.
+   
         await using var connection = await _sqlConnection.CreateAsync();
 
-        // 2. Todo lo que se inserte para la cotizacion debe quedar en una misma transaccion.
+        // Todo lo que se inserte para la cotizacion debe quedar en una misma transaccion.
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            // 3. Convertimos el command de Angular a un request generico de documento CONTPAQi.
+            // 1. Convertimos el command a un request generico de documento CONTPAQi.
             var documento = CreateCotizacionMapper.ToDocumentoContpaqi(request);
 
-            // 4. El servicio de infraestructura ejecuta los inserts reales en las tablas CONTPAQi.
+            // 2. El servicio de infraestructura ejecuta los inserts reales en las tablas CONTPAQi.
             var idDocumento = await _documentoService.CrearAsync(connection, transaction, documento, cancellationToken);
 
-            // 5. Si todo salio bien se confirma la transaccion y se regresa el CIDDOCUMENTO.
+            // Si todo salio bien se confirma la transaccion y se regresa el CIDDOCUMENTO.
             await transaction.CommitAsync(cancellationToken);
             return idDocumento;
         }
