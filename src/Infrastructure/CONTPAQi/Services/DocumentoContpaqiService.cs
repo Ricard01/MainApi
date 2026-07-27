@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using MainApi.Application.Common.Interfaces;
 using MainApi.Application.CONTPAQi.Documentos;
+using MainApi.Application.CONTPAQi.Movimientos;
 
 namespace MainApi.Infrastructure.CONTPAQi.Services;
 
@@ -58,11 +59,11 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
 
         return idDocumento;
     }
+
     /// <summary>
     /// Obtiene el Ultimo Id de AdmDocumentos para utilizar en el insert ya que CIDDOCUMENTO no es Autoincrement 
     /// </summary>
     /// <returns></returns>
-
     private static Task<int> GetLastIdFromAdmDocumentos(
         IDbConnection connection,
         IDbTransaction transaction,
@@ -88,7 +89,7 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
     private static async Task<decimal> ObtenerFolioDisponibleAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        admDocumentosRow documento,
+        AdmDocumentos documento,
         CancellationToken cancellationToken)
     {
         // Excluimos el documento recién insertado. Si otro documento ya tiene el
@@ -133,7 +134,7 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
     private static async Task ActualizarFolioDocumentoAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        admDocumentosRow documento,
+        AdmDocumentos documento,
         decimal folioDefinitivo,
         CancellationToken cancellationToken)
     {
@@ -189,7 +190,7 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
     private static Task InsertDocumentoAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        admDocumentosRow documento,
+        AdmDocumentos documento,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -292,7 +293,8 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                 documento.CIDDOCUMENTO,
                 CIDDOCUMENTODE = (int)documento.CIDDOCUMENTODE,
                 documento.CIDCONCEPTODOCUMENTO,
-                CSERIEDOCUMENTO = ToContpaqiVarChar(documento.CSERIEDOCUMENTO, AdmDocumentosColumnLengths.SerieDocumento),
+                CSERIEDOCUMENTO =
+                    ToContpaqiVarChar(documento.CSERIEDOCUMENTO, AdmDocumentosColumnLengths.SerieDocumento),
                 CFOLIO = ToContpaqiFloat(documento.CFOLIO),
                 documento.CFECHA,
                 documento.CIDCLIENTEPROVEEDOR,
@@ -306,7 +308,8 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                 documento.CIDMONEDA,
                 CTIPOCAMBIO = ToContpaqiFloat(documento.CTIPOCAMBIO),
                 CREFERENCIA = ToContpaqiVarChar(documento.CREFERENCIA, AdmDocumentosColumnLengths.Referencia),
-                COBSERVACIONES = ToNullableContpaqiVarChar(documento.COBSERVACIONES, AdmDocumentosColumnLengths.Observaciones),
+                COBSERVACIONES =
+                    ToNullableContpaqiVarChar(documento.COBSERVACIONES, AdmDocumentosColumnLengths.Observaciones),
                 documento.CNATURALEZA,
                 documento.CUSACLIENTE,
                 documento.CAFECTADO,
@@ -339,7 +342,7 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
     private static async Task InsertMovimientosAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        IEnumerable<admMovimientoRow> movimientos,
+        IEnumerable<AdmMovimientos> movimientos,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -365,9 +368,12 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                                CPORCENTAJERETENCION1,
                                CTOTAL,
                                COBSERVAMOV,
-                               CFECHA,
+                               CAFECTAEXISTENCIA,
                                CAFECTADOSALDOS,
-                               CAFECTADOINVENTARIO
+                               CFECHA,
+                               CUNIDADESPENDIENTES,
+                               CTIPOTRASPASO,
+                               COBJIMPU01
                            )
                            VALUES
                            (
@@ -391,9 +397,12 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                                @CPORCENTAJERETENCION1,
                                @CTOTAL,
                                @COBSERVAMOV,
+                               @CAFECTAEXISTENCIA,
+                               @CAFECTADOSALDOS,
                                @CFECHA,
-                               0,
-                               0
+                               @CUNIDADESPENDIENTES,
+                               @CTIPOTRASPASO,
+                               @COBJIMPU01
                            );
                            """;
 
@@ -420,18 +429,24 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
                     CRETENCION1 = ToContpaqiFloat(movimiento.CRETENCION1),
                     CPORCENTAJERETENCION1 = ToContpaqiFloat(movimiento.CPORCENTAJERETENCION1),
                     CTOTAL = ToContpaqiFloat(movimiento.CTOTAL),
-                    COBSERVAMOV = ToNullableContpaqiVarChar(movimiento.COBSERVAMOV, AdmMovimientosColumnLengths.Observaciones),
-                    movimiento.CFECHA
+                    COBSERVAMOV = ToNullableContpaqiVarChar(movimiento.COBSERVAMOV,
+                        AdmMovimientosColumnLengths.Observaciones),
+                    movimiento.CAFECTAEXISTENCIA,
+                    movimiento.CAFECTADOSALDOS,
+                    movimiento.CFECHA,
+                    CUNIDADESPENDIENTES = movimiento.CUNIDADESPENDIENTES,
+                    movimiento.CTIPOTRASPASO,
+                    movimiento.COBJIMPU01
                 },
                 transaction,
                 cancellationToken: cancellationToken));
-            }
+        }
     }
 
     private static Task ActualizarFolioConceptoAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        admDocumentosRow documento,
+        AdmDocumentos documento,
         CancellationToken cancellationToken)
     {
         // CNOFOLIO guarda el último folio usado. El CASE evita regresarlo si

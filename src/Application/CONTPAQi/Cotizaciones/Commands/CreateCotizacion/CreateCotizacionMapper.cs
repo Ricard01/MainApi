@@ -13,7 +13,7 @@ public static class CreateCotizacionMapper
 
         return new CrearDocumentoContpaqiRequest
         {
-            Config = DocumentoContpaqiConfigs.Cotizacion,
+            Config = TipoDocumentoContpaqi.Cotizacion,
             Fecha = ParseFecha(request.Fecha),
             Serie = request.Serie.Trim(),
             Folio = request.Folio,
@@ -42,7 +42,8 @@ public static class CreateCotizacionMapper
             Descuento = producto.Descuento,
             Iva = producto.Iva,
             Isr = producto.Isr,
-            Observacion = producto.Observaciones
+            Observacion = producto.Observaciones,
+            UnidadesPendientes = producto.Cantidad
         };
     }
 

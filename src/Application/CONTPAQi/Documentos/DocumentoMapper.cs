@@ -1,14 +1,15 @@
 using System.Globalization;
+using MainApi.Application.CONTPAQi.Movimientos;
 
 namespace MainApi.Application.CONTPAQi.Documentos;
 
 /// <summary>
-/// Convierte los datos de la API a las filas que esperan admDocumentos y admMovimientos.
-/// Aquí también se recalculan los totales para no confiar en los importes recibidos del navegador.
+/// Convierte los datos de la API a las filas que esperan AdmDocumentos y AdmMovimientos.
+/// También se recalculan los totales para no confiar en los importes recibidos del navegador.
 /// </summary>
 public static class DocumentoContpaqiMapper
 {
-    public static DocumentoResumen CalcularResumen(IEnumerable<admMovimientoRow> movimientos)
+    public static DocumentoResumen CalcularResumen(IEnumerable<AdmMovimientos> movimientos)
     {
         // El backend recalcula los importes para no confiar ciegamente en los totales de Angular.
         var items = movimientos.ToArray();
@@ -23,13 +24,13 @@ public static class DocumentoContpaqiMapper
         );
     }
 
-    public static admDocumentosRow ToDocumento(
+    public static AdmDocumentos ToDocumento(
         CrearDocumentoContpaqiRequest request,
         int idDocumento,
         DocumentoResumen resumen)
     {
         // Forma la fila parcial de admDocumentos con los datos ya traducidos a campos CONTPAQi.
-        return new admDocumentosRow
+        return new AdmDocumentos
         {
             CIDDOCUMENTO = idDocumento,
             CIDDOCUMENTODE = request.Config.TipoDocumento,
@@ -76,7 +77,7 @@ public static class DocumentoContpaqiMapper
         };
     }
 
-    public static IReadOnlyCollection<admMovimientoRow> ToMovimientos(
+    public static IReadOnlyCollection<AdmMovimientos> ToMovimientos(
         CrearDocumentoContpaqiRequest request,
         int idDocumento,
         int idMovimientoInicial)
@@ -88,7 +89,7 @@ public static class DocumentoContpaqiMapper
             .ToArray();
     }
 
-    private static admMovimientoRow ToMovimiento(
+    private static AdmMovimientos ToMovimiento(
         CrearDocumentoContpaqiRequest request,
         CrearMovimientoContpaqiRequest movimiento,
         int idDocumento,
@@ -102,14 +103,14 @@ public static class DocumentoContpaqiMapper
         var isr = Round(movimiento.Isr);
         var total = Round(baseImpuesto + iva - isr);
 
-        return new admMovimientoRow
+        return new AdmMovimientos
         {
             CIDMOVIMIENTO = idMovimiento,
             CIDDOCUMENTO = idDocumento,
             CNUMEROMOVIMIENTO = numeroMovimiento,
             CIDDOCUMENTODE = request.Config.TipoDocumento,
             CIDPRODUCTO = movimiento.IdProducto,
-            CIDALMACEN = request.Config.AlmacenDefault,
+            CIDALMACEN = 1,
             CUNIDADES = movimiento.Cantidad,
             CIDUNIDAD = movimiento.IdUnidad,
             CPRECIO = movimiento.Precio,
@@ -122,7 +123,12 @@ public static class DocumentoContpaqiMapper
             CPORCENTAJERETENCION1 = isr > 0 ? 1.25m : 0m,
             CTOTAL = total,
             COBSERVAMOV = movimiento.Observacion,
-            CFECHA = request.Fecha
+            CAFECTAEXISTENCIA = request.Config.Movimiento.AfectaExistencia,
+            CAFECTADOSALDOS = request.Config.Movimiento.AfectaSaldos,
+            CFECHA = request.Fecha,
+            CUNIDADESPENDIENTES = movimiento.UnidadesPendientes, 
+            CTIPOTRASPASO = request.Config.Movimiento.TipoTraspaso,
+            COBJIMPU01 = request.Config.Movimiento.ObjetoImpuesto01
         };
     }
 

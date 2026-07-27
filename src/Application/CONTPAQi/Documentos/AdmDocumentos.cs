@@ -4,10 +4,9 @@ using MainApi.Domain.Enums;
 namespace MainApi.Application.CONTPAQi.Documentos;
 
 /// <summary>
-/// Columnas de admDocumentos que la API llena al crear un documento.
-/// Las columnas que no aparecen conservan el valor predeterminado de CONTPAQi.
+/// Campos necesarios para crear un documento en CONTPAQi el resto toma el valor predeterminado (0).
 /// </summary>
-public sealed record admDocumentosRow
+public sealed record AdmDocumentos
 {
     public int CIDDOCUMENTO { get; init; }
     public TipoDocumento CIDDOCUMENTODE { get; init; }
@@ -53,31 +52,6 @@ public sealed record admDocumentosRow
     public int CSISTORIG { get; init; }
 }
 
-/// <summary>
-/// Columnas de admMovimientos que la API llena por cada producto del documento.
-/// </summary>
-public sealed record admMovimientoRow
-{
-    public int CIDMOVIMIENTO { get; init; }
-    public int CIDDOCUMENTO { get; init; }
-    public int CNUMEROMOVIMIENTO { get; init; }
-    public TipoDocumento CIDDOCUMENTODE { get; init; }
-    public int CIDPRODUCTO { get; init; }
-    public int CIDALMACEN { get; init; }
-    public decimal CUNIDADES { get; init; }
-    public int CIDUNIDAD { get; init; }
-    public decimal CPRECIO { get; init; }
-    public decimal CNETO { get; init; }
-    public decimal CDESCUENTO1 { get; init; }
-    public decimal CPORCENTAJEDESCUENTO1 { get; init; }
-    public decimal CIMPUESTO1 { get; init; }
-    public decimal CPORCENTAJEIMPUESTO1 { get; init; }
-    public decimal CRETENCION1 { get; init; }
-    public decimal CPORCENTAJERETENCION1 { get; init; }
-    public decimal CTOTAL { get; init; }
-    public string? COBSERVAMOV { get; init; } = null;
-    public DateTime CFECHA { get; init; }
-}
 
 /// <summary>
 /// Totales calculados a partir de todos los movimientos antes de guardar el encabezado.

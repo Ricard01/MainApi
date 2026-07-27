@@ -36,4 +36,6 @@ public sealed record CrearMovimientoContpaqiRequest
     public decimal Iva { get; init; }
     public decimal Isr { get; init; }
     public string? Observacion { get; init; } = null;
+    public required decimal UnidadesPendientes { get; init; }
+    
 }

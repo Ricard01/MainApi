@@ -1,4 +1,4 @@
-using System;
+using MainApi.Application.CONTPAQi.Movimientos;
 using MainApi.Domain.Enums;
 
 namespace MainApi.Application.CONTPAQi.Documentos;
@@ -8,7 +8,6 @@ namespace MainApi.Application.CONTPAQi.Documentos;
 /// </summary>
 public static class DocumentoContpaqiDefaults
 {
-    public const int AlmacenDefault = 1;
     public const int IdMoneda = 1; // 1   Pesos Mexicanos (MXN)
     public const decimal TipoCambio = 1m;
     public const int Afectado = 1;
@@ -40,11 +39,6 @@ public sealed record DocumentoContpaqiConfig
     /// ID del codigo del concepto  en CONTPAQi (Cotización = 1, Pedido = 2).
     /// </summary>
     public required int ConceptoDocumento { get; init; }
-
-    /// <summary>
-    /// ID del almacén asignado.
-    /// </summary>
-    public int AlmacenDefault { get; init; } = DocumentoContpaqiDefaults.AlmacenDefault;
 
     /// <summary>
     /// ID de la moneda transaccional.
@@ -108,32 +102,46 @@ public sealed record DocumentoContpaqiConfig
     
     public int Impreso { get; init; } = 0;
     public int Cancelado { get; init; } = 0;
+    
+    public required MovimientosConfig Movimiento { get; init; }
 }
 
 /// <summary>
 /// Catálogo centralizado que expone los perfiles de configuración predefinidos para la API.
 /// </summary>
-public static class DocumentoContpaqiConfigs
+public static class TipoDocumentoContpaqi
 {
     /// <summary>
-    /// Obtiene la configuración predeterminada para la creación de Cotizaciones.
-    /// Mapea al Concepto número 1 de CONTPAQi.
+    /// Configuración predeterminada para Cotizaciones.
     /// </summary>
     public static DocumentoContpaqiConfig Cotizacion => new()
     {
         TipoDocumento = TipoDocumento.Cotizacion,
         ConceptoDocumento = 1,
         Naturaleza = 2,
+        Movimiento = new MovimientosConfig
+        {
+            AfectaExistencia = 3,
+            AfectaSaldos = 1,
+            TipoTraspaso = 1,
+            ObjetoImpuesto01 = "02"
+        }
     };
 
     /// <summary>
-    /// Obtiene la configuración predeterminada para la creación de Pedidos de clientes.
-    /// Mapea al Concepto número 2 de CONTPAQi.
+    /// Configuración predeterminada para Pedidos de clientes.
     /// </summary>
     public static DocumentoContpaqiConfig Pedido => new()
     {
         TipoDocumento = TipoDocumento.Pedido,
         ConceptoDocumento = 2,
         Naturaleza = 0,
+        Movimiento = new MovimientosConfig
+        {
+            AfectaExistencia = 3,
+            AfectaSaldos = 1,
+            TipoTraspaso = 1,
+            ObjetoImpuesto01 = "02"
+        }
     };
 }
