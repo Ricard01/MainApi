@@ -20,7 +20,7 @@ public class CreateCotizacionCommandValidator : AbstractValidator<CreateCotizaci
             .SetValidator(new ProductoCotizacionDtoValidator());
     }
 
-    public class ProductoCotizacionDtoValidator : AbstractValidator<ProductoCotizacionDto>
+    public class ProductoCotizacionDtoValidator : AbstractValidator<CreateCotizacionMovto>
     {
         public ProductoCotizacionDtoValidator()
         {

@@ -30,20 +30,20 @@ public static class CreateCotizacionMapper
         };
     }
 
-    private static CrearMovimientoContpaqiRequest ToMovimientoContpaqi(ProductoCotizacionDto producto)
+    private static CrearMovimientoContpaqiRequest ToMovimientoContpaqi(CreateCotizacionMovto create)
     {
         return new CrearMovimientoContpaqiRequest
         {
-            IdProducto = producto.IdProducto,
-            IdUnidad = producto.IdUnidadMedida,
-            Cantidad = producto.Cantidad,
-            Precio = producto.Precio,
-            DescuentoPorcentaje = producto.DescuentoPorcentaje,
-            Descuento = producto.Descuento,
-            Iva = producto.Iva,
-            Isr = producto.Isr,
-            Observacion = producto.Observaciones,
-            UnidadesPendientes = producto.Cantidad
+            IdProducto = create.IdProducto,
+            IdUnidad = create.IdUnidadMedida,
+            Cantidad = create.Cantidad,
+            Precio = create.Precio,
+            DescuentoPorcentaje = create.DescuentoPorcentaje,
+            Descuento = create.Descuento,
+            Iva = create.Iva,
+            Isr = create.Isr,
+            Observacion = create.Observaciones,
+            UnidadesPendientes = create.Cantidad
         };
     }
 

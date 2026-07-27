@@ -19,7 +19,7 @@ export interface Productos {
   idUnidadMedida: number;
   cantidad: number;
   precio: number;
-  observacion:string;
+  observaciones:string;
   descuentoPorcentaje: number;
   descuento: number;
   neto: number;

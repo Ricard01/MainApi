@@ -17,10 +17,10 @@ public record CreateCotizacionCommand : IRequest<int>
     public string Email { get; init; } = string.Empty;
     public string Telefono { get; init; } = string.Empty;
     public string? Observaciones { get; init; } = null;
-    public IReadOnlyCollection<ProductoCotizacionDto> Productos { get; init; } = Array.Empty<ProductoCotizacionDto>();
+    public IReadOnlyCollection<CreateCotizacionMovto> Productos { get; init; } = Array.Empty<CreateCotizacionMovto>();
 }
 
-public record ProductoCotizacionDto
+public record CreateCotizacionMovto
 {
     public int IdProducto { get; init; }
     public int IdUnidadMedida { get; init; }

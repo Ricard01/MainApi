@@ -88,7 +88,7 @@ export class CotizacionPage {
       idUnidadMedida: detalle.idUnidad ?? 0,
       cantidad: detalle.cantidad,
       precio: detalle.precio,
-      observacion: detalle.observaciones,
+      observaciones: detalle.observaciones,
       descuentoPorcentaje: detalle.descuentoPorcentaje,
       descuento: detalle.descuento,
       neto: detalle.neto,
