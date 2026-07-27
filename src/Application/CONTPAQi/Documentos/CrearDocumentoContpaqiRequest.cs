@@ -1,5 +1,9 @@
 namespace MainApi.Application.CONTPAQi.Documentos;
 
+/// <summary>
+/// Modelo común que usa el servicio para crear cualquier documento de CONTPAQi.
+/// La configuración indica si será cotización, pedido u otro tipo de documento.
+/// </summary>
 public sealed record CrearDocumentoContpaqiRequest
 {
     public required DocumentoContpaqiConfig Config { get; init; }
@@ -18,6 +22,9 @@ public sealed record CrearDocumentoContpaqiRequest
     public required IReadOnlyCollection<CrearMovimientoContpaqiRequest> Movimientos { get; init; }
 }
 
+/// <summary>
+/// Renglón que se convertirá en un registro de admMovimientos.
+/// </summary>
 public sealed record CrearMovimientoContpaqiRequest
 {
     public required int IdProducto { get; init; }

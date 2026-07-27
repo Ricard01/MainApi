@@ -5,6 +5,10 @@ using MainApi.Application.CONTPAQi.Documentos;
 
 namespace MainApi.Infrastructure.CONTPAQi.Services;
 
+/// <summary>
+/// Guarda directamente en las tablas de CONTPAQi siguiendo el orden observado en SQL Profiler.
+/// No confirma la transacción; el handler decide si hace commit, rollback o reintenta.
+/// </summary>
 public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
 {
     public async Task<int> CrearAsync(
@@ -13,40 +17,66 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         CrearDocumentoContpaqiRequest request,
         CancellationToken cancellationToken)
     {
-        // 1. Reservamos el siguiente CIDDOCUMENTO dentro de la transaccion recibida.
-        var idDocumento = await ObtenerSiguienteIdDocumentoAsync(connection, transaction, cancellationToken);
+        // Tomamos el último ID de Comercial. Si otra instancia alcanza a usar el mismo número, el handler deshace todo y vuelve a intentar.
+        var idDocumento = await GetLastIdFromAdmDocumentos(connection, transaction, cancellationToken);
 
-        // Modo debug: por ahora solo insertamos admDocumentos.
+        // Los movimientos también usan un consecutivo global, no uno por documento.
         var idMovimientoInicial = await ObtenerSiguienteIdMovimientoAsync(connection, transaction, cancellationToken);
         var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimientoInicial);
-  
 
-        // 2. Calculamos importes del documento a partir de sus movimientos.
+        // Los totales del encabezado salen de los renglones que realmente vamos a guardar.
         var resumen = DocumentoContpaqiMapper.CalcularResumen(movimientos);
 
-        // 3. Armamos la fila de admDocumentos que se va a insertar.
         var documento = DocumentoContpaqiMapper.ToDocumento(request, idDocumento, resumen);
 
-        // 4. En este modo debug solo se inserta el encabezado del documento.
+        // Comercial primero inserta el folio que aparece en pantalla y después revisa
+        // si alguien más ya lo usó. Aquí hacemos lo mismo.
         await InsertDocumentoAsync(connection, transaction, documento, cancellationToken);
+        var folioDefinitivo = await ObtenerFolioDisponibleAsync(
+            connection,
+            transaction,
+            documento,
+            cancellationToken);
 
-         await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
-         await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
+        if (folioDefinitivo != documento.CFOLIO)
+        {
+            await ActualizarFolioDocumentoAsync(
+                connection,
+                transaction,
+                documento,
+                folioDefinitivo,
+                cancellationToken);
 
-        // Pendiente: admAcumulados debe copiarse/validarse contra SQL Profiler.
-        // No conviene inventarlo porque CONTPAQi actualiza varios tipos/dimensiones.
+            documento = documento with { CFOLIO = folioDefinitivo };
+        }
+
+        await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
+        await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
+
+        // Falta validar admAcumulados contra una traza real. Esa tabla maneja varias
+        // dimensiones y no conviene llenarla suponiendo valores.
 
         return idDocumento;
     }
+    /// <summary>
+    /// Obtiene el Ultimo Id de AdmDocumentos para utilizar en el insert ya que CIDDOCUMENTO no es Autoincrement 
+    /// </summary>
+    /// <returns></returns>
 
-    private static Task<int> ObtenerSiguienteIdDocumentoAsync(
+    private static Task<int> GetLastIdFromAdmDocumentos(
         IDbConnection connection,
         IDbTransaction transaction,
         CancellationToken cancellationToken)
     {
         const string sql = """
-                           SELECT ISNULL(MAX(CIDDOCUMENTO), 0) + 1
-                           FROM admDocumentos WITH (UPDLOCK, HOLDLOCK);
+                           SELECT ISNULL(
+                               (
+                                   SELECT TOP (1) CIDDOCUMENTO
+                                   FROM admDocumentos
+                                   ORDER BY CIDDOCUMENTO DESC
+                               ),
+                               0
+                           ) + 1;
                            """;
 
         return connection.QuerySingleAsync<int>(new CommandDefinition(
@@ -55,14 +85,99 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
             cancellationToken: cancellationToken));
     }
 
+    private static async Task<decimal> ObtenerFolioDisponibleAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        admDocumentosRow documento,
+        CancellationToken cancellationToken)
+    {
+        // Excluimos el documento recién insertado. Si otro documento ya tiene el
+        // mismo tipo, serie y folio, probamos el número siguiente.
+        const string sql = """
+                           SELECT TOP (1) CIDDOCUMENTO
+                           FROM admDocumentos
+                           WHERE CIDDOCUMENTODE = @TipoDocumento
+                             AND CSERIEDOCUMENTO = @Serie
+                             AND CFOLIO = @Folio
+                             AND CIDDOCUMENTO <> @IdDocumento;
+                           """;
+
+        var folio = documento.CFOLIO;
+
+        while (true)
+        {
+            var documentoDuplicado = await connection.QuerySingleOrDefaultAsync<int?>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        TipoDocumento = (int)documento.CIDDOCUMENTODE,
+                        Serie = ToContpaqiVarChar(
+                            documento.CSERIEDOCUMENTO,
+                            AdmDocumentosColumnLengths.SerieDocumento),
+                        Folio = ToContpaqiFloat(folio),
+                        IdDocumento = documento.CIDDOCUMENTO
+                    },
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+            if (documentoDuplicado is null)
+            {
+                return folio;
+            }
+
+            folio++;
+        }
+    }
+
+    private static async Task ActualizarFolioDocumentoAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        admDocumentosRow documento,
+        decimal folioDefinitivo,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE admDocumentos
+                           SET CFOLIO = @FolioDefinitivo
+                           WHERE CIDDOCUMENTO = @IdDocumento
+                             AND CFOLIO = @FolioOriginal;
+                           """;
+
+        var filasActualizadas = await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new
+            {
+                FolioDefinitivo = ToContpaqiFloat(folioDefinitivo),
+                FolioOriginal = ToContpaqiFloat(documento.CFOLIO),
+                IdDocumento = documento.CIDDOCUMENTO
+            },
+            transaction,
+            cancellationToken: cancellationToken));
+
+        if (filasActualizadas != 1)
+        {
+            throw new DBConcurrencyException(
+                $"No fue posible actualizar el folio del documento {documento.CIDDOCUMENTO}.");
+        }
+    }
+
     private static Task<int> ObtenerSiguienteIdMovimientoAsync(
         IDbConnection connection,
         IDbTransaction transaction,
         CancellationToken cancellationToken)
     {
+        // CIDMOVIMIENTO también es global. Si alguien ocupa uno de estos IDs antes
+        // del insert, la llave duplicada provoca el reintento de toda la cotización.
         const string sql = """
-                           SELECT ISNULL(MAX(CIDMOVIMIENTO), 0) + 1
-                           FROM admMovimientos WITH (UPDLOCK, HOLDLOCK);
+                           SELECT ISNULL(
+                               (
+                                   SELECT TOP (1) CIDMOVIMIENTO
+                                   FROM admMovimientos
+                                   ORDER BY CIDMOVIMIENTO DESC
+                               ),
+                               0
+                           ) + 1;
                            """;
 
         return connection.QuerySingleAsync<int>(new CommandDefinition(
@@ -319,9 +434,15 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         admDocumentosRow documento,
         CancellationToken cancellationToken)
     {
+        // CNOFOLIO guarda el último folio usado. El CASE evita regresarlo si
+        // Comercial ya alcanzó un folio mayor.
         const string sql = """
                            UPDATE admConceptos
-                           SET CNOFOLIO = @Folio
+                           SET CNOFOLIO =
+                               CASE
+                                   WHEN CNOFOLIO < @Folio THEN @Folio
+                                   ELSE CNOFOLIO
+                               END
                            WHERE CIDCONCEPTODOCUMENTO = @Concepto
                            """;
 

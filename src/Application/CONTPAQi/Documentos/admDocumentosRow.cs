@@ -3,7 +3,10 @@ using MainApi.Domain.Enums;
 
 namespace MainApi.Application.CONTPAQi.Documentos;
 
-// representación parcial de una fila de AdmDocumentos, si solamente se insertan las columnas con datos que realmente se modifican el resto usa defaults, es más sencillo y reduce errores. 
+/// <summary>
+/// Columnas de admDocumentos que la API llena al crear un documento.
+/// Las columnas que no aparecen conservan el valor predeterminado de CONTPAQi.
+/// </summary>
 public sealed record admDocumentosRow
 {
     public int CIDDOCUMENTO { get; init; }
@@ -50,6 +53,9 @@ public sealed record admDocumentosRow
     public int CSISTORIG { get; init; }
 }
 
+/// <summary>
+/// Columnas de admMovimientos que la API llena por cada producto del documento.
+/// </summary>
 public sealed record admMovimientoRow
 {
     public int CIDMOVIMIENTO { get; init; }
@@ -73,6 +79,9 @@ public sealed record admMovimientoRow
     public DateTime CFECHA { get; init; }
 }
 
+/// <summary>
+/// Totales calculados a partir de todos los movimientos antes de guardar el encabezado.
+/// </summary>
 public sealed record DocumentoResumen(
     decimal Neto,
     decimal Descuento,

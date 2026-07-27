@@ -2,6 +2,10 @@ using System.Globalization;
 
 namespace MainApi.Application.CONTPAQi.Documentos;
 
+/// <summary>
+/// Convierte los datos de la API a las filas que esperan admDocumentos y admMovimientos.
+/// Aquí también se recalculan los totales para no confiar en los importes recibidos del navegador.
+/// </summary>
 public static class DocumentoContpaqiMapper
 {
     public static DocumentoResumen CalcularResumen(IEnumerable<admMovimientoRow> movimientos)
