@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MainApi.Application.Common.Interfaces;
+using MainApi.Domain.Constants;
 
 namespace MainApi.Web.Services;
 
@@ -13,7 +14,8 @@ public class CurrentUser : IUser
     }
 
     public string? Id => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-    public string? UserName => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name);
+    public string? UserName => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimConstants.UserName);
+    public string? Nombre => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimConstants.NombreCompleto);
     public string? Rol => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
     public ClaimsPrincipal? Principal => _httpContextAccessor.HttpContext?.User;
 }

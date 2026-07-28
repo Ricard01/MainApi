@@ -80,12 +80,12 @@ public static class DocumentoContpaqiMapper
     public static IReadOnlyCollection<AdmMovimientos> ToMovimientos(
         CrearDocumentoContpaqiRequest request,
         int idDocumento,
-        int idMovimientoInicial)
+        int idMovimiento)
     {
         // Prepara los movimientos y asigna CNUMEROMOVIMIENTO consecutivo por renglon.
         return request.Movimientos
             .Select((movimiento, index) =>
-                ToMovimiento(request, movimiento, idDocumento, idMovimientoInicial + index, index + 1))
+                ToMovimiento(request, movimiento, idDocumento, idMovimiento + index, index + 1))
             .ToArray();
     }
 

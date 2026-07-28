@@ -91,10 +91,17 @@ public class IdentityService : IIdentityService
             .ToList();
 
         //  4) Crea la lista de claims
+        var nombreCompleto = string.Join(
+            " ",
+            new[] { user.Nombre, user.ApellidoPaterno }
+                .Where(value => !string.IsNullOrWhiteSpace(value)));
+
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Nombre),
+            new Claim(ClaimConstants.UserName, user.UserName),
+            new Claim(ClaimConstants.NombreCompleto, nombreCompleto),
             new Claim(ClaimConstants.ImagenUrl, user.ImagenPerfilUrl ?? string.Empty),
             new(ClaimTypes.Role, user.Rol.Nombre),
         };

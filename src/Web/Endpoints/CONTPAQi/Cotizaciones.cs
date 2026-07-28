@@ -8,6 +8,7 @@ public class Cotizaciones : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
+            .RequireAuthorization()
             .MapPost(CreateCotizacion)
             .MapGet("folio", GetFolio);
     }

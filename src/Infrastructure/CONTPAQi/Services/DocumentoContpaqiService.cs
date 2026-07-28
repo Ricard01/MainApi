@@ -1,6 +1,7 @@
 using System.Data;
 using Dapper;
 using MainApi.Application.Common.Interfaces;
+using MainApi.Application.CONTPAQi.Bitacoras;
 using MainApi.Application.CONTPAQi.Documentos;
 using MainApi.Application.CONTPAQi.Movimientos;
 
@@ -10,7 +11,8 @@ namespace MainApi.Infrastructure.CONTPAQi.Services;
 /// Guarda directamente en las tablas de CONTPAQi siguiendo el orden observado en SQL Profiler.
 /// No confirma la transacción; el handler decide si hace commit, rollback o reintenta.
 /// </summary>
-public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
+public sealed class DocumentoContpaqiService(IBitacoraContpaqiService bitacoraService)
+    : IDocumentoContpaqiService
 {
     public async Task<int> CrearAsync(
         IDbConnection connection,
@@ -18,20 +20,16 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         CrearDocumentoContpaqiRequest request,
         CancellationToken cancellationToken)
     {
-        // Tomamos el último ID de Comercial. Si otra instancia alcanza a usar el mismo número, el handler deshace todo y vuelve a intentar.
         var idDocumento = await GetLastIdFromAdmDocumentos(connection, transaction, cancellationToken);
+        var idMovimiento = await GetLastIdFromAdmMovimientos(connection, transaction, cancellationToken);
+        var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimiento);
 
-        // Los movimientos también usan un consecutivo global, no uno por documento.
-        var idMovimientoInicial = await ObtenerSiguienteIdMovimientoAsync(connection, transaction, cancellationToken);
-        var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimientoInicial);
-
-        // Los totales del encabezado salen de los renglones que realmente vamos a guardar.
         var resumen = DocumentoContpaqiMapper.CalcularResumen(movimientos);
 
         var documento = DocumentoContpaqiMapper.ToDocumento(request, idDocumento, resumen);
 
-        // Comercial primero inserta el folio que aparece en pantalla y después revisa
-        // si alguien más ya lo usó. Aquí hacemos lo mismo.
+        // Comercial primero insertar el documento en caso de que el folio y serie existan,
+        // revisa el consecutivo y actualiza el folio (si la serie es diferente el folio si se puede repetir)
         await InsertDocumentoAsync(connection, transaction, documento, cancellationToken);
         var folioDefinitivo = await ObtenerFolioDisponibleAsync(
             connection,
@@ -53,6 +51,18 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
 
         await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
         await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
+        await bitacoraService.RegistrarDocumentoAsync(
+            connection,
+            transaction,
+            new RegistrarBitacoraDocumentoRequest
+            {
+                FechaDocumento = documento.CFECHA,
+                TipoDocumento = documento.CIDDOCUMENTODE,
+                Serie = documento.CSERIEDOCUMENTO,
+                Folio = documento.CFOLIO,
+                Proceso = ProcesoBitacoraContpaqi.DocumentoCreado
+            },
+            cancellationToken);
 
         // Falta validar admAcumulados contra una traza real. Esa tabla maneja varias
         // dimensiones y no conviene llenarla suponiendo valores.
@@ -86,6 +96,8 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
             cancellationToken: cancellationToken));
     }
 
+    // Garantiza que, si dos procesos intentan usar la misma serie y folio el sistema incremente automáticamente el folio
+    // hasta encontrar el primer folio no utilizado en la base de datos.
     private static async Task<decimal> ObtenerFolioDisponibleAsync(
         IDbConnection connection,
         IDbTransaction transaction,
@@ -163,13 +175,16 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         }
     }
 
-    private static Task<int> ObtenerSiguienteIdMovimientoAsync(
+    /// <summary>
+    /// Obtiene el Ultimo Id de AdmMoviimentos para utilizar en el insert ya que CIDMOVIMIENTO no es Autoincrement
+    /// </summary>
+    /// <returns></returns>
+    private static Task<int> GetLastIdFromAdmMovimientos(
         IDbConnection connection,
         IDbTransaction transaction,
         CancellationToken cancellationToken)
     {
-        // CIDMOVIMIENTO también es global. Si alguien ocupa uno de estos IDs antes
-        // del insert, la llave duplicada provoca el reintento de toda la cotización.
+        // CIDMOVIMIENTO también es global. Si alguien ocupa uno de estos IDs antes del insert, la llave duplicada provoca el reintento de toda la cotización.
         const string sql = """
                            SELECT ISNULL(
                                (
@@ -449,8 +464,7 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
         AdmDocumentos documento,
         CancellationToken cancellationToken)
     {
-        // CNOFOLIO guarda el último folio usado. El CASE evita regresarlo si
-        // Comercial ya alcanzó un folio mayor.
+        // CNOFOLIO guarda el último folio usado. El CASE evita regresarlo si  Comercial ya alcanzó un folio mayor.
         const string sql = """
                            UPDATE admConceptos
                            SET CNOFOLIO =
@@ -472,9 +486,9 @@ public sealed class DocumentoContpaqiService : IDocumentoContpaqiService
             cancellationToken: cancellationToken));
     }
 
+    // CONTPAQi. uso el tipo de datos FLOAT
     private static double ToContpaqiFloat(decimal value)
     {
-        // Conversion explicita al tipo que corresponde con SQL Server float en tablas CONTPAQi.
         return decimal.ToDouble(value);
     }
 
