@@ -35,7 +35,7 @@ export class CotizacionHeader implements OnInit {
   readonly form = this.fb.group({
     isPersonaMoral: [true],
     idAgente: [0],
-    agente: ['', Validators.required],
+    agente: [''],
     cliente: ['',[Validators.required, Validators.maxLength(50)]],
     fecha: [this.getFechaHoy(),  Validators.required],
     serie: [''],

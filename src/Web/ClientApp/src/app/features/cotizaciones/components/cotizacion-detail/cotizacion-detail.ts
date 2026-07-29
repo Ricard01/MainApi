@@ -12,6 +12,7 @@ export class CotizacionDetail {
   readonly isPersonaMoral = input(true);
   readonly actionsDisabled = input(false);
   readonly guardar = output<void>();
+  readonly vistaPrevia = output<void>();
   private readonly documentoDetail = viewChild.required(DocumentoDetail);
 
   isValid(): boolean {

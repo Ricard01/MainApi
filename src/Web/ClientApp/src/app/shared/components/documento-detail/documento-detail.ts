@@ -31,6 +31,7 @@ export class DocumentoDetail {
   readonly isPersonaMoral = input(true);
   readonly actionsDisabled = input(false);
   readonly guardar = output<void>();
+  readonly vistaPrevia = output<void>();
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly productoApi = inject(ProductoApi);
   private rowId = 0;
@@ -189,10 +190,8 @@ export class DocumentoDetail {
     this.recalculateAmounts(index);
   }
 
-  verProducto() {
-    // console.log('Formulario completo:', this.form.getRawValue());
-    // console.log('Productos válidos:', this.getDetallesValue());
-    console.log('Resumen:', this.getResumenValue());
+  onVistaPrevia(): void {
+    this.vistaPrevia.emit();
   }
 
   onCantidadInput(event: Event, index: number): void {

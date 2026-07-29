@@ -1,0 +1,204 @@
+<header class="preview-toolbar">
+  <div>
+    <span class="preview-kicker">Vista previa</span>
+    <h2>Así verá el cliente la cotización</h2>
+  </div>
+
+  <button type="button" mat-icon-button (click)="dialogRef.close()" aria-label="Cerrar vista previa">
+    <mat-icon>close</mat-icon>
+  </button>
+</header>
+
+<mat-dialog-content class="preview-content">
+  <article class="quote-page" aria-label="Cotización">
+    <div class="prism prism-top-a" aria-hidden="true"></div>
+    <div class="prism prism-top-b" aria-hidden="true"></div>
+    <div class="prism prism-top-c" aria-hidden="true"></div>
+    <div class="prism prism-bottom-a" aria-hidden="true"></div>
+    <div class="prism prism-bottom-b" aria-hidden="true"></div>
+    <div class="dot-pattern" aria-hidden="true"></div>
+
+    <header class="quote-header">
+      <div class="brand">
+        <img src="assets/imgs/logo.png" alt="Logotipo de la empresa">
+        <div>
+          <strong>MI EMPRESA</strong>
+          <span>Soluciones empresariales</span>
+        </div>
+      </div>
+
+      <div class="document-id">
+        <span>Cotización</span>
+        <strong>{{ data.header.serie || 'S/S' }}-{{ data.header.folio || 'S/F' }}</strong>
+      </div>
+    </header>
+
+    <section class="title-block">
+      <span class="eyebrow">Propuesta comercial</span>
+      <h1>Cotización</h1>
+      <p>Productos y servicios</p>
+    </section>
+
+    <section class="information-grid">
+      <div class="information-card client-card">
+        <span class="section-label">Datos del cliente</span>
+        <strong>{{ data.header.cliente || 'Cliente por definir' }}</strong>
+        @if (data.header.contacto) {
+          <span>Atención: {{ data.header.contacto }}</span>
+        }
+        @if (data.header.email) {
+          <span>{{ data.header.email }}</span>
+        }
+        @if (data.header.telefono) {
+          <span>{{ data.header.telefono }}</span>
+        }
+      </div>
+
+      <div class="information-card issuer-card">
+        <span class="section-label">Datos del emisor</span>
+        <strong>Mi Empresa</strong>
+        <span>Información fiscal del emisor</span>
+        <span>Datos de contacto configurables</span>
+      </div>
+
+      <dl class="document-meta">
+        <div>
+          <dt>Fecha</dt>
+          <dd>{{ data.header.fecha }}</dd>
+        </div>
+        <div>
+          <dt>Tipo de cliente</dt>
+          <dd>{{ data.header.isPersonaMoral ? 'Persona moral' : 'Persona física' }}</dd>
+        </div>
+        @if (data.header.agente) {
+          <div>
+            <dt>Agente</dt>
+            <dd>{{ data.header.agente }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <div class="detail-wrap">
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th class="description-column">Descripción</th>
+            <th>Cantidad / U.M.</th>
+            <th>Precio unitario</th>
+            @if (hasDiscount) {
+              <th>Descuento</th>
+            }
+            <th>IVA</th>
+            @if (data.header.isPersonaMoral) {
+              <th>ISR</th>
+            }
+            <th>Importe</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (detalle of data.detalles; track $index) {
+            <tr>
+              <td class="description-cell">
+                <strong>{{ detalle.producto }}</strong>
+                @if (detalle.codigo) {
+                  <span class="product-code">{{ detalle.codigo }}</span>
+                }
+                @if (detalle.observaciones) {
+                  <span class="product-note">{{ detalle.observaciones }}</span>
+                }
+              </td>
+              <td class="quantity-cell">
+                <strong>{{ detalle.cantidad | number:'1.0-2' }}</strong>
+                <span>{{ detalle.unidad || 'Sin unidad' }}</span>
+              </td>
+              <td>{{ detalle.precio | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
+              @if (hasDiscount) {
+                <td>
+                  @if (detalle.descuento > 0) {
+                    <span class="negative">− {{ detalle.descuento | currency:'MXN':'symbol-narrow':'1.2-2' }}</span>
+                    @if (detalle.descuentoPorcentaje > 0) {
+                      <small>{{ detalle.descuentoPorcentaje | number:'1.0-2' }}%</small>
+                    }
+                  } @else {
+                    <span>—</span>
+                  }
+                </td>
+              }
+              <td>{{ detalle.iva | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
+              @if (data.header.isPersonaMoral) {
+                <td><span class="negative">− {{ detalle.isr | currency:'MXN':'symbol-narrow':'1.2-2' }}</span></td>
+              }
+              <td class="line-total">{{ detalle.total | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <section class="summary-section">
+      <div class="conditions">
+        <span class="section-label">Condiciones comerciales</span>
+        <div class="condition-item">
+          <mat-icon>payments</mat-icon>
+          <span><strong>Moneda</strong> Pesos mexicanos (MXN)</span>
+        </div>
+        <div class="condition-item">
+          <mat-icon>event_available</mat-icon>
+          <span><strong>Vigencia</strong> 15 días naturales</span>
+        </div>
+        <div class="condition-item">
+          <mat-icon>local_shipping</mat-icon>
+          <span><strong>Entrega</strong> A confirmar con el ejecutivo</span>
+        </div>
+      </div>
+
+      <dl class="totals">
+        <div>
+          <dt>Subtotal</dt>
+          <dd>{{ data.resumen.subtotal | currency:'MXN':'symbol-narrow':'1.2-2' }}</dd>
+        </div>
+        @if (hasDiscount) {
+          <div>
+            <dt>Descuento</dt>
+            <dd class="negative">− {{ data.resumen.descuento | currency:'MXN':'symbol-narrow':'1.2-2' }}</dd>
+          </div>
+        }
+        <div>
+          <dt>IVA</dt>
+          <dd>{{ data.resumen.iva | currency:'MXN':'symbol-narrow':'1.2-2' }}</dd>
+        </div>
+        @if (data.header.isPersonaMoral) {
+          <div>
+            <dt>Retención ISR</dt>
+            <dd class="negative">− {{ data.resumen.isr | currency:'MXN':'symbol-narrow':'1.2-2' }}</dd>
+          </div>
+        }
+        <div class="grand-total">
+          <dt>Total</dt>
+          <dd>{{ data.resumen.total | currency:'MXN':'symbol-narrow':'1.2-2' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <footer class="quote-footer">
+      <div>
+        <strong>Gracias por su confianza</strong>
+        <span>Esta propuesta fue preparada especialmente para usted.</span>
+      </div>
+      <div class="contact-row">
+        <span>ventas&#64;miempresa.mx</span>
+        <span>www.miempresa.mx</span>
+        <span>+52 998 000 0000</span>
+      </div>
+    </footer>
+  </article>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="preview-actions">
+  <button type="button" mat-button (click)="dialogRef.close()">Cerrar</button>
+  <button type="button" mat-flat-button (click)="imprimir()">
+    <mat-icon>print</mat-icon>
+    Imprimir / Guardar PDF
+  </button>
+</mat-dialog-actions>

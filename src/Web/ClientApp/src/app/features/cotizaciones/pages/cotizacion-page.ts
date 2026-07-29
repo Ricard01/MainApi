@@ -7,6 +7,9 @@ import {CotizacionApi} from '../data-acces/cotizacion.api';
 import {CreateCotizacionCommand} from '../data-acces/cotizacion.model';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatDialog} from '@angular/material/dialog';
+import {CotizacionPreview} from '../components/cotizacion-preview/cotizacion-preview';
+import {CotizacionPreviewData} from '../components/cotizacion-preview/cotizacion-preview.model';
 
 
 @Component({
@@ -30,6 +33,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     <app-cotizacion-detail
       [isPersonaMoral]="isPersonaMoral()"
       [actionsDisabled]="!isHeaderValid()"
+      (vistaPrevia)="onVistaPrevia()"
       (guardar)="onGuardar()">
     </app-cotizacion-detail>
   `,
@@ -40,6 +44,7 @@ export class CotizacionPage {
   private readonly router = inject(Router);
   private readonly cotizacionApi = inject(CotizacionApi);
   private readonly snackbar = inject(SnackbarService);
+  private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
   private readonly header = viewChild(CotizacionHeader);
   private readonly detail = viewChild.required(CotizacionDetail);
@@ -80,6 +85,35 @@ export class CotizacionPage {
       });
   }
 
+  onVistaPrevia(): void {
+    const header = this.header();
+    const detail = this.detail();
+
+    if (!header || !header.isValid() || !detail.isValid()) {
+      header?.markAsTouched();
+      detail.markAsTouched();
+      this.snackbar.error('Completa los datos requeridos para generar la vista previa');
+      return;
+    }
+
+    const data: CotizacionPreviewData = {
+      header: header.getValue(),
+      detalles: detail.getDetallesValue(),
+      resumen: detail.getResumenValue(),
+    };
+
+    this.dialog.open(CotizacionPreview, {
+      data,
+      width: 'min(1180px, 96vw)',
+      maxWidth: '96vw',
+      height: '92vh',
+      maxHeight: '92vh',
+      autoFocus: false,
+      restoreFocus: true,
+      panelClass: 'cotizacion-preview-dialog',
+    });
+  }
+
   private buildCreateCommand(): CreateCotizacionCommand {
     const header = this.header()!.getValue();
     const resumen = this.detail().getResumenValue();
@@ -113,7 +147,4 @@ export class CotizacionPage {
       total: resumen.total,
     };
   }
-
-
-
 }

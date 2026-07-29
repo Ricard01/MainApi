@@ -1,5 +1,6 @@
 <documento-detail
   [isPersonaMoral]="isPersonaMoral()"
   [actionsDisabled]="actionsDisabled()"
+  (vistaPrevia)="vistaPrevia.emit()"
   (guardar)="guardar.emit()">
 </documento-detail>
