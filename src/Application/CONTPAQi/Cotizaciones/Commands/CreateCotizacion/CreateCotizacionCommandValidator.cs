@@ -6,7 +6,9 @@ public class CreateCotizacionCommandValidator : AbstractValidator<CreateCotizaci
 {
     public CreateCotizacionCommandValidator()
     {
-        RuleFor(x => x.IdAgente).NotNull().NotEmpty();
+        RuleFor(x => x.IdAgente)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("El Id del agente no puede ser negativo.");
         RuleFor(x => x.Contacto)
             .MaximumLength(20)
             .WithMessage("Maximo 20 caracteres");

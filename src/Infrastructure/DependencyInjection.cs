@@ -1,4 +1,5 @@
 ﻿using MainApi.Application.Common.Interfaces;
+using MainApi.Application.CONTPAQi.Acumulados;
 using MainApi.Application.CONTPAQi.Bitacoras;
 using MainApi.Infrastructure.CONTPAQi.Config;
 using MainApi.Infrastructure.CONTPAQi.Database;
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<ContpaqiConnectionStringFactory>();
         services.AddScoped<IContpaqiSqlConnection, ContpaqiSqlConnection>();
         services.AddScoped<IBitacoraContpaqiService, BitacoraContpaqiService>();
+        services.AddScoped<IAcumuladosContpaqiService, AcumuladosContpaqiService>();
         services.AddScoped<IDocumentoContpaqiService, DocumentoContpaqiService>();
 
         services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.

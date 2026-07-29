@@ -1,6 +1,7 @@
 using System.Data;
 using Dapper;
 using MainApi.Application.Common.Interfaces;
+using MainApi.Application.CONTPAQi.Acumulados;
 using MainApi.Application.CONTPAQi.Bitacoras;
 using MainApi.Application.CONTPAQi.Documentos;
 using MainApi.Application.CONTPAQi.Movimientos;
@@ -11,7 +12,9 @@ namespace MainApi.Infrastructure.CONTPAQi.Services;
 /// Guarda directamente en las tablas de CONTPAQi siguiendo el orden observado en SQL Profiler.
 /// No confirma la transacción; el handler decide si hace commit, rollback o reintenta.
 /// </summary>
-public sealed class DocumentoContpaqiService(IBitacoraContpaqiService bitacoraService)
+public sealed class DocumentoContpaqiService(
+    IBitacoraContpaqiService bitacoraService,
+    IAcumuladosContpaqiService acumuladosService)
     : IDocumentoContpaqiService
 {
     public async Task<int> CrearAsync(
@@ -50,6 +53,12 @@ public sealed class DocumentoContpaqiService(IBitacoraContpaqiService bitacoraSe
         }
 
         await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
+        await acumuladosService.ActualizarCotizacionAsync(
+            connection,
+            transaction,
+            documento,
+            movimientos,
+            cancellationToken);
         await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
         await bitacoraService.RegistrarDocumentoAsync(
             connection,
@@ -63,9 +72,6 @@ public sealed class DocumentoContpaqiService(IBitacoraContpaqiService bitacoraSe
                 Proceso = ProcesoBitacoraContpaqi.DocumentoCreado
             },
             cancellationToken);
-
-        // Falta validar admAcumulados contra una traza real. Esa tabla maneja varias
-        // dimensiones y no conviene llenarla suponiendo valores.
 
         return idDocumento;
     }
