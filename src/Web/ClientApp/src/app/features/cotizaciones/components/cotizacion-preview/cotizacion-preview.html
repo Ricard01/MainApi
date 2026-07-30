@@ -1,7 +1,6 @@
 <header class="preview-toolbar">
   <div>
     <span class="preview-kicker">Vista previa</span>
-    <h2>Así verá el cliente la cotización</h2>
   </div>
 
   <button type="button" mat-icon-button (click)="dialogRef.close()" aria-label="Cerrar vista previa">
@@ -20,23 +19,17 @@
 
     <header class="quote-header">
       <div class="brand">
-        <img src="assets/imgs/logo.png" alt="Logotipo de la empresa">
-        <div>
-          <strong>MI EMPRESA</strong>
-          <span>Soluciones empresariales</span>
-        </div>
+        <img src="assets/imgs/logoHorizontal.png" alt="Logotipo de la empresa">
       </div>
 
       <div class="document-id">
         <span>Cotización</span>
-        <strong>{{ data.header.serie || 'S/S' }}-{{ data.header.folio || 'S/F' }}</strong>
+        <strong>{{ data.header.serie || '' }} {{ data.header.folio || 'S/F' }}</strong>
       </div>
     </header>
 
     <section class="title-block">
-      <span class="eyebrow">Propuesta comercial</span>
       <h1>Cotización</h1>
-      <p>Productos y servicios</p>
     </section>
 
     <section class="information-grid">
