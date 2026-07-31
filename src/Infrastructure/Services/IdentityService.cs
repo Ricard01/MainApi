@@ -91,7 +91,7 @@ public class IdentityService : IIdentityService
             .ToList();
 
         //  4) Crea la lista de claims
-        var nombreCompleto = string.Join(
+        var nombreMasApellidoPaterno = string.Join(
             " ",
             new[] { user.Nombre, user.ApellidoPaterno }
                 .Where(value => !string.IsNullOrWhiteSpace(value)));
@@ -99,9 +99,8 @@ public class IdentityService : IIdentityService
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Nombre),
+            new Claim(ClaimTypes.Name, nombreMasApellidoPaterno),
             new Claim(ClaimConstants.UserName, user.UserName),
-            new Claim(ClaimConstants.NombreCompleto, nombreCompleto),
             new Claim(ClaimConstants.ImagenUrl, user.ImagenPerfilUrl ?? string.Empty),
             new(ClaimTypes.Role, user.Rol.Nombre),
         };
@@ -123,7 +122,7 @@ public class IdentityService : IIdentityService
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal, props);
 
-        return new AuthUser(Nombre: user.Nombre, ImagenUrl: user.ImagenPerfilUrl,
+        return new AuthUser(Nombre: nombreMasApellidoPaterno, ImagenUrl: user.ImagenPerfilUrl,
             Rol: user.Rol.Nombre, Permisos: nombresPermisos);
     }
 

@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  --sheet-width: 216mm;
+  --sheet-height: 279mm;
+  --sheet-margin: 10mm;
   --prism-dark: #003732;
   --prism-main: #226961;
   --prism-medium: #3f827a;
@@ -43,10 +46,10 @@
 .quote-page {
   position: relative;
   box-sizing: border-box;
-  width: 210mm;
-  min-height: 297mm;
+  width: var(--sheet-width);
+  min-height: var(--sheet-height);
   margin: 0 auto;
-  padding: 18mm 16mm 16mm;
+  padding: var(--sheet-margin);
   overflow: hidden;
   color: var(--ink);
   background: #fff;
@@ -121,7 +124,12 @@
 }
 .folio
 {
-  font-weight: 500;
+  display: block;
+  margin-top: 2px;
+  color: var(--prism-main);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .04em;
 }
 
 .quote-header,
@@ -139,6 +147,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 2rem;
+  min-height: 92px;
 }
 
 .brand {
@@ -148,8 +157,9 @@
 }
 
 .brand img {
-  width: 300px;
-  height: 150px;
+  width: 285px;
+  height: auto;
+  margin-top: -13px;
   object-fit: contain;
 }
 
@@ -181,7 +191,17 @@
 }
 
 .title-block {
-  margin: 28px 0 24px;
+  position: absolute;
+  top: 10mm;
+  right: 14mm;
+  z-index: 3;
+  min-width: 188px;
+  margin: 0;
+  padding: 9px 13px 9px 16px;
+  border-left: 3px solid var(--prism-main);
+  border-radius: 3px;
+  background: #fff;
+  text-align: right;
 }
 
 .eyebrow,
@@ -194,9 +214,9 @@
 }
 
 .title-block h1 {
-  margin: .2rem 0 0;
+  margin: 0;
   color: var(--prism-dark);
-  font-size: 2.45rem;
+  font-size: 1.65rem;
   line-height: 1;
 }
 
@@ -208,32 +228,47 @@
 
 .information-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr .9fr;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  gap: 18px;
   margin-bottom: 24px;
 }
 
-.information-card,
+.client-lines,
 .document-meta {
-  min-height: 90px;
+  min-height: 72px;
   box-sizing: border-box;
   margin: 0;
-  padding: 12px 14px;
+  padding: 11px 14px;
   border-left: 3px solid var(--prism-light);
   background: linear-gradient(110deg, var(--prism-pale), #fff);
 }
 
-.information-card {
+.client-lines {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  justify-content: center;
+  gap: 10px;
   font-size: .76rem;
 }
 
-.information-card strong {
-  margin-top: 4px;
+.client-line {
+  display: grid;
+  grid-template-columns: 62px minmax(120px, 1fr) 58px minmax(110px, 1fr);
+  gap: 7px;
+  align-items: baseline;
+}
+
+.client-line strong {
   color: var(--prism-dark);
   font-size: .84rem;
+}
+
+.field-label {
+  color: var(--prism-main);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 
 .document-meta div {
@@ -326,8 +361,37 @@
   font-weight: 700;
 }
 
+.product-row {
+  break-after: avoid;
+}
+
+.product-row.has-observations td {
+  padding-bottom: 4px;
+  border-bottom: 0;
+}
+
+.product-description-row {
+  break-before: avoid;
+  background: #fff !important;
+}
+
+.detail-table .full-description-cell {
+  padding: 0 7px 12px;
+  border-bottom: 1px solid #d5dddb;
+  color: var(--muted-ink);
+  font-size: .67rem;
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detail-table tbody .product-description-row:last-child .full-description-cell {
+  border-bottom: 0;
+}
+
 .product-code,
-.product-note,
 .quantity-cell span,
 .detail-table td small {
   margin-top: 2px;
@@ -337,6 +401,16 @@
 
 .quantity-cell {
   text-align: center !important;
+}
+
+.quantity-cell strong,
+.quantity-cell span {
+  display: inline;
+}
+
+.quantity-cell span {
+  margin-top: 0;
+  margin-left: 4px;
 }
 
 .negative {
@@ -354,42 +428,52 @@
 .conditions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-.condition-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.terms-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   color: var(--muted-ink);
-  font-size: .7rem;
+  font-size: .62rem;
+  line-height: 1.32;
 }
 
-.condition-item mat-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--prism-main);
-  font-size: 18px;
+.terms-list li {
+  position: relative;
+  padding-left: 12px;
 }
 
-.condition-item strong {
-  margin-right: 4px;
-  color: var(--ink);
+.terms-list li::before {
+  position: absolute;
+  top: .42em;
+  left: 1px;
+  width: 5px;
+  height: 5px;
+  box-sizing: border-box;
+  border: 1px solid var(--prism-main);
+  border-radius: 50%;
+  content: '';
 }
 
 .totals {
+  align-self: start;
   margin: 0;
   padding: 14px 16px;
   border-top: 3px solid var(--prism-main);
   background: var(--prism-pale);
 }
 
-.totals div {
+.totals > div {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  padding: 4px 0;
+  padding: 2px 0;
   font-size: .75rem;
+  line-height: 1.2;
 }
 
 .totals dt {
@@ -417,6 +501,28 @@
 .totals .grand-total dd {
   color: #fff;
   font-size: .9rem;
+}
+
+.totals .grand-total-heading {
+  display: flex;
+  align-items: center;
+}
+
+.grand-total-heading span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.totals .grand-total-heading small {
+  color: rgb(255 255 255 / 76%);
+  font-size: .5rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+.grand-total-heading strong {
+  font-size: .86rem;
 }
 
 .quote-footer {
@@ -462,8 +568,15 @@
 }
 
 @media print {
+  @page {
+    size: 216mm 279mm;
+    margin: 0;
+  }
+
   :host {
     display: block;
+    width: var(--sheet-width);
+    min-height: var(--sheet-height);
   }
 
   .preview-toolbar,
@@ -473,14 +586,16 @@
 
   .preview-content {
     display: block;
+    width: var(--sheet-width);
+    max-height: none !important;
     padding: 0 !important;
     overflow: visible !important;
     background: #fff;
   }
 
   .quote-page {
-    width: 210mm;
-    min-height: 297mm;
+    width: var(--sheet-width);
+    min-height: var(--sheet-height);
     margin: 0;
     box-shadow: none;
     print-color-adjust: exact;

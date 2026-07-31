@@ -10,6 +10,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatDialog} from '@angular/material/dialog';
 import {CotizacionPreview} from '../components/cotizacion-preview/cotizacion-preview';
 import {CotizacionPreviewData} from '../components/cotizacion-preview/cotizacion-preview.model';
+import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
 
 
 @Component({
@@ -45,6 +46,7 @@ export class CotizacionPage {
   private readonly cotizacionApi = inject(CotizacionApi);
   private readonly snackbar = inject(SnackbarService);
   private readonly dialog = inject(MatDialog);
+  private readonly auth = inject(AuthFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly header = viewChild(CotizacionHeader);
   private readonly detail = viewChild.required(CotizacionDetail);
@@ -86,6 +88,7 @@ export class CotizacionPage {
   }
 
   onVistaPrevia(): void {
+    console.log(this.auth.user());
     const header = this.header();
     const detail = this.detail();
 
@@ -100,6 +103,7 @@ export class CotizacionPage {
       header: header.getValue(),
       detalles: detail.getDetallesValue(),
       resumen: detail.getResumenValue(),
+      usuarioNombre: this.auth.user()?.nombre ?? '',
     };
 
     this.dialog.open(CotizacionPreview, {

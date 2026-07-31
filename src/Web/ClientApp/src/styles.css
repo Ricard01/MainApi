@@ -118,6 +118,20 @@ body {
 }
 
 @media print {
+  @page {
+    size: 216mm 279mm;
+    margin: 0;
+  }
+
+  html,
+  body.cotizacion-print-mode {
+    width: 216mm !important;
+    min-height: 279mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
   body.cotizacion-print-mode > app-root,
   body.cotizacion-print-mode .cdk-overlay-backdrop {
     display: none !important;
@@ -139,5 +153,6 @@ body {
     overflow: visible !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    background: transparent !important;
   }
 }

@@ -5,4 +5,5 @@ export interface CotizacionPreviewData {
   header: CotizacionHeaderValue;
   detalles: DocumentoDetalleValue[];
   resumen: TotalesDetalle;
+  usuarioNombre: string;
 }

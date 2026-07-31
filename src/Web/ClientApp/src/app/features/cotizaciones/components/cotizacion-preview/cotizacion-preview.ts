@@ -16,6 +16,9 @@ export class CotizacionPreview {
   protected readonly data = inject<CotizacionPreviewData>(MAT_DIALOG_DATA);
   protected readonly dialogRef = inject(MatDialogRef<CotizacionPreview>);
   protected readonly hasDiscount = this.data.detalles.some(detalle => detalle.descuento > 0);
+  protected readonly detailColumnCount = 5
+    + (this.hasDiscount ? 1 : 0)
+    + (this.data.header.isPersonaMoral ? 1 : 0);
 
   protected imprimir(): void {
     document.body.classList.add('cotizacion-print-mode');

@@ -24,22 +24,26 @@
     </header>
 
     <section class="title-block">
-      <h1>Cotización <span class="folio">{{ data.header.serie }} {{ data.header.folio }}</span></h1>
+      <h1>Cotización &nbsp;&nbsp;&nbsp;&nbsp;     @if (data.header.serie) {
+        {{ data.header.serie }} -
+      }{{ data.header.folio }}</h1>
+
     </section>
 
     <section class="information-grid">
-      <div class="information-card client-card">
-        <span class="section-label">Datos del cliente</span>
-        <strong>{{ data.header.cliente || 'Cliente por definir' }}</strong>
-        @if (data.header.contacto) {
-          <span>Atención: {{ data.header.contacto }}</span>
-        }
-        @if (data.header.email) {
-          <span>{{ data.header.email }}</span>
-        }
-        @if (data.header.telefono) {
+      <div class="client-lines">
+        <div class="client-line">
+          <span class="field-label">Cliente</span>
+          <strong>{{ data.header.cliente }}</strong>
+          <span class="field-label">Contacto</span>
+          <span>{{ data.header.contacto }}</span>
+        </div>
+        <div class="client-line">
+          <span class="field-label">Teléfono</span>
           <span>{{ data.header.telefono }}</span>
-        }
+          <span class="field-label">Email</span>
+          <span>{{ data.header.email }}</span>
+        </div>
       </div>
 
 
@@ -49,12 +53,11 @@
           <dd>{{ data.header.fecha }}</dd>
         </div>
 
-        @if (data.header.agente) {
-          <div>
-            <dt>Agente</dt>
-            <dd>{{ data.header.agente }}</dd>
-          </div>
-        }
+        <div>
+          <dt>Agente</dt>
+          <dd>{{ data.usuarioNombre }}</dd>
+        </div>
+
       </dl>
     </section>
 
@@ -77,30 +80,19 @@
         </thead>
         <tbody>
           @for (detalle of data.detalles; track $index) {
-            <tr>
+            <tr class="product-row" [class.has-observations]="!!detalle.observaciones">
               <td class="description-cell">
                 <strong>{{ detalle.producto }}</strong>
-                @if (detalle.codigo) {
-                  <span class="product-code">{{ detalle.codigo }}</span>
-                }
-                @if (detalle.observaciones) {
-                  <span class="product-note">{{ detalle.observaciones }}</span>
-                }
               </td>
               <td class="quantity-cell">
-                <strong>{{ detalle.cantidad | number:'1.0-2' }}</strong>
-                <span>{{ detalle.unidad || 'Sin unidad' }}</span>
+                <strong>{{ detalle.cantidad | number:'1.0-2' }}</strong>         <span>{{ detalle.unidad }}</span>
+
               </td>
               <td>{{ detalle.precio | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
               @if (hasDiscount) {
                 <td>
                   @if (detalle.descuento > 0) {
-                    <span class="negative">− {{ detalle.descuento | currency:'MXN':'symbol-narrow':'1.2-2' }}</span>
-                    @if (detalle.descuentoPorcentaje > 0) {
-                      <small>{{ detalle.descuentoPorcentaje | number:'1.0-2' }}%</small>
-                    }
-                  } @else {
-                    <span>—</span>
+                    <span class="negative">− {{ detalle.descuento | currency:'MXN':'symbol-narrow':'1.2-2' }} </span>
                   }
                 </td>
               }
@@ -110,6 +102,11 @@
               }
               <td class="line-total">{{ detalle.total | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
             </tr>
+            @if (detalle.observaciones) {
+              <tr class="product-description-row">
+                <td [attr.colspan]="detailColumnCount" class="full-description-cell">{{ detalle.observaciones }}</td>
+              </tr>
+            }
           }
         </tbody>
       </table>
@@ -117,19 +114,16 @@
 
     <section class="summary-section">
       <div class="conditions">
-        <span class="section-label">Condiciones comerciales</span>
-        <div class="condition-item">
-          <mat-icon>payments</mat-icon>
-          <span><strong>Moneda</strong> Pesos mexicanos (MXN)</span>
-        </div>
-        <div class="condition-item">
-          <mat-icon>event_available</mat-icon>
-          <span><strong>Vigencia</strong> 15 días naturales</span>
-        </div>
-        <div class="condition-item">
-          <mat-icon>local_shipping</mat-icon>
-          <span><strong>Entrega</strong> A confirmar con el ejecutivo</span>
-        </div>
+        <span class="section-label">Términos y condiciones</span>
+        <ul class="terms-list">
+          <li>El pago es 100% anticipado.</li>
+          <li>Beneficiario: LUISA ANGELICA PETUL ORTEGON. | R.F.C: PEOL891111K71</li>
+          <li>Depósito a cuenta: HSBC sucursal 0969 CTA #4061008199.</li>
+          <li>Clabe interbancaria: 021691040610081993.</li>
+          <li>Entrega de Hardware sujeto a disponibilidad.</li>
+          <li>La garantía en Hardware y/o piezas o partes electrónicas aplica directo con el fabricante.</li>
+          <li>No aplican devoluciones.</li>
+        </ul>
       </div>
 
       <dl class="totals">
@@ -154,7 +148,12 @@
           </div>
         }
         <div class="grand-total">
-          <dt>Total</dt>
+          <dt class="grand-total-heading">
+            <span>
+              <strong>Total</strong>
+              <small>MXN - Peso Mexicano</small>
+            </span>
+          </dt>
           <dd>{{ data.resumen.total | currency:'MXN':'symbol-narrow':'1.2-2' }}</dd>
         </div>
       </dl>
@@ -166,8 +165,8 @@
         <span>Esta propuesta fue preparada especialmente para usted.</span>
       </div>
       <div class="contact-row">
-        <span>ventas&#64;miempresa.mx</span>
-        <span>www.miempresa.mx</span>
+        <span>ventas&#64;anysolution.com.mx</span>
+        <span>www.anysolution.com.mx</span>
         <span>+52 998 000 0000</span>
       </div>
     </footer>
