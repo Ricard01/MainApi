@@ -119,6 +119,10 @@
   background-image: radial-gradient(var(--prism-main) 1.2px, transparent 1.2px);
   background-size: 9px 9px;
 }
+.folio
+{
+  font-weight: 500;
+}
 
 .quote-header,
 .title-block,

@@ -15,21 +15,16 @@
     <div class="prism prism-top-c" aria-hidden="true"></div>
     <div class="prism prism-bottom-a" aria-hidden="true"></div>
     <div class="prism prism-bottom-b" aria-hidden="true"></div>
-    <div class="dot-pattern" aria-hidden="true"></div>
+    <!--    <div class="dot-pattern" aria-hidden="true"></div>-->
 
     <header class="quote-header">
       <div class="brand">
         <img src="assets/imgs/logoHorizontal.png" alt="Logotipo de la empresa">
       </div>
-
-      <div class="document-id">
-        <span>Cotización</span>
-        <strong>{{ data.header.serie || '' }} {{ data.header.folio || 'S/F' }}</strong>
-      </div>
     </header>
 
     <section class="title-block">
-      <h1>Cotización</h1>
+      <h1>Cotización <span class="folio">{{ data.header.serie }} {{ data.header.folio }}</span></h1>
     </section>
 
     <section class="information-grid">
@@ -47,22 +42,13 @@
         }
       </div>
 
-      <div class="information-card issuer-card">
-        <span class="section-label">Datos del emisor</span>
-        <strong>Mi Empresa</strong>
-        <span>Información fiscal del emisor</span>
-        <span>Datos de contacto configurables</span>
-      </div>
 
       <dl class="document-meta">
         <div>
           <dt>Fecha</dt>
           <dd>{{ data.header.fecha }}</dd>
         </div>
-        <div>
-          <dt>Tipo de cliente</dt>
-          <dd>{{ data.header.isPersonaMoral ? 'Persona moral' : 'Persona física' }}</dd>
-        </div>
+
         @if (data.header.agente) {
           <div>
             <dt>Agente</dt>
@@ -75,19 +61,19 @@
     <div class="detail-wrap">
       <table class="detail-table">
         <thead>
-          <tr>
-            <th class="description-column">Descripción</th>
-            <th>Cantidad / U.M.</th>
-            <th>Precio unitario</th>
-            @if (hasDiscount) {
-              <th>Descuento</th>
-            }
-            <th>IVA</th>
-            @if (data.header.isPersonaMoral) {
-              <th>ISR</th>
-            }
-            <th>Importe</th>
-          </tr>
+        <tr>
+          <th class="description-column">Descripción</th>
+          <th>Cantidad</th>
+          <th>Precio U.</th>
+          @if (hasDiscount) {
+            <th>Descuento</th>
+          }
+          <th>IVA</th>
+          @if (data.header.isPersonaMoral) {
+            <th>Ret ISR</th>
+          }
+          <th>Importe</th>
+        </tr>
         </thead>
         <tbody>
           @for (detalle of data.detalles; track $index) {
