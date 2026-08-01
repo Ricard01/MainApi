@@ -39,6 +39,8 @@ public class IdentityService : IIdentityService
 
         // 2) Extraer los datos directamente de los Claims de la cookie
         var nombre = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
+        var email = userClaims.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+        var telefono = userClaims.FindFirst(ClaimTypes.MobilePhone)?.Value;
         var imagenUrl = userClaims.FindFirst(ClaimConstants.ImagenUrl)?.Value;
         var rol = userClaims.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
 
@@ -49,6 +51,8 @@ public class IdentityService : IIdentityService
         // 3) Retornar el objeto AuthUser
         var authUser = new AuthUser(
             Nombre: nombre,
+            Email: email,
+            Telefono: string.IsNullOrWhiteSpace(telefono) ? null : telefono,
             ImagenUrl: string.IsNullOrEmpty(imagenUrl) ? null : imagenUrl,
             Rol: rol,
             Permisos: permisos
@@ -100,10 +104,20 @@ public class IdentityService : IIdentityService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, nombreMasApellidoPaterno),
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimConstants.UserName, user.UserName),
-            new Claim(ClaimConstants.ImagenUrl, user.ImagenPerfilUrl ?? string.Empty),
             new(ClaimTypes.Role, user.Rol.Nombre),
         };
+
+        if (!string.IsNullOrWhiteSpace(user.ImagenPerfilUrl))
+        {
+            claims.Add(new Claim(ClaimConstants.ImagenUrl, user.ImagenPerfilUrl));
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.Telefono))
+        {
+            claims.Add(new Claim(ClaimTypes.MobilePhone, user.Telefono));
+        }
 
         foreach (var permiso in nombresPermisos)
         {
@@ -122,8 +136,13 @@ public class IdentityService : IIdentityService
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal, props);
 
-        return new AuthUser(Nombre: nombreMasApellidoPaterno, ImagenUrl: user.ImagenPerfilUrl,
-            Rol: user.Rol.Nombre, Permisos: nombresPermisos);
+        return new AuthUser(
+            Nombre: nombreMasApellidoPaterno,
+            Email: user.Email,
+            Telefono: user.Telefono,
+            ImagenUrl: user.ImagenPerfilUrl,
+            Rol: user.Rol.Nombre,
+            Permisos: nombresPermisos);
     }
 
     /// <summary>

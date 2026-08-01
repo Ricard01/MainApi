@@ -16,6 +16,8 @@ public record LoginCommand(string UserName, string Password, bool RememberMe) : 
 /// </summary>
 public record AuthUser(
     string Nombre,
+    string Email,
+    string? Telefono,
     string? ImagenUrl,
     string Rol,
     List<string> Permisos);

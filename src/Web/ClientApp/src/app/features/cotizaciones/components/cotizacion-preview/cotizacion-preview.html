@@ -165,13 +165,22 @@
         <span>Esta propuesta fue preparada especialmente para usted.</span>
       </div>
       <div class="contact-row">
-        @if (data.usuarioEmail) {
-          <span>{{ data.usuarioEmail }}</span>
-        }
-        <span>www.anysolution.com.mx</span>
         @if (data.usuarioTelefono) {
-          <span>{{ data.usuarioTelefono }}</span>
+          <span class="footer-contact-item">
+            <mat-icon>phone</mat-icon>
+            {{ data.usuarioTelefono }}
+          </span>
         }
+        @if (data.usuarioEmail) {
+          <span class="footer-contact-item">
+            <mat-icon>email</mat-icon>
+            {{ data.usuarioEmail }}
+          </span>
+        }
+        <span class="footer-contact-item">
+          <mat-icon>language</mat-icon>
+          www.anysolution.com.mx
+        </span>
       </div>
     </footer>
   </article>

@@ -45,6 +45,8 @@
 
 .quote-page {
   position: relative;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
   width: var(--sheet-width);
   min-height: var(--sheet-height);
@@ -529,11 +531,12 @@
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  margin-top: 34px;
+  margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid #b9d7d2;
   color: var(--muted-ink);
   font-size: .65rem;
+  break-inside: avoid;
 }
 
 .quote-footer > div:first-child {
@@ -549,8 +552,22 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
   gap: 12px;
   overflow-wrap: anywhere;
+}
+
+.footer-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footer-contact-item mat-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--prism-main);
+  font-size: 14px;
 }
 
 .preview-actions {
