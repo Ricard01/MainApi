@@ -5,9 +5,9 @@ export interface LoginCommand {
 }
 
 export interface AuthUser {
-  id: string;
-  matricula: string;
   nombre: string;
+  email: string;
+  telefono: string | null;
   imagenUrl: string;
   rol: string;
   permisos: number;
@@ -22,4 +22,3 @@ export function hasPermission(userMask: number, required: number): boolean {
   if (userMask < 0) return true; // -1 del backend ⇒ todos los permisos
   return (userMask & required) === required;
 }
-

@@ -88,9 +88,9 @@ export class CotizacionPage {
   }
 
   onVistaPrevia(): void {
-    console.log(this.auth.user());
     const header = this.header();
     const detail = this.detail();
+    const usuario = this.auth.user();
 
     if (!header || !header.isValid() || !detail.isValid()) {
       header?.markAsTouched();
@@ -103,7 +103,9 @@ export class CotizacionPage {
       header: header.getValue(),
       detalles: detail.getDetallesValue(),
       resumen: detail.getResumenValue(),
-      usuarioNombre: this.auth.user()?.nombre ?? '',
+      usuarioNombre: usuario?.nombre ?? '',
+      usuarioEmail: usuario?.email ?? '',
+      usuarioTelefono: usuario?.telefono ?? '',
     };
 
     this.dialog.open(CotizacionPreview, {

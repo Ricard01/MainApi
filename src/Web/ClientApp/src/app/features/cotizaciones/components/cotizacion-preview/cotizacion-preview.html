@@ -165,9 +165,13 @@
         <span>Esta propuesta fue preparada especialmente para usted.</span>
       </div>
       <div class="contact-row">
-        <span>ventas&#64;anysolution.com.mx</span>
+        @if (data.usuarioEmail) {
+          <span>{{ data.usuarioEmail }}</span>
+        }
         <span>www.anysolution.com.mx</span>
-        <span>+52 998 000 0000</span>
+        @if (data.usuarioTelefono) {
+          <span>{{ data.usuarioTelefono }}</span>
+        }
       </div>
     </footer>
   </article>

@@ -6,4 +6,6 @@ export interface CotizacionPreviewData {
   detalles: DocumentoDetalleValue[];
   resumen: TotalesDetalle;
   usuarioNombre: string;
+  usuarioEmail: string;
+  usuarioTelefono: string;
 }
