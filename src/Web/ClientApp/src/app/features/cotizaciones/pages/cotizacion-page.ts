@@ -35,6 +35,7 @@ import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
       [isPersonaMoral]="isPersonaMoral()"
       [actionsDisabled]="!isHeaderValid()"
       (vistaPrevia)="onVistaPrevia()"
+      (descargarPdf)="onDescargarPdf()"
       (guardar)="onGuardar()">
     </app-cotizacion-detail>
   `,
@@ -88,6 +89,14 @@ export class CotizacionPage {
   }
 
   onVistaPrevia(): void {
+    this.openPreview(false);
+  }
+
+  onDescargarPdf(): void {
+    this.openPreview(true);
+  }
+
+  private openPreview(descargarAlAbrir: boolean): void {
     const header = this.header();
     const detail = this.detail();
     const usuario = this.auth.user();
@@ -106,6 +115,7 @@ export class CotizacionPage {
       usuarioNombre: usuario?.nombre ?? '',
       usuarioEmail: usuario?.email ?? '',
       usuarioTelefono: usuario?.telefono ?? '',
+      descargarAlAbrir,
     };
 
     this.dialog.open(CotizacionPreview, {
@@ -116,7 +126,11 @@ export class CotizacionPage {
       maxHeight: '92vh',
       autoFocus: false,
       restoreFocus: true,
-      panelClass: 'cotizacion-preview-dialog',
+      panelClass: descargarAlAbrir
+        ? ['cotizacion-preview-dialog', 'cotizacion-pdf-render-dialog']
+        : 'cotizacion-preview-dialog',
+      hasBackdrop: !descargarAlAbrir,
+      disableClose: descargarAlAbrir,
     });
   }
 

@@ -13,6 +13,7 @@ export class CotizacionDetail {
   readonly actionsDisabled = input(false);
   readonly guardar = output<void>();
   readonly vistaPrevia = output<void>();
+  readonly descargarPdf = output<void>();
   private readonly documentoDetail = viewChild.required(DocumentoDetail);
 
   isValid(): boolean {

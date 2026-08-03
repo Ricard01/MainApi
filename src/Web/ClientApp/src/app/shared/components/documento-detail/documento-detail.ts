@@ -32,6 +32,7 @@ export class DocumentoDetail {
   readonly actionsDisabled = input(false);
   readonly guardar = output<void>();
   readonly vistaPrevia = output<void>();
+  readonly descargarPdf = output<void>();
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly productoApi = inject(ProductoApi);
   private rowId = 0;

@@ -12,6 +12,7 @@ public sealed record CrearDocumentoContpaqiRequest
     public required decimal Folio { get; init; }
     public int IdCliente { get; init; }
     public string RazonSocial { get; init; } = string.Empty;
+    public string Destinatario { get; init; } = string.Empty;
     public string Rfc { get; init; } = string.Empty;
     public required int IdAgente { get; init; }
     public string Referencia { get; init; } = string.Empty;

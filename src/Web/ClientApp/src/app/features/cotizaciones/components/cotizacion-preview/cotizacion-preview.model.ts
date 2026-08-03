@@ -8,4 +8,5 @@ export interface CotizacionPreviewData {
   usuarioNombre: string;
   usuarioEmail: string;
   usuarioTelefono: string;
+  descargarAlAbrir?: boolean;
 }

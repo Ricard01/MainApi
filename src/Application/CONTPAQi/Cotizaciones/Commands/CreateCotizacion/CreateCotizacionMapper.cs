@@ -5,7 +5,9 @@ namespace MainApi.Application.CONTPAQi.Cotizaciones.Commands.CreateCotizacion;
 
 public static class CreateCotizacionMapper
 {
-    public static CrearDocumentoContpaqiRequest ToDocumentoContpaqi(CreateCotizacionCommand request)
+    public static CrearDocumentoContpaqiRequest ToDocumentoContpaqi(
+        CreateCotizacionCommand request,
+        string nombreUsuario)
     {
         var razonSocial = request.IsPersonaMoral
             ? "Cotización Persona Moral"
@@ -19,6 +21,7 @@ public static class CreateCotizacionMapper
             Folio = request.Folio,
             IdCliente = request.IsPersonaMoral ? 338: 1,
             RazonSocial = razonSocial,
+            Destinatario = nombreUsuario,
             Rfc = string.Empty,
             TextoExtra1 = request.Cliente,
             TextoExtra2 = request.Email,

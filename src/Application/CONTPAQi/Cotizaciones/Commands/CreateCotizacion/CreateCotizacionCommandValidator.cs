@@ -15,6 +15,9 @@ public class CreateCotizacionCommandValidator : AbstractValidator<CreateCotizaci
         RuleFor(x => x.Email).MaximumLength(50)
             .WithMessage("Maximo 50 caracteres");
         RuleFor(x => x.Telefono).MaximumLength(50);
+        RuleFor(x => x.Observaciones)
+            .MaximumLength(3000)
+            .WithMessage("Máximo 3000 caracteres para las observaciones de la cotización.");
         RuleFor(x => x.Productos)
             .NotEmpty()
             .WithMessage("Debe capturar al menos un producto.");

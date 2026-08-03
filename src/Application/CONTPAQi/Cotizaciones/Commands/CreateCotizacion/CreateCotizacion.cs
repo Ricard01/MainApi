@@ -46,13 +46,16 @@ public class CreateCotizacionCommandHandler : IRequestHandler<CreateCotizacionCo
 
     private readonly IContpaqiSqlConnection _sqlConnection;
     private readonly IDocumentoContpaqiService _documentoService;
+    private readonly IUser _currentUser;
 
     public CreateCotizacionCommandHandler(
         IContpaqiSqlConnection sqlConnection,
-        IDocumentoContpaqiService documentoService)
+        IDocumentoContpaqiService documentoService,
+        IUser currentUser)
     {
         _sqlConnection = sqlConnection;
         _documentoService = documentoService;
+        _currentUser = currentUser;
     }
 
     public async Task<int> Handle(CreateCotizacionCommand request, CancellationToken cancellationToken)
@@ -65,7 +68,9 @@ public class CreateCotizacionCommandHandler : IRequestHandler<CreateCotizacionCo
 
             try
             {
-                var documento = CreateCotizacionMapper.ToDocumentoContpaqi(request);
+                var documento = CreateCotizacionMapper.ToDocumentoContpaqi(
+                    request,
+                    _currentUser.Nombre ?? string.Empty);
                 var idDocumento = await _documentoService.CrearAsync(
                     connection,
                     transaction,

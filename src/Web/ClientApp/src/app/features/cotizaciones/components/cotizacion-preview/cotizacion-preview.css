@@ -59,6 +59,11 @@
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.quote-page.pdf-export-mode {
+  margin: 0;
+  box-shadow: none;
+}
+
 .prism {
   position: absolute;
   pointer-events: none;
@@ -335,10 +340,6 @@
   color: #314440;
   text-align: right;
   vertical-align: top;
-}
-
-.detail-table tbody tr:nth-child(even) {
-  background: #f6fbfa;
 }
 
 .detail-table tbody tr:last-child td {

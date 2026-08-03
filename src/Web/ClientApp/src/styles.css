@@ -104,6 +104,19 @@ body {
   background: var(--mat-sys-surface-container-low);
 }
 
+/* Mantiene el documento renderizado para html2canvas sin mostrar el modal. */
+.cotizacion-pdf-render-dialog {
+  position: fixed !important;
+  top: 0 !important;
+  left: -12000px !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+}
+
+.cotizacion-pdf-render-dialog .mat-mdc-dialog-surface {
+  box-shadow: none;
+}
+
 @media (max-width: 760px) {
   .cotizacion-preview-dialog {
     width: 100vw !important;

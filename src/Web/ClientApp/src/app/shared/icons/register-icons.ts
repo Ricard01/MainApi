@@ -30,5 +30,5 @@ export function registerIcons(registry: MatIconRegistry, sanitizer: DomSanitizer
   registry.addSvgIcon('check_circle', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/check_circle.svg'));
   registry.addSvgIcon('cancel', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/cancel.svg'));
   registry.addSvgIcon('xls', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/xls.svg'));
-
+  registry.addSvgIcon('whatsapp', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/svg/whatsapp.svg'));
 }

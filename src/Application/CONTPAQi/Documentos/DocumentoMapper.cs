@@ -66,7 +66,7 @@ public static class DocumentoContpaqiMapper
             CTEXTOEXTRA1 = request.TextoExtra1 ?? string.Empty,
             CTEXTOEXTRA2 = request.TextoExtra2 ?? string.Empty,
             CTEXTOEXTRA3 = request.TextoExtra3 ?? string.Empty,
-            CDESTINATARIO = request.RazonSocial ?? string.Empty,
+            CDESTINATARIO = request.Destinatario,
             CBANOBSERVACIONES = string.IsNullOrWhiteSpace(request.Observaciones) ? 0 : 1,
             CTIMESTAMP = CrearTimestampContpaqi(),
             CUNIDADESPENDIENTES = resumen.TotalUnidades,
