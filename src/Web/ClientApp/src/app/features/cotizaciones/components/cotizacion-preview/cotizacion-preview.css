@@ -243,19 +243,16 @@
 
 .client-lines,
 .document-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
   min-height: 72px;
   box-sizing: border-box;
   margin: 0;
   padding: 11px 14px;
   border-left: 3px solid var(--prism-light);
   background: linear-gradient(110deg, var(--prism-pale), #fff);
-}
-
-.client-lines {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
   font-size: .76rem;
 }
 
@@ -271,33 +268,24 @@
   font-size: .84rem;
 }
 
-.field-label {
+.field-label,
+.document-meta dt {
   color: var(--prism-main);
   font-size: .65rem;
   font-weight: 700;
   letter-spacing: .04em;
-  text-transform: uppercase;
 }
 
 .document-meta div {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 8px;
-  font-size: .72rem;
-}
-
-.document-meta div + div {
-  margin-top: 5px;
-}
-
-.document-meta dt {
-  color: var(--muted-ink);
 }
 
 .document-meta dd {
   margin: 0;
-  color: var(--prism-dark);
-  font-weight: 600;
+  color: var(--ink);
+  font-weight: 400;
   text-align: right;
 }
 
