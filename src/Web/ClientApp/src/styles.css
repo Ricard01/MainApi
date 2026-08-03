@@ -155,4 +155,14 @@ body {
     box-shadow: none !important;
     background: transparent !important;
   }
+
+  body.cotizacion-multipage-print .quote-page {
+    min-height: 271mm !important;
+  }
+
+  body.cotizacion-multipage-print .prism-bottom-a,
+  body.cotizacion-multipage-print .prism-bottom-b {
+    position: fixed !important;
+    bottom: -8mm !important;
+  }
 }
