@@ -4,7 +4,8 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  output
+  output,
+  signal
 } from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete/agente-autocomplete';
@@ -30,6 +31,7 @@ export class CotizacionHeader implements OnInit {
   private readonly cotizacionApi = inject(CotizacionApi);
   private readonly destroyRef = inject(DestroyRef);
   readonly personaMoralChange = output<boolean>();
+  readonly observacionesAbiertas = signal(false);
 
 
   readonly form = this.fb.group({
@@ -43,7 +45,12 @@ export class CotizacionHeader implements OnInit {
     contacto: ['', Validators.maxLength(20)],
     email: ['',Validators.maxLength(50)],
     telefono: ['',Validators.maxLength(50)],
+    observaciones: ['', Validators.maxLength(3000)],
   });
+
+  toggleObservaciones(): void {
+    this.observacionesAbiertas.update(abiertas => !abiertas);
+  }
 
   ngOnInit(): void {
     this.form.controls.isPersonaMoral.valueChanges

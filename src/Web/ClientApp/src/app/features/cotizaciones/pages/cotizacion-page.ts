@@ -148,6 +148,7 @@ export class CotizacionPage {
       contacto: header.contacto,
       email: header.email,
       telefono: header.telefono,
+      observaciones: header.observaciones,
       productos,
       totalProductos: resumen.productos,
       total: resumen.total,

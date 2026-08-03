@@ -139,6 +139,7 @@
 .information-grid,
 .detail-wrap,
 .summary-section,
+.quote-observations,
 .quote-footer {
   position: relative;
   z-index: 1;
@@ -525,6 +526,23 @@
 
 .grand-total-heading strong {
   font-size: .86rem;
+}
+
+.quote-observations {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--prism-light);
+  background: linear-gradient(110deg, var(--prism-pale), #fff);
+}
+
+.quote-observations p {
+  margin: 5px 0 0;
+  color: var(--muted-ink);
+  font-size: .67rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .quote-footer {

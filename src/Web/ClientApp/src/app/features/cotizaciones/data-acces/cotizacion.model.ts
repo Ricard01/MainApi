@@ -9,6 +9,7 @@ export interface CreateCotizacionCommand {
   contacto: string;
   email: string;
   telefono: string;
+  observaciones: string;
   productos: Productos[],
   totalProductos: number;
   total: number;
@@ -39,4 +40,5 @@ export interface CotizacionHeaderValue {
   contacto: string;
   email: string;
   telefono: string;
+  observaciones: string;
 }

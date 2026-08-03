@@ -159,6 +159,13 @@
       </dl>
     </section>
 
+    @if (data.header.observaciones.trim()) {
+      <section class="quote-observations">
+        <span class="section-label">Observaciones</span>
+        <p>{{ data.header.observaciones }}</p>
+      </section>
+    }
+
     <footer class="quote-footer">
       <div>
         <strong>Gracias por su confianza</strong>
