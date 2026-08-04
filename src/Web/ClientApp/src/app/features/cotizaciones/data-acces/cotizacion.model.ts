@@ -42,3 +42,36 @@ export interface CotizacionHeaderValue {
   telefono: string;
   observaciones: string;
 }
+
+export interface CotizacionReadModel {
+  id: number;
+  fecha: string;
+  serie: string;
+  folio: number;
+  idAgente: number;
+  isPersonaMoral: boolean;
+  cliente: string;
+  contacto: string;
+  email: string;
+  telefono: string;
+  observaciones: string;
+  usuarioNombre: string;
+  productos: CotizacionReadMovimiento[];
+}
+
+export interface CotizacionReadMovimiento {
+  idProducto: number;
+  codigo: string;
+  producto: string;
+  observaciones: string;
+  cantidad: number;
+  idUnidad: number;
+  unidad: string;
+  precio: number;
+  descuentoPorcentaje: number;
+  descuento: number;
+  neto: number;
+  iva: number;
+  isr: number;
+  total: number;
+}

@@ -1,0 +1,138 @@
+:host {
+  display: block;
+}
+
+.document-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: calc(100dvh - 8rem);
+}
+
+.list-heading,
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.list-heading {
+  justify-content: space-between;
+}
+
+.list-heading h1 {
+  margin: .15rem 0 0;
+  font-size: 1.65rem;
+}
+
+.eyebrow {
+  color: var(--mat-sys-primary);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.filters {
+  flex-wrap: wrap;
+  padding: 1rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.filters mat-form-field {
+  width: 170px;
+}
+
+.filters .search-field {
+  flex: 1 1 280px;
+  width: auto;
+}
+
+.table-card {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface);
+}
+
+.table-scroll {
+  flex: 1;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 860px;
+}
+
+.mat-mdc-header-cell {
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.mat-mdc-row:hover {
+  background: var(--mat-sys-surface-container-low);
+}
+
+.cell-center {
+  text-align: center;
+}
+
+.cell-end {
+  text-align: right;
+}
+
+.actions {
+  display: inline-flex;
+  justify-content: center;
+  gap: .15rem;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: .22rem .55rem;
+  border-radius: 999px;
+  color: #8a4b08;
+  background: #fff2d8;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.status-badge.invoiced {
+  color: #17633a;
+  background: #dcf6e8;
+}
+
+.empty-cell {
+  height: 180px;
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--mat-sys-surface) 72%, transparent);
+}
+
+@media (max-width: 720px) {
+  .list-heading {
+    align-items: flex-start;
+  }
+
+  .filters mat-form-field {
+    flex: 1 1 145px;
+    width: auto;
+  }
+}

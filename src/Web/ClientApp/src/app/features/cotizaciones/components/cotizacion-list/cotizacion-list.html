@@ -1,1 +1,9 @@
-<p>cotizacion-list works!</p>
+<app-documento-list
+  [config]="config"
+  [items]="items()"
+  [totalCount]="totalCount()"
+  [query]="query()"
+  [loading]="loading()"
+  (queryChange)="queryChange.emit($event)"
+  (itemAction)="itemAction.emit($event)">
+</app-documento-list>

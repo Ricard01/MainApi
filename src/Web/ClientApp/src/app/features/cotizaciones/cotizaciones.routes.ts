@@ -1,8 +1,11 @@
-export const cotizacionesRoutes = [
+import {Routes} from '@angular/router';
+
+export const cotizacionesRoutes: Routes = [
   {
     path: '',
     children: [
-      {path: '', loadComponent: () => import('./pages/cotizacion-page').then(m => m.CotizacionPage)},
+      {path: '', pathMatch: 'full', loadComponent: () => import('./pages/cotizacion-list.page').then(m => m.CotizacionListPage)},
+      {path: 'nuevo', loadComponent: () => import('./pages/cotizacion-page').then(m => m.CotizacionPage)},
     ]
   }
 ]
