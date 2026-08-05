@@ -32,7 +32,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles/material/index.scss",
+              "src/styles/imports.scss",
               "src/styles.css"
             ]
           },
