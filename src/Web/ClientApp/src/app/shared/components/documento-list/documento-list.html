@@ -1,18 +1,15 @@
 <section class="document-list-page">
   <header class="list-heading">
-    <div>
-      <span class="eyebrow">Documentos comerciales</span>
-      <h1>{{ config().title }}</h1>
-    </div>
+    <h1>{{ config().title }}</h1>
 
-    <a mat-flat-button [routerLink]="config().createRoute">
+    <a mat-flat-button class="create-button" [routerLink]="config().createRoute">
       <mat-icon>add</mat-icon>
       {{ config().createLabel }}
     </a>
   </header>
 
   <form class="filters" [formGroup]="filters" aria-label="Filtros del listado">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field compact-input">
       <mat-label>{{ config().searchPlaceholder }}</mat-label>
       <mat-icon matPrefix>search</mat-icon>
       <input matInput formControlName="search" autocomplete="off">
@@ -24,24 +21,46 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Desde</mat-label>
-      <input matInput type="date" formControlName="dateFrom">
-    </mat-form-field>
+    <div id="advanced-document-filters" class="advanced-filters"
+         [class.is-open]="showAdvancedFilters()"
+         [attr.aria-hidden]="!showAdvancedFilters()"
+         [attr.inert]="showAdvancedFilters() ? null : ''">
+      <label class="compact-filter-control">
+        <span>Desde</span>
+        <input type="date" formControlName="dateFrom" (change)="onDateChange('dateFrom')">
+      </label>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Hasta</mat-label>
-      <input matInput type="date" formControlName="dateTo">
-    </mat-form-field>
+      <label class="compact-filter-control">
+        <span>Hasta</span>
+        <input type="date" formControlName="dateTo" (change)="onDateChange('dateTo')">
+      </label>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Estado</mat-label>
-      <mat-select formControlName="status">
-        <mat-option value="">Todos</mat-option>
-        <mat-option value="pendiente">Pendiente</mat-option>
-        <mat-option value="facturada">Facturada</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <label class="compact-filter-control">
+        <span>Estado</span>
+        <select formControlName="status">
+          <option value="">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="facturada">Facturada</option>
+        </select>
+      </label>
+
+      @if (hasActiveAdvancedFilters) {
+        <button mat-button type="button" class="clear-filters" (click)="clearAdvancedFilters()">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+
+    <button mat-stroked-button class="filter-toggle" type="button"
+            aria-controls="advanced-document-filters"
+            [attr.aria-expanded]="showAdvancedFilters()"
+            [class.is-open]="showAdvancedFilters()"
+            [class.has-active-filters]="hasActiveAdvancedFilters"
+            (click)="toggleAdvancedFilters()">
+      <mat-icon>filter_list</mat-icon>
+      Filtros
+      <mat-icon class="filter-chevron">expand_more</mat-icon>
+    </button>
   </form>
 
   <div class="table-card" [class.is-loading]="loading()">

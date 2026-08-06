@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatTableModule} from '@angular/material/table';
@@ -6,7 +6,6 @@ import {MatSortModule, Sort} from '@angular/material/sort';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -35,7 +34,6 @@ import {
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -55,6 +53,7 @@ export class DocumentoList {
   readonly loading = input(false);
   readonly queryChange = output<DocumentoListQuery>();
   readonly itemAction = output<DocumentoListAction>();
+  readonly showAdvancedFilters = signal(false);
 
   readonly filters = new FormGroup({
     search: new FormControl('', {nonNullable: true}),
@@ -72,6 +71,10 @@ export class DocumentoList {
         dateTo: query.dateTo,
         status: query.status,
       }, {emitEvent: false});
+
+      if (query.dateFrom || query.dateTo || query.status) {
+        this.showAdvancedFilters.set(true);
+      }
     });
 
     this.filters.controls.search.valueChanges.pipe(
@@ -79,16 +82,6 @@ export class DocumentoList {
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(search => this.emitQuery({search: search.trim(), page: 1}));
-
-    this.filters.controls.dateFrom.valueChanges.pipe(
-      distinctUntilChanged(),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(dateFrom => this.emitQuery({dateFrom, page: 1}));
-
-    this.filters.controls.dateTo.valueChanges.pipe(
-      distinctUntilChanged(),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(dateTo => this.emitQuery({dateTo, page: 1}));
 
     this.filters.controls.status.valueChanges.pipe(
       distinctUntilChanged(),
@@ -98,6 +91,27 @@ export class DocumentoList {
 
   get displayedColumns(): string[] {
     return [...this.config().columns.map(column => column.key), 'actions'];
+  }
+
+  get hasActiveAdvancedFilters(): boolean {
+    const {dateFrom, dateTo, status} = this.filters.getRawValue();
+    return Boolean(dateFrom || dateTo || status);
+  }
+
+  toggleAdvancedFilters(): void {
+    this.showAdvancedFilters.update(show => !show);
+  }
+
+  onDateChange(controlName: 'dateFrom' | 'dateTo'): void {
+    const value = this.filters.controls[controlName].value;
+    if (value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      this.emitQuery({[controlName]: value, page: 1});
+    }
+  }
+
+  clearAdvancedFilters(): void {
+    this.filters.patchValue({dateFrom: '', dateTo: '', status: ''}, {emitEvent: false});
+    this.emitQuery({dateFrom: '', dateTo: '', status: '', page: 1});
   }
 
   onSortChange(sort: Sort): void {
@@ -132,4 +146,5 @@ export class DocumentoList {
   private emitQuery(patch: Partial<DocumentoListQuery>): void {
     this.queryChange.emit({...this.query(), ...patch});
   }
+
 }
