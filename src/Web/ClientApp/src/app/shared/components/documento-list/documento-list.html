@@ -27,12 +27,14 @@
          [attr.inert]="showAdvancedFilters() ? null : ''">
       <label class="compact-filter-control">
         <span>Desde</span>
-        <input type="date" formControlName="dateFrom" (change)="onDateChange('dateFrom')">
+        <input type="date" min="1900-01-01" formControlName="dateFrom"
+               (change)="onDateChange('dateFrom', $event)">
       </label>
 
       <label class="compact-filter-control">
         <span>Hasta</span>
-        <input type="date" formControlName="dateTo" (change)="onDateChange('dateTo')">
+        <input type="date" min="1900-01-01" formControlName="dateTo"
+               (change)="onDateChange('dateTo', $event)">
       </label>
 
       <label class="compact-filter-control">

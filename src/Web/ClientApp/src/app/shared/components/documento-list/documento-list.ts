@@ -102,11 +102,18 @@ export class DocumentoList {
     this.showAdvancedFilters.update(show => !show);
   }
 
-  onDateChange(controlName: 'dateFrom' | 'dateTo'): void {
-    const value = this.filters.controls[controlName].value;
-    if (value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      this.emitQuery({[controlName]: value, page: 1});
-    }
+  onDateChange(controlName: 'dateFrom' | 'dateTo', event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    // Al escribir "20" como inicio de "2026", algunos navegadores generan
+    // temporalmente el año 0020. El mínimo del input lo mantiene inválido
+    // hasta que el usuario termina un año razonable de cuatro dígitos.
+    if (!input.validity.valid) return;
+
+    const value = input.value;
+    if (value !== '' && !/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+
+    this.emitQuery({[controlName]: value, page: 1});
   }
 
   clearAdvancedFilters(): void {
