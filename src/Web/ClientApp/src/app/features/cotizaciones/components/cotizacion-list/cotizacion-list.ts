@@ -35,8 +35,9 @@ export class CotizacionList {
       {key: 'estado', label: 'Estado', type: 'status', sortKey: 'estado', align: 'center'},
     ],
     actions: [
+      {id: 'edit', label: 'Editar', icon: 'edit'},
       {id: 'preview', label: 'Vista previa', icon: 'visibility'},
-      {id: 'pdf', label: 'Descargar PDF', icon: 'picture_as_pdf'},
+      {id: 'delete', label: 'Eliminar', icon: 'delete'},
     ],
   };
 }

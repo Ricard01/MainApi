@@ -1,4 +1,5 @@
-<form [formGroup]="form" class="flex flex-col gap-5 p-4 rounded-lg shadow-sm border border-outline-variant">
+<fieldset [formGroup]="form" [disabled]="readOnly()"
+          class="flex flex-col gap-5 p-4 rounded-lg shadow-sm border border-outline-variant">
 
   <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-outline-variant pb-4 gap-4">
 
@@ -7,7 +8,9 @@
         <mat-icon class="scale-110">article</mat-icon>
       </div>
       <div>
-        <h2 class="text-2xl font-bold text-on-surface m-0">Nueva Cotización</h2>
+        <h2 class="text-2xl font-bold text-on-surface m-0">
+          {{ editMode() ? 'Editar Cotización' : 'Nueva Cotización' }}
+        </h2>
       </div>
     </div>
 
@@ -15,9 +18,14 @@
 
       <div class="flex flex-col pr-6 border-r border-outline-variant">
         <span class="text-xs font-semibold tracking-wider uppercase text-on-surface-variant/70">Estado</span>
-        <span class="text-sm font-bold text-warning-dark dark:text-warning-light mt-0.5 flex items-center gap-1.5">
-        <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-        Sin Surtir
+        <span class="text-sm font-bold mt-0.5 flex items-center gap-1.5"
+              [class.text-amber-700]="status() === 'pendiente'"
+              [class.text-emerald-700]="status() === 'facturada'">
+        <span class="h-2 w-2 rounded-full"
+              [class.bg-amber-500]="status() === 'pendiente'"
+              [class.animate-pulse]="status() === 'pendiente'"
+              [class.bg-emerald-500]="status() === 'facturada'"></span>
+        {{ status() === 'facturada' ? 'Facturada' : 'Sin surtir' }}
       </span>
       </div>
 
@@ -25,12 +33,16 @@
               class="flex items-center gap-2 text-left group hover:bg-surface-variant/40 p-1.5 px-3 rounded-lg transition-colors duration-200">
 
         <div class="flex items-center justify-center p-1.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
-          <mat-icon class="text-base h-5 w-5 flex items-center justify-center">lock_open</mat-icon>
+          <mat-icon class="text-base h-5 w-5 flex items-center justify-center">
+            {{ readOnly() ? 'lock' : 'lock_open' }}
+          </mat-icon>
         </div>
 
         <div class="flex flex-col">
           <span class="text-xs font-semibold tracking-wider uppercase text-on-surface-variant/70">Edición</span>
-          <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-0.5 group-hover:underline">Abierta</span>
+          <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-0.5">
+            {{ readOnly() ? 'Sólo lectura' : 'Abierta' }}
+          </span>
         </div>
 
       </button>
@@ -150,4 +162,4 @@
     }
   </section>
 
-</form>
+</fieldset>

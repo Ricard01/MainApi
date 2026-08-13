@@ -6,6 +6,7 @@ export const cotizacionesRoutes: Routes = [
     children: [
       {path: '', pathMatch: 'full', loadComponent: () => import('./pages/cotizacion-list.page').then(m => m.CotizacionListPage)},
       {path: 'nuevo', loadComponent: () => import('./pages/cotizacion-page').then(m => m.CotizacionPage)},
+      {path: ':id', loadComponent: () => import('./pages/cotizacion-page').then(m => m.CotizacionPage)},
     ]
   }
 ]

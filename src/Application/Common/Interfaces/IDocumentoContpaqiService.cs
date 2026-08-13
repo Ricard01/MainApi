@@ -14,4 +14,24 @@ public interface IDocumentoContpaqiService
         IDbTransaction transaction,
         CrearDocumentoContpaqiRequest request,
         CancellationToken cancellationToken);
+
+    Task<DocumentoMutationResult> ActualizarAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        int idDocumento,
+        CrearDocumentoContpaqiRequest request,
+        CancellationToken cancellationToken);
+
+    Task<DocumentoMutationResult> EliminarAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        int idDocumento,
+        CancellationToken cancellationToken);
+}
+
+public enum DocumentoMutationResult
+{
+    Success,
+    NotFound,
+    Facturada
 }

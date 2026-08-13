@@ -31,8 +31,8 @@ public sealed class DocumentoContpaqiService(
 
         var documento = DocumentoContpaqiMapper.ToDocumento(request, idDocumento, resumen);
 
-        // Comercial primero insertar el documento en caso de que el folio y serie existan,
-        // revisa el consecutivo y actualiza el folio (si la serie es diferente el folio si se puede repetir)
+        // Comercial primero inserta el documento en caso de que el folio y serie existan,
+        // revisa el consecutivo y actualiza el folio (si la serie es diferente el folio si se puede repetir) por eso utilizamos folioDefinitivo
         await InsertDocumentoAsync(connection, transaction, documento, cancellationToken);
         var folioDefinitivo = await ObtenerFolioDisponibleAsync(
             connection,
@@ -53,7 +53,7 @@ public sealed class DocumentoContpaqiService(
         }
 
         await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
-        await acumuladosService.ActualizarCotizacionAsync(
+        await acumuladosService.IncorporarCotizacionEnAcumuladosAsync(
             connection,
             transaction,
             documento,
@@ -75,6 +75,238 @@ public sealed class DocumentoContpaqiService(
 
         return idDocumento;
     }
+
+    public async Task<DocumentoMutationResult> ActualizarAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        int idDocumento,
+        CrearDocumentoContpaqiRequest request,
+        CancellationToken cancellationToken)
+    {
+        var existente = await ObtenerDocumentoParaMutacionAsync(
+            connection, transaction, idDocumento, cancellationToken);
+
+        if (existente is null) return DocumentoMutationResult.NotFound;
+        if (existente.Documento.CUNIDADESPENDIENTES == 0) return DocumentoMutationResult.Facturada;
+
+        var documentoAnterior = existente.Documento;
+        var movimientosAnteriores = existente.Movimientos;
+
+        var idMovimiento = await GetLastIdFromAdmMovimientos(connection, transaction, cancellationToken);
+        var movimientos = DocumentoContpaqiMapper.ToMovimientos(request, idDocumento, idMovimiento);
+        var resumen = DocumentoContpaqiMapper.CalcularResumen(movimientos);
+        var documento = DocumentoContpaqiMapper.ToDocumento(request, idDocumento, resumen) with
+        {
+            CGUIDDOCUMENTO = documentoAnterior.CGUIDDOCUMENTO,
+            CDESTINATARIO = documentoAnterior.CDESTINATARIO
+        };
+
+        var folioDefinitivo = await ObtenerFolioDisponibleAsync(
+            connection, transaction, documento, cancellationToken);
+        documento = documento with { CFOLIO = folioDefinitivo };
+
+        await EliminarMovimientosAsync(connection, transaction, idDocumento, cancellationToken);
+        await UpdateDocumentoAsync(connection, transaction, documento, cancellationToken);
+        await InsertMovimientosAsync(connection, transaction, movimientos, cancellationToken);
+        await acumuladosService.ReemplazarCotizacionEnAcumuladosAsync(
+            connection,
+            transaction,
+            documentoAnterior,
+            movimientosAnteriores,
+            documento,
+            movimientos,
+            cancellationToken);
+        await ActualizarFolioConceptoAsync(connection, transaction, documento, cancellationToken);
+        await bitacoraService.RegistrarDocumentoAsync(
+            connection,
+            transaction,
+            new RegistrarBitacoraDocumentoRequest
+            {
+                FechaDocumento = documento.CFECHA,
+                TipoDocumento = documento.CIDDOCUMENTODE,
+                Serie = documento.CSERIEDOCUMENTO,
+                Folio = documento.CFOLIO,
+                Proceso = ProcesoBitacoraContpaqi.DocumentoModificado
+            },
+            cancellationToken);
+
+        return DocumentoMutationResult.Success;
+    }
+
+    public async Task<DocumentoMutationResult> EliminarAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        int idDocumento,
+        CancellationToken cancellationToken)
+    {
+        var existente = await ObtenerDocumentoParaMutacionAsync(
+            connection, transaction, idDocumento, cancellationToken);
+
+        if (existente is null) return DocumentoMutationResult.NotFound;
+        if (existente.Documento.CUNIDADESPENDIENTES == 0) return DocumentoMutationResult.Facturada;
+
+        await acumuladosService.RetirarCotizacionDeAcumuladosAsync(
+            connection,
+            transaction,
+            existente.Documento,
+            existente.Movimientos,
+            cancellationToken);
+        await EliminarMovimientosAsync(connection, transaction, idDocumento, cancellationToken);
+
+        var filas = await connection.ExecuteAsync(new CommandDefinition(
+            "DELETE FROM admDocumentos WHERE CIDDOCUMENTO = @IdDocumento;",
+            new { IdDocumento = idDocumento },
+            transaction,
+            cancellationToken: cancellationToken));
+
+        if (filas != 1)
+        {
+            throw new DBConcurrencyException($"No fue posible eliminar el documento {idDocumento}.");
+        }
+
+        await bitacoraService.RegistrarDocumentoAsync(
+            connection,
+            transaction,
+            new RegistrarBitacoraDocumentoRequest
+            {
+                FechaDocumento = existente.Documento.CFECHA,
+                TipoDocumento = existente.Documento.CIDDOCUMENTODE,
+                Serie = existente.Documento.CSERIEDOCUMENTO,
+                Folio = existente.Documento.CFOLIO,
+                Proceso = ProcesoBitacoraContpaqi.DocumentoBorrado
+            },
+            cancellationToken);
+
+        return DocumentoMutationResult.Success;
+    }
+
+    private static async Task<DocumentoParaMutacion?> ObtenerDocumentoParaMutacionAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        int idDocumento,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT TOP (1)
+                               CIDDOCUMENTO, CIDDOCUMENTODE, CIDCONCEPTODOCUMENTO,
+                               CSERIEDOCUMENTO, CFOLIO, CFECHA, CIDCLIENTEPROVEEDOR,
+                               CIDAGENTE, CUNIDADESPENDIENTES, CDESTINATARIO, CGUIDDOCUMENTO
+                           FROM admDocumentos WITH (UPDLOCK, HOLDLOCK)
+                           WHERE CIDDOCUMENTO = @IdDocumento
+                             AND CIDDOCUMENTODE = 1
+                             AND CIDCONCEPTODOCUMENTO = 1;
+
+                           SELECT
+                               CIDMOVIMIENTO, CIDDOCUMENTO, CNUMEROMOVIMIENTO, CIDDOCUMENTODE,
+                               CIDPRODUCTO, CUNIDADES, CIDUNIDAD, CPRECIO, CNETO,
+                               CDESCUENTO1, CPORCENTAJEDESCUENTO1, CIMPUESTO1,
+                               CRETENCION1, CTOTAL, COBSERVAMOV, CUNIDADESPENDIENTES
+                           FROM admMovimientos WITH (UPDLOCK, HOLDLOCK)
+                           WHERE CIDDOCUMENTO = @IdDocumento;
+                           """;
+
+        using var result = await connection.QueryMultipleAsync(new CommandDefinition(
+            sql,
+            new { IdDocumento = idDocumento },
+            transaction,
+            cancellationToken: cancellationToken));
+
+        var documento = await result.ReadSingleOrDefaultAsync<AdmDocumentos>();
+        if (documento is null) return null;
+
+        var movimientos = (await result.ReadAsync<AdmMovimientos>()).AsList();
+        return new DocumentoParaMutacion(documento, movimientos);
+    }
+
+    private static Task EliminarMovimientosAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        int idDocumento,
+        CancellationToken cancellationToken)
+    {
+        return connection.ExecuteAsync(new CommandDefinition(
+            "DELETE FROM admMovimientos WHERE CIDDOCUMENTO = @IdDocumento;",
+            new { IdDocumento = idDocumento },
+            transaction,
+            cancellationToken: cancellationToken));
+    }
+
+    private static async Task UpdateDocumentoAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        AdmDocumentos documento,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE admDocumentos
+                           SET CSERIEDOCUMENTO = @Serie,
+                               CFOLIO = @Folio,
+                               CFECHA = @Fecha,
+                               CIDCLIENTEPROVEEDOR = @IdCliente,
+                               CRAZONSOCIAL = @RazonSocial,
+                               CIDAGENTE = @IdAgente,
+                               CFECHAVENCIMIENTO = @Fecha,
+                               CFECHAPRONTOPAGO = @Fecha,
+                               CFECHAENTREGARECEPCION = @Fecha,
+                               CFECHAULTIMOINTERES = @Fecha,
+                               CREFERENCIA = @Referencia,
+                               COBSERVACIONES = @Observaciones,
+                               CNETO = @Neto,
+                               CIMPUESTO1 = @Iva,
+                               CRETENCION1 = @Isr,
+                               CDESCUENTOMOV = @Descuento,
+                               CTOTAL = @Total,
+                               CPENDIENTE = @Total,
+                               CTOTALUNIDADES = @TotalUnidades,
+                               CUNIDADESPENDIENTES = @TotalUnidades,
+                               CIMPCHEQPAQ = @Total,
+                               CTEXTOEXTRA1 = @Cliente,
+                               CTEXTOEXTRA2 = @Email,
+                               CTEXTOEXTRA3 = @Telefono,
+                               CBANOBSERVACIONES = @BandObservaciones,
+                               CTIMESTAMP = @Timestamp
+                           WHERE CIDDOCUMENTO = @IdDocumento
+                             AND CUNIDADESPENDIENTES <> 0;
+                           """;
+
+        var filas = await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new
+            {
+                Serie = ToContpaqiVarChar(documento.CSERIEDOCUMENTO, AdmDocumentosColumnLengths.SerieDocumento),
+                Folio = ToContpaqiFloat(documento.CFOLIO),
+                Fecha = documento.CFECHA,
+                IdCliente = documento.CIDCLIENTEPROVEEDOR,
+                RazonSocial = ToContpaqiVarChar(documento.CRAZONSOCIAL, AdmDocumentosColumnLengths.RazonSocial),
+                IdAgente = documento.CIDAGENTE,
+                Referencia = ToContpaqiVarChar(documento.CREFERENCIA, AdmDocumentosColumnLengths.Referencia),
+                Observaciones =
+                    ToNullableContpaqiVarChar(documento.COBSERVACIONES, AdmDocumentosColumnLengths.Observaciones),
+                Neto = ToContpaqiFloat(documento.CNETO),
+                Iva = ToContpaqiFloat(documento.CIMPUESTO1),
+                Isr = ToContpaqiFloat(documento.CRETENCION1),
+                Descuento = ToContpaqiFloat(documento.CDESCUENTOMOV),
+                Total = ToContpaqiFloat(documento.CTOTAL),
+                TotalUnidades = ToContpaqiFloat(documento.CTOTALUNIDADES),
+                Cliente = ToContpaqiVarChar(documento.CTEXTOEXTRA1, AdmDocumentosColumnLengths.TextoExtra),
+                Email = ToContpaqiVarChar(documento.CTEXTOEXTRA2, AdmDocumentosColumnLengths.TextoExtra),
+                Telefono = ToContpaqiVarChar(documento.CTEXTOEXTRA3, AdmDocumentosColumnLengths.TextoExtra),
+                BandObservaciones = documento.CBANOBSERVACIONES,
+                Timestamp = ToContpaqiVarChar(documento.CTIMESTAMP, AdmDocumentosColumnLengths.TimeStamp),
+                IdDocumento = documento.CIDDOCUMENTO
+            },
+            transaction,
+            cancellationToken: cancellationToken));
+
+        if (filas != 1)
+        {
+            throw new DBConcurrencyException($"No fue posible actualizar el documento {documento.CIDDOCUMENTO}.");
+        }
+    }
+
+    private sealed record DocumentoParaMutacion(
+        AdmDocumentos Documento,
+        IReadOnlyCollection<AdmMovimientos> Movimientos);
 
     /// <summary>
     /// Obtiene el Ultimo Id de AdmDocumentos para utilizar en el insert ya que CIDDOCUMENTO no es Autoincrement 

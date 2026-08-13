@@ -118,7 +118,9 @@
           <td mat-cell *matCellDef="let item" class="cell-center">
             <div class="actions">
               @for (action of config().actions; track action.id) {
-                <button mat-icon-button type="button" [matTooltip]="action.label"
+                <button mat-icon-button type="button"
+                        [disabled]="isActionDisabled(action.id, item)"
+                        [matTooltip]="actionTooltip(action, item)"
                         [attr.aria-label]="action.label"
                         (click)="runAction(action.id, item)">
                   <mat-icon>{{ action.icon }}</mat-icon>

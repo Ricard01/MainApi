@@ -12,6 +12,8 @@ public sealed record CotizacionDetailDto
     public string Serie { get; init; } = string.Empty;
     public decimal Folio { get; init; }
     public int IdAgente { get; init; }
+    public string AgenteCodigo { get; init; } = string.Empty;
+    public string AgenteNombre { get; init; } = string.Empty;
     public bool IsPersonaMoral { get; init; }
     public string Cliente { get; init; } = string.Empty;
     public string Contacto { get; init; } = string.Empty;
@@ -19,6 +21,7 @@ public sealed record CotizacionDetailDto
     public string Telefono { get; init; } = string.Empty;
     public string Observaciones { get; init; } = string.Empty;
     public string UsuarioNombre { get; init; } = string.Empty;
+    public string Estado { get; init; } = string.Empty;
     public IReadOnlyCollection<CotizacionMovimientoDto> Productos { get; set; } = [];
 }
 
@@ -54,14 +57,18 @@ public sealed class GetCotizacionQueryHandler(IContpaqiSqlConnection sqlConnecti
                                                          d.CSERIEDOCUMENTO AS Serie,
                                                          d.CFOLIO AS Folio,
                                                          d.CIDAGENTE AS IdAgente,
+                                                         COALESCE(a.CCODIGOAGENTE, '') AS AgenteCodigo,
+                                                         COALESCE(a.CNOMBREAGENTE, '') AS AgenteNombre,
                                                          CAST(CASE WHEN d.CIDCLIENTEPROVEEDOR = 338 THEN 1 ELSE 0 END AS bit) AS IsPersonaMoral,
                                                          d.CTEXTOEXTRA1 AS Cliente,
                                                          d.CREFERENCIA AS Contacto,
                                                          d.CTEXTOEXTRA2 AS Email,
                                                          d.CTEXTOEXTRA3 AS Telefono,
                                                          COALESCE(d.COBSERVACIONES, '') AS Observaciones,
-                                                         d.CDESTINATARIO AS UsuarioNombre
+                                                         d.CDESTINATARIO AS UsuarioNombre,
+                                                         CASE WHEN d.CUNIDADESPENDIENTES = 0 THEN 'facturada' ELSE 'pendiente' END AS Estado
                                                      FROM admDocumentos d
+                                                     LEFT JOIN admAgentes a ON a.CIDAGENTE = d.CIDAGENTE
                                                      WHERE d.CIDDOCUMENTO = @Id 
                                                        AND d.CIDDOCUMENTODE = 1
                                                        AND d.CIDCONCEPTODOCUMENTO = 1;

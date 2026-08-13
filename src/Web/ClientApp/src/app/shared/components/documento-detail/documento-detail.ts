@@ -30,7 +30,11 @@ export class DocumentoDetail {
   protected readonly TipoProducto = TipoProducto;
   readonly isPersonaMoral = input(true);
   readonly actionsDisabled = input(false);
+  readonly readOnly = input(false);
+  readonly showDelete = input(false);
   readonly guardar = output<void>();
+  readonly cancelar = output<void>();
+  readonly eliminar = output<void>();
   readonly vistaPrevia = output<void>();
   readonly descargarPdf = output<void>();
   private readonly fb = inject(NonNullableFormBuilder);
@@ -89,6 +93,48 @@ export class DocumentoDetail {
 
   getResumenValue(): TotalesDetalle {
     return this.resumen();
+  }
+
+  setDetallesValue(detalles: DocumentoDetalleValue[]): void {
+    this.detalles.clear();
+    const states: DetalleState[] = [];
+
+    for (const detalle of detalles) {
+      const form = this.createDetalleForm();
+      form.patchValue(detalle, {emitEvent: false});
+      this.detalles.push(form);
+
+      const state = this.createDetalleState();
+      state.selectedProductoId = detalle.idProducto;
+      state.cantidadDisplay.set(this.formatDecimal(detalle.cantidad));
+      state.precioDisplay.set(this.formatDecimal(detalle.precio));
+      state.descuentoPorcentajeDisplay.set(this.formatDecimal(detalle.descuentoPorcentaje));
+      state.descuentoDisplay.set(this.formatDecimal(detalle.descuento));
+
+      if (detalle.idUnidad) {
+        const unidad: UnidadMedida = {
+          id: detalle.idUnidad,
+          nombre: detalle.unidad,
+          abreviatura: detalle.unidad,
+          esPrincipal: true,
+        };
+        state.unidades.set([unidad]);
+        state.selectedUnidad.set(unidad);
+      }
+
+      const precio: PrecioOption = {id: 1, nombre: 'Precio actual', monto: detalle.precio};
+      state.precios.set([precio]);
+      state.selectedPrecio.set(precio);
+      states.push(state);
+    }
+
+    if (this.detalles.length === 0) {
+      this.detalles.push(this.createDetalleForm());
+      states.push(this.createDetalleState());
+    }
+
+    this.detalleStates.set(states);
+    this.updateResumen();
   }
 
   areActionsDisabled(): boolean {

@@ -176,6 +176,11 @@ export class ProductoAutocomplete {
         break;
 
       case 'Tab': {
+        if (this.currentSelection) {
+          this.closeOverlay();
+          break;
+        }
+
         const exactMatch = this.findExactCodeMatch(items);
         if (exactMatch) {
           this.selectProducto(exactMatch);

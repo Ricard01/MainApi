@@ -8,8 +8,9 @@ using MainApi.Application.CONTPAQi.Movimientos;
 namespace MainApi.Infrastructure.CONTPAQi.Services;
 
 /// <summary>
-/// Actualiza las estadísticas mensuales que CONTPAQi mantiene en admAcumulados.
-/// La transacción es compartida con el documento que origina los importes.
+/// Mantiene sincronizados los acumulados mensuales de cotizaciones en CONTPAQi.
+/// Calcula los totales por cliente, producto y agente, y los aplica en el periodo
+/// correspondiente sin confirmar la transacción recibida.
 /// </summary>
 public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
 {
@@ -22,12 +23,79 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
     private const int AcumuladoCotizacionesClienteProducto = 3;
     private const int AcumuladoCotizacionesProducto = 4;
     private const int AcumuladoCotizacionesAgenteProducto = 140;
+    private const decimal FactorIncremento = 1m;
+    private const decimal FactorDecremento = -1m;
 
-    public async Task ActualizarCotizacionAsync(
+    /// <inheritdoc />
+    public Task IncorporarCotizacionEnAcumuladosAsync(
         IDbConnection connection,
         IDbTransaction transaction,
         AdmDocumentos documento,
         IReadOnlyCollection<AdmMovimientos> movimientos,
+        CancellationToken cancellationToken)
+    {
+        return AplicarAjusteAsync(
+            connection,
+            transaction,
+            documento,
+            movimientos,
+            FactorIncremento,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task RetirarCotizacionDeAcumuladosAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        AdmDocumentos documento,
+        IReadOnlyCollection<AdmMovimientos> movimientos,
+        CancellationToken cancellationToken)
+    {
+        return AplicarAjusteAsync(
+            connection,
+            transaction,
+            documento,
+            movimientos,
+            FactorDecremento,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task ReemplazarCotizacionEnAcumuladosAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        AdmDocumentos documentoAnterior,
+        IReadOnlyCollection<AdmMovimientos> movimientosAnteriores,
+        AdmDocumentos documentoNuevo,
+        IReadOnlyCollection<AdmMovimientos> movimientosNuevos,
+        CancellationToken cancellationToken)
+    {
+        await AplicarAjusteAsync(
+            connection,
+            transaction,
+            documentoAnterior,
+            movimientosAnteriores,
+            FactorDecremento,
+            cancellationToken);
+
+        await AplicarAjusteAsync(
+            connection,
+            transaction,
+            documentoNuevo,
+            movimientosNuevos,
+            FactorIncremento,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Calcula y aplica un ajuste con signo a todos los acumulados afectados por una cotización.
+    /// </summary>
+    private async Task AplicarAjusteAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        AdmDocumentos documento,
+        IReadOnlyCollection<AdmMovimientos> movimientos,
+        decimal factor,
         CancellationToken cancellationToken)
     {
         var idEjercicio = await ObtenerIdEjercicioAsync(
@@ -36,7 +104,7 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
             documento.CFECHA.Year,
             cancellationToken);
 
-        var acumulados = CrearAcumulados(documento, movimientos);
+        var acumulados = CrearAcumulados(documento, movimientos, factor);
 
         foreach (var acumulado in acumulados)
         {
@@ -50,9 +118,14 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
         }
     }
 
+    /// <summary>
+    /// Agrupa las partidas por producto y construye los ajustes que requiere cada tipo de
+    /// acumulado de CONTPAQi. El factor determina si los importes se agregan o se retiran.
+    /// </summary>
     private static IReadOnlyCollection<AcumuladoCotizacion> CrearAcumulados(
         AdmDocumentos documento,
-        IReadOnlyCollection<AdmMovimientos> movimientos)
+        IReadOnlyCollection<AdmMovimientos> movimientos,
+        decimal factor)
     {
         var productos = movimientos
             .GroupBy(movimiento => movimiento.CIDPRODUCTO)
@@ -72,13 +145,13 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
                 0,
                 0,
                 ImporteModeloNeto,
-                netoTotal),
+                netoTotal * factor),
             new(
                 AcumuladoCotizacionesCliente,
                 documento.CIDCLIENTEPROVEEDOR,
                 0,
                 ImporteModeloNeto,
-                netoTotal)
+                netoTotal * factor)
         };
 
         foreach (var producto in productos)
@@ -88,42 +161,45 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
                 documento.CIDCLIENTEPROVEEDOR,
                 producto.IdProducto,
                 ImporteModeloUnidades,
-                producto.Unidades));
+                producto.Unidades * factor));
             acumulados.Add(new AcumuladoCotizacion(
                 AcumuladoCotizacionesClienteProducto,
                 documento.CIDCLIENTEPROVEEDOR,
                 producto.IdProducto,
                 ImporteModeloNeto,
-                producto.Neto));
+                producto.Neto * factor));
             acumulados.Add(new AcumuladoCotizacion(
                 AcumuladoCotizacionesProducto,
                 producto.IdProducto,
                 0,
                 ImporteModeloUnidades,
-                producto.Unidades));
+                producto.Unidades * factor));
             acumulados.Add(new AcumuladoCotizacion(
                 AcumuladoCotizacionesProducto,
                 producto.IdProducto,
                 0,
                 ImporteModeloNeto,
-                producto.Neto));
+                producto.Neto * factor));
             acumulados.Add(new AcumuladoCotizacion(
                 AcumuladoCotizacionesAgenteProducto,
                 documento.CIDAGENTE,
                 producto.IdProducto,
                 ImporteModeloUnidades,
-                producto.Unidades));
+                producto.Unidades * factor));
             acumulados.Add(new AcumuladoCotizacion(
                 AcumuladoCotizacionesAgenteProducto,
                 documento.CIDAGENTE,
                 producto.IdProducto,
                 ImporteModeloNeto,
-                producto.Neto));
+                producto.Neto * factor));
         }
 
         return acumulados;
     }
 
+    /// <summary>
+    /// Obtiene la llave interna del ejercicio contable al que pertenece la cotización.
+    /// </summary>
     private static Task<int> ObtenerIdEjercicioAsync(
         IDbConnection connection,
         IDbTransaction transaction,
@@ -143,6 +219,10 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
             cancellationToken: cancellationToken));
     }
 
+    /// <summary>
+    /// Suma el ajuste al registro mensual existente o crea el registro cuando todavía no existe.
+    /// Los bloqueos evitan que dos transacciones creen o modifiquen simultáneamente la misma clave.
+    /// </summary>
     private static async Task ActualizarOInsertarAsync(
         IDbConnection connection,
         IDbTransaction transaction,
@@ -262,6 +342,9 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
         }
     }
 
+    /// <summary>
+    /// Traduce un ajuste de dominio a los parámetros esperados por admAcumulados.
+    /// </summary>
     private static DynamicParameters CrearParametros(
         AcumuladoCotizacion acumulado,
         int idEjercicio,
@@ -282,6 +365,9 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
         return parametros;
     }
 
+    /// <summary>
+    /// Reserva el siguiente identificador de admAcumulados dentro de la transacción actual.
+    /// </summary>
     private static Task<int> ObtenerSiguienteIdAsync(
         IDbConnection connection,
         IDbTransaction transaction,
@@ -298,6 +384,9 @@ public sealed class AcumuladosContpaqiService : IAcumuladosContpaqiService
             cancellationToken: cancellationToken));
     }
 
+    /// <summary>
+    /// Representa un importe que debe aplicarse a una combinación única de tipo, propietarios y modelo.
+    /// </summary>
     private sealed record AcumuladoCotizacion(
         int IdTipoAcumulado,
         int IdOwner1,

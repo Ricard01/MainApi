@@ -1,7 +1,10 @@
 using MainApi.Application.CONTPAQi.Cotizaciones.Commands.CreateCotizacion;
+using MainApi.Application.CONTPAQi.Cotizaciones.Commands.UpdateCotizacion;
+using MainApi.Application.CONTPAQi.Cotizaciones.Commands.DeleteCotizacion;
 using MainApi.Application.CONTPAQi.Cotizaciones.Queries;
 using MainApi.Application.CONTPAQi.Cotizaciones.Queries.GetCotizacion;
 using MainApi.Application.Common.Models;
+using MainApi.Application.Common.Exceptions;
 using MainApi.Application.CONTPAQi.Documentos.Queries.GetDocumentos;
 using MainApi.Domain.Enums;
 
@@ -14,6 +17,8 @@ public class Cotizaciones : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapPost(CreateCotizacion)
+            .MapPut(UpdateCotizacion, "{id:int}")
+            .MapDelete(DeleteCotizacion, "{id:int}")
             .MapGet(GetCotizaciones)
             .MapGet(GetCotizacion, "{id:int}")
             .MapGet("folio", GetFolio);
@@ -27,6 +32,24 @@ public class Cotizaciones : EndpointGroupBase
     private Task<int> CreateCotizacion(ISender sender, CreateCotizacionCommand command)
     {
         return sender.Send(command);
+    }
+
+    private Task<int> UpdateCotizacion(ISender sender, int id, UpdateCotizacionCommand command)
+    {
+        if (id != command.Id)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(command.Id), "El ID no coincide con la ruta.")
+            ]);
+        }
+
+        return sender.Send(command);
+    }
+
+    private async Task<IResult> DeleteCotizacion(ISender sender, int id)
+    {
+        await sender.Send(new DeleteCotizacionCommand(id));
+        return Results.NoContent();
     }
 
     private Task<PaginatedList<DocumentoListItem>> GetCotizaciones(

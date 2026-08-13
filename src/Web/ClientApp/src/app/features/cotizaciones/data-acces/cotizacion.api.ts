@@ -22,7 +22,15 @@ export class CotizacionApi {
   }
 
   create( command: CreateCotizacionCommand){
-    return this.http.post(this.baseUrl, command);
+    return this.http.post<number>(this.baseUrl, command);
+  }
+
+  update(id: number, command: CreateCotizacionCommand) {
+    return this.http.put<number>(`${this.baseUrl}/${id}`, {...command, id});
+  }
+
+  delete(id: number) {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
   list(query: DocumentoListQuery) {

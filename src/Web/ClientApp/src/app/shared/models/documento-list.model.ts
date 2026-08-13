@@ -44,7 +44,7 @@ export interface DocumentoColumnConfig {
   align?: 'start' | 'center' | 'end';
 }
 
-export type DocumentoActionId = 'preview' | 'pdf' | 'edit' | 'duplicate';
+export type DocumentoActionId = 'preview' | 'pdf' | 'edit' | 'delete' | 'duplicate';
 
 export interface DocumentoActionConfig {
   id: DocumentoActionId;

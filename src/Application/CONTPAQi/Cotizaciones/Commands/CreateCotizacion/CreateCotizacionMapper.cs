@@ -1,10 +1,32 @@
 using System.Globalization;
 using MainApi.Application.CONTPAQi.Documentos;
+using MainApi.Application.CONTPAQi.Cotizaciones.Commands.UpdateCotizacion;
 
 namespace MainApi.Application.CONTPAQi.Cotizaciones.Commands.CreateCotizacion;
 
 public static class CreateCotizacionMapper
 {
+    public static CrearDocumentoContpaqiRequest ToDocumentoContpaqi(
+        UpdateCotizacionCommand request,
+        string nombreUsuario)
+    {
+        return ToDocumentoContpaqi(new CreateCotizacionCommand
+        {
+            Id = request.Id,
+            Fecha = request.Fecha,
+            Serie = request.Serie,
+            Folio = request.Folio,
+            IdAgente = request.IdAgente,
+            IsPersonaMoral = request.IsPersonaMoral,
+            Cliente = request.Cliente,
+            Contacto = request.Contacto,
+            Email = request.Email,
+            Telefono = request.Telefono,
+            Observaciones = request.Observaciones,
+            Productos = request.Productos
+        }, nombreUsuario);
+    }
+
     public static CrearDocumentoContpaqiRequest ToDocumentoContpaqi(
         CreateCotizacionCommand request,
         string nombreUsuario)

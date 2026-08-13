@@ -11,7 +11,11 @@ import {DocumentoDetalleValue, TotalesDetalle} from '../../../../shared/models/d
 export class CotizacionDetail {
   readonly isPersonaMoral = input(true);
   readonly actionsDisabled = input(false);
+  readonly readOnly = input(false);
+  readonly showDelete = input(false);
   readonly guardar = output<void>();
+  readonly cancelar = output<void>();
+  readonly eliminar = output<void>();
   readonly vistaPrevia = output<void>();
   readonly descargarPdf = output<void>();
   private readonly documentoDetail = viewChild.required(DocumentoDetail);
@@ -30,5 +34,9 @@ export class CotizacionDetail {
 
   getResumenValue(): TotalesDetalle {
     return this.documentoDetail().getResumenValue();
+  }
+
+  setDetallesValue(detalles: DocumentoDetalleValue[]): void {
+    this.documentoDetail().setDetallesValue(detalles);
   }
 }

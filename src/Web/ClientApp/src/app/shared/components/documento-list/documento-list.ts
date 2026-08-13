@@ -15,6 +15,8 @@ import {debounceTime, distinctUntilChanged} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {
   DocumentoColumnConfig,
+  DocumentoActionConfig,
+  DocumentoActionId,
   DocumentoListAction,
   DocumentoListConfig,
   DocumentoListItem,
@@ -135,7 +137,19 @@ export class DocumentoList {
   }
 
   runAction(action: DocumentoListAction['action'], item: DocumentoListItem): void {
+    if (this.isActionDisabled(action, item)) return;
+
     this.itemAction.emit({action, item});
+  }
+
+  isActionDisabled(action: DocumentoActionId, item: DocumentoListItem): boolean {
+    return action === 'delete' && item.estado === 'facturada';
+  }
+
+  actionTooltip(action: DocumentoActionConfig, item: DocumentoListItem): string {
+    return this.isActionDisabled(action.id, item)
+      ? 'No se puede eliminar una cotización facturada'
+      : action.label;
   }
 
   value(item: DocumentoListItem, column: DocumentoColumnConfig): string | number {

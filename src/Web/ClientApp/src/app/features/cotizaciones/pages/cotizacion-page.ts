@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild} from '@angular/core';
 import {CotizacionHeader} from '../components/cotizacion-header/cotizacion-header';
 import {CotizacionDetail} from '../components/cotizacion-detail/cotizacion-detail';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatIcon} from '@angular/material/icon';
 import {CotizacionApi} from '../data-acces/cotizacion.api';
 import {CreateCotizacionCommand} from '../data-acces/cotizacion.model';
@@ -28,12 +28,19 @@ import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
     </div>
 
     <app-cotizacion-header
+      [editMode]="isEditMode()"
+      [readOnly]="readOnly()"
+      [status]="status()"
       (personaMoralChange)="isPersonaMoral.set($event)">
     </app-cotizacion-header>
 
     <app-cotizacion-detail
       [isPersonaMoral]="isPersonaMoral()"
+      [readOnly]="readOnly()"
+      [showDelete]="isEditMode() && !readOnly()"
       [actionsDisabled]="!isHeaderValid()"
+      (cancelar)="onRegresar()"
+      (eliminar)="onEliminar()"
       (vistaPrevia)="onVistaPrevia()"
       (descargarPdf)="onDescargarPdf()"
       (guardar)="onGuardar()">
@@ -43,7 +50,11 @@ import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
 })
 export class CotizacionPage {
   readonly isPersonaMoral = signal(true);
+  readonly currentId = signal<number | null>(null);
+  readonly readOnly = signal(false);
+  readonly status = signal<'pendiente' | 'facturada'>('pendiente');
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly cotizacionApi = inject(CotizacionApi);
   private readonly snackbar = inject(SnackbarService);
   private readonly dialog = inject(MatDialog);
@@ -51,6 +62,18 @@ export class CotizacionPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly header = viewChild(CotizacionHeader);
   private readonly detail = viewChild.required(CotizacionDetail);
+
+  constructor() {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (Number.isInteger(id) && id > 0) {
+      this.currentId.set(id);
+      this.loadCotizacion(id);
+    }
+  }
+
+  isEditMode(): boolean {
+    return this.currentId() !== null;
+  }
 
   onRegresar() {
     this.router.navigate(['/cotizaciones']);
@@ -61,6 +84,8 @@ export class CotizacionPage {
   }
 
   onGuardar(): void {
+    if (this.readOnly()) return;
+
     const header = this.header();
     const detail = this.detail();
 
@@ -75,16 +100,38 @@ export class CotizacionPage {
 
     const command = this.buildCreateCommand();
 
-    this.cotizacionApi.create(command)
+    const request = this.currentId() === null
+      ? this.cotizacionApi.create(command)
+      : this.cotizacionApi.update(this.currentId()!, command);
+
+    request
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.snackbar.success('Cotización guardada correctamente');
+          this.snackbar.success(this.isEditMode()
+            ? 'Cotización actualizada correctamente'
+            : 'Cotización guardada correctamente');
           this.router.navigate(['/cotizaciones']);
         },
         error: () => {
           this.snackbar.error('No fue posible guardar la cotización');
         }
+      });
+  }
+
+  onEliminar(): void {
+    const id = this.currentId();
+    if (id === null || this.readOnly()) return;
+    if (!confirm('¿Eliminar esta cotización? Esta acción no se puede deshacer.')) return;
+
+    this.cotizacionApi.delete(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.snackbar.success('Cotización eliminada correctamente');
+          this.router.navigate(['/cotizaciones']);
+        },
+        error: () => this.snackbar.error('No se puede eliminar una cotización facturada'),
       });
   }
 
@@ -152,7 +199,7 @@ export class CotizacionPage {
     }));
 
     return {
-      id: 0,
+      id: this.currentId() ?? 0,
       fecha: header.fecha,
       serie: header.serie,
       folio: Number(header.folio) || 0,
@@ -167,5 +214,30 @@ export class CotizacionPage {
       totalProductos: resumen.productos,
       total: resumen.total,
     };
+  }
+
+  private loadCotizacion(id: number): void {
+    this.cotizacionApi.getById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: cotizacion => {
+          this.status.set(cotizacion.estado);
+          this.readOnly.set(cotizacion.estado === 'facturada');
+          this.isPersonaMoral.set(cotizacion.isPersonaMoral);
+          this.header()?.setValue(cotizacion);
+          this.detail().setDetallesValue(cotizacion.productos.map(producto => ({
+            ...producto,
+            idUnidad: producto.idUnidad,
+          })));
+
+          if (cotizacion.estado === 'facturada') {
+            this.snackbar.info('La cotización está facturada y se muestra sólo para consulta');
+          }
+        },
+        error: () => {
+          this.snackbar.error('No fue posible cargar la cotización');
+          this.router.navigate(['/cotizaciones']);
+        }
+      });
   }
 }

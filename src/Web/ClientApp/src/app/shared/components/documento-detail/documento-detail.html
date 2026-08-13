@@ -1,4 +1,6 @@
-<form [formGroup]="form" class="flex flex-col gap-4 p-2 rounded-lg shadow-sm border border-outline-variant mt-4">
+<fieldset [formGroup]="form" [disabled]="readOnly()"
+          class="flex flex-col gap-4 p-2 rounded-lg shadow-sm border border-outline-variant mt-4">
+  @if (!readOnly()) {
   <div class="flex justify-start">
     <button type="button"
             class="inline-flex h-9 items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 text-sm font-medium text-primary transition-colors hover:bg-primary/15 focus:outline-none focus:ring-1 focus:ring-primary"
@@ -7,6 +9,7 @@
       <span class="leading-none">Agregar producto</span>
     </button>
   </div>
+  }
 
   <div class="hidden md:grid grid-cols-12 gap-4 rounded-lg p-2 border-outline-variant font-medium text-sm
             bg-emerald-100 text-emerald-900
@@ -219,19 +222,21 @@
           </div>
 
           <div class="md:col-span-8 flex justify-end pb-1">
-            <button matIconButton
+            @if (!readOnly()) {
+              <button matIconButton
                     class="flex h-8 w-8 items-center justify-center rounded-md border border-error/30 bg-error/10 text-error transition-colors hover:bg-error/15 disabled:opacity-40 disabled:cursor-not-allowed"
                     [disabled]="detalleForms().length === 1"
                     (click)="removeProducto(i)"
                     aria-label="Eliminar producto">
-              <mat-icon class="h-5 w-5 text-xl">delete</mat-icon>
-            </button>
+                <mat-icon class="h-5 w-5 text-xl">delete</mat-icon>
+              </button>
+            }
           </div>
         </div>
       </section>
     }
   </div>
-</form>
+</fieldset>
 
 <div class="flex flex-col p-2">
   <div class="hidden md:grid grid-cols-12 rounded-lg p-2 border-outline-variant font-medium text-sm">
@@ -264,15 +269,19 @@
 
   <div class="flex items-center gap-3 w-full sm:w-auto justify-start">
     <button type="button"
+            (click)="cancelar.emit()"
             class="px-4 py-2 text-sm font-medium text-on-surface bg-surface border border-outline rounded-lg hover:bg-surface-container  transition-colors flex items-center gap-1.5">
       <mat-icon class="text-sm h-5 w-5">cancel</mat-icon>
       Cancelar
     </button>
-    <button type="button"
+    @if (showDelete()) {
+      <button type="button"
+            (click)="eliminar.emit()"
             class="px-4 py-2 text-error text-sm font-medium border border-error/30 hover:bg-error/10 rounded-lg transition-colors flex items-center gap-1.5">
       <mat-icon class="text-sm h-5 w-5">delete_sweep</mat-icon>
       Borrar
-    </button>
+      </button>
+    }
   </div>
 
   <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
@@ -285,7 +294,8 @@
       Vista Previa
     </button>
 
-    <button type="button"
+    @if (!readOnly()) {
+      <button type="button"
             [disabled]="areActionsDisabled()"
             (click)="descargarPdf.emit()"
             class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -311,8 +321,9 @@
             (click)="guardar.emit()"
             class="px-4 py-2 text-sm font-medium text-on-primary bg-primary rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed  transition-colors flex items-center gap-1.5">
       <mat-icon class="text-base h-5 w-5">save</mat-icon>
-      Guardar
-    </button>
+        Guardar
+      </button>
+    }
 
   </div>
 </div>

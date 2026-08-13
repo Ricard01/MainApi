@@ -4,8 +4,10 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  input,
   output,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
 import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AgenteAutocomplete} from '../../../../shared/components/agente-autocomplete/agente-autocomplete';
@@ -17,7 +19,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {CotizacionApi} from '../../data-acces/cotizacion.api';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CotizacionHeaderValue} from '../../data-acces/cotizacion.model';
+import {CotizacionHeaderValue, CotizacionReadModel} from '../../data-acces/cotizacion.model';
 
 @Component({
   selector: 'app-cotizacion-header',
@@ -32,6 +34,10 @@ export class CotizacionHeader implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly personaMoralChange = output<boolean>();
   readonly observacionesAbiertas = signal(false);
+  readonly editMode = input(false);
+  readonly readOnly = input(false);
+  readonly status = input<'pendiente' | 'facturada'>('pendiente');
+  private readonly agenteAutocomplete = viewChild(AgenteAutocomplete);
 
 
   readonly form = this.fb.group({
@@ -56,6 +62,8 @@ export class CotizacionHeader implements OnInit {
     this.form.controls.isPersonaMoral.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.personaMoralChange.emit(value));
+
+    if (this.editMode()) return;
 
     this.cotizacionApi.getFolio()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -98,6 +106,33 @@ export class CotizacionHeader implements OnInit {
 
   getValue(): CotizacionHeaderValue {
     return this.form.getRawValue();
+  }
+
+  setValue(cotizacion: CotizacionReadModel): void {
+    this.form.patchValue({
+      isPersonaMoral: cotizacion.isPersonaMoral,
+      idAgente: cotizacion.idAgente,
+      agente: `${cotizacion.agenteCodigo} - ${cotizacion.agenteNombre}`,
+      cliente: cotizacion.cliente,
+      fecha: this.formatApiDate(cotizacion.fecha),
+      serie: cotizacion.serie,
+      folio: String(cotizacion.folio),
+      contacto: cotizacion.contacto,
+      email: cotizacion.email,
+      telefono: cotizacion.telefono,
+      observaciones: cotizacion.observaciones,
+    });
+    this.personaMoralChange.emit(cotizacion.isPersonaMoral);
+    this.agenteAutocomplete()?.setSelection({
+      id: cotizacion.idAgente,
+      codigo: cotizacion.agenteCodigo,
+      nombre: cotizacion.agenteNombre,
+    });
+  }
+
+  private formatApiDate(value: string): string {
+    const [year, month, day] = value.slice(0, 10).split('-');
+    return year && month && day ? `${day}/${month}/${year}` : value;
   }
 
   private getFechaHoy(): string {

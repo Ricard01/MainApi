@@ -98,8 +98,13 @@ export class CotizacionListPage {
   onItemAction(event: DocumentoListAction): void {
     switch (event.action) {
       case 'edit':
+        this.router.navigate(['/cotizaciones', event.item.id]);
+        break;
       case 'duplicate':
         this.snackbar.info('Esta acción requiere definir las reglas de modificación del documento');
+        break;
+      case 'delete':
+        this.deleteCotizacion(event.item);
         break;
       case 'preview':
         this.openStoredCotizacion(event.item.id, false);
@@ -108,6 +113,25 @@ export class CotizacionListPage {
         this.openStoredCotizacion(event.item.id, true);
         break;
     }
+  }
+
+  private deleteCotizacion(item: DocumentoListItem): void {
+    const folio = `${item.serie}${item.folio}`;
+    if (!confirm(`¿Eliminar la cotización ${folio}? Esta acción no se puede deshacer.`)) return;
+
+    this.api.delete(item.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.response.update(response => ({
+            ...response,
+            items: response.items.filter(current => current.id !== item.id),
+            totalCount: Math.max(0, response.totalCount - 1),
+          }));
+          this.snackbar.success('Cotización eliminada correctamente');
+        },
+        error: () => this.snackbar.error('No se puede eliminar una cotización facturada'),
+      });
   }
 
   private openStoredCotizacion(id: number, descargarAlAbrir: boolean): void {

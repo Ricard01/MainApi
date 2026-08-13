@@ -193,6 +193,12 @@ export class AgenteAutocomplete {
     this.agenteSeleccionado.emit(agente);
   }
 
+  setSelection(agente: Agente): void {
+    this.currentSelection.set(agente);
+    this.searchInput.setValue(`${agente.codigo} - ${agente.nombre}`, {emitEvent: false});
+    this.isOverlayOpen.set(false);
+  }
+
   onKeyDown(event: KeyboardEvent): void {
     const items = this.filteredAgentes();
 

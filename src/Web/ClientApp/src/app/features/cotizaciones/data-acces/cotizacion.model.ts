@@ -49,6 +49,8 @@ export interface CotizacionReadModel {
   serie: string;
   folio: number;
   idAgente: number;
+  agenteCodigo: string;
+  agenteNombre: string;
   isPersonaMoral: boolean;
   cliente: string;
   contacto: string;
@@ -56,6 +58,7 @@ export interface CotizacionReadModel {
   telefono: string;
   observaciones: string;
   usuarioNombre: string;
+  estado: 'pendiente' | 'facturada';
   productos: CotizacionReadMovimiento[];
 }
 
