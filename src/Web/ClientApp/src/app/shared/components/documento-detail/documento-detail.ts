@@ -106,6 +106,7 @@ export class DocumentoDetail {
 
       const state = this.createDetalleState();
       state.selectedProductoId = detalle.idProducto;
+      state.productoLabel.set(this.formatProductoLabel(detalle.codigo, detalle.producto));
       state.cantidadDisplay.set(this.formatDecimal(detalle.cantidad));
       state.precioDisplay.set(this.formatDecimal(detalle.precio));
       state.descuentoPorcentajeDisplay.set(this.formatDecimal(detalle.descuentoPorcentaje));
@@ -160,6 +161,7 @@ export class DocumentoDetail {
     const state = this.stateAt(index);
 
     state.selectedProductoId = producto?.id ?? null;
+    state.productoLabel.set(this.formatProductoLabel(producto?.codigo, producto?.nombre));
     state.isUnidadMenuOpen.set(false);
     state.isPrecioMenuOpen.set(false);
     state.unidades.set([]);
@@ -319,6 +321,7 @@ export class DocumentoDetail {
     return {
       id: `detalle-${++this.rowId}`,
       selectedProductoId: null,
+      productoLabel: signal(''),
       unidades: signal<UnidadMedida[]>([]),
       selectedUnidad: signal<UnidadMedida | null>(null),
       isUnidadMenuOpen: signal(false),
@@ -349,6 +352,10 @@ export class DocumentoDetail {
       abreviatura: producto.abrevUnidadMedida,
       esPrincipal: true,
     };
+  }
+
+  private formatProductoLabel(codigo?: string, nombre?: string): string {
+    return [codigo?.trim(), nombre?.trim()].filter(Boolean).join(' - ');
   }
 
   private resetProductDependentValues(index: number): void {

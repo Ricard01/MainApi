@@ -33,6 +33,7 @@ export class ProductoAutocomplete {
   readonly inputId = input('producto-search');
   readonly tiposProductos = input<TipoProducto[]>([TipoProducto.Producto, TipoProducto.Paquete]);
   readonly estatus = input<EstatusCONTPAQi | null>(EstatusCONTPAQi.Activo);
+  readonly initialLabel = input('');
 
   // Emitimos el producto seleccionado al componente padre (o null si se borra)
   readonly productoSeleccionado = output<Producto | null>();
@@ -87,6 +88,13 @@ export class ProductoAutocomplete {
   });
 
   constructor() {
+    effect(() => {
+      const label = this.initialLabel();
+      if (!this.currentSelection && this.searchInput.value !== label) {
+        this.searchInput.setValue(label, {emitEvent: false});
+      }
+    });
+
     effect(() => {
       const items = this.filteredProductos();
       const hasQuery = this.query().trim().length > 0;

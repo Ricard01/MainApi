@@ -47,6 +47,7 @@ export interface DocumentoDetalleValue {
 export interface DetalleState {
   id: string;
   selectedProductoId: number | null;
+  productoLabel: WritableSignal<string>;
   unidades: WritableSignal<UnidadMedida[]>;
   selectedUnidad: WritableSignal<UnidadMedida | null>;
   isUnidadMenuOpen: WritableSignal<boolean>;

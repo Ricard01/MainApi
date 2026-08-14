@@ -33,6 +33,7 @@
           <div class="md:col-span-4">
             <producto-autocomplete
               [inputId]="'producto-search-' + state.id"
+              [initialLabel]="state.productoLabel()"
               [tiposProductos]="[TipoProducto.Producto, TipoProducto.Paquete, TipoProducto.Servicio]"
               (productoSeleccionado)="onProductoSeleccionado($event, i)">
             </producto-autocomplete>
