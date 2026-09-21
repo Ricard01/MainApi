@@ -13,6 +13,7 @@ export const routes: Routes = [
     children: [
       {path: '', pathMatch: 'full', redirectTo: 'home'},
       {path: 'home', component: HomeComponent},
+      {path: 'facturas', loadChildren: () => import('./features/facturas/facturas.routes').then(m => m.facturasRoutes)},
       {path: 'cotizaciones', loadChildren: () => import('./features/cotizaciones/cotizaciones.routes').then(m => m.cotizacionesRoutes)},
       {path: 'usuarios', loadChildren: () => import('./features/usuarios/usuarios.routes').then(m => m.usuariosRoutes)},
       {path: 'roles', loadChildren: () => import('./features/roles/roles.routes').then(m => m.rolesRoutes)},

@@ -1,0 +1,11 @@
+<documento-detail
+  [isPersonaMoral]="isPersonaMoral()"
+  [actionsDisabled]="actionsDisabled()"
+  [readOnly]="readOnly()"
+  [showDelete]="showDelete()"
+  (cancelar)="cancelar.emit()"
+  (eliminar)="eliminar.emit()"
+  (vistaPrevia)="vistaPrevia.emit()"
+  (descargarPdf)="descargarPdf.emit()"
+  (guardar)="guardar.emit()">
+</documento-detail>

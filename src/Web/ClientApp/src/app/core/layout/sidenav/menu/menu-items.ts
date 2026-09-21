@@ -13,6 +13,11 @@ export const items: MenuItem[] = [
   },
   {
     icon: 'article',
+    label: 'Facturas',
+    route: 'facturas',
+  },
+  {
+    icon: 'article',
     label: 'Cotizaciones',
     route: 'cotizaciones',
   },

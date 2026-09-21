@@ -1,0 +1,165 @@
+<fieldset [formGroup]="form" [disabled]="readOnly()"
+          class="flex flex-col gap-5 p-4 rounded-lg shadow-sm border border-outline-variant">
+
+  <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-outline-variant pb-4 gap-4">
+
+    <div class="flex items-center gap-4">
+      <div class="p-3 bg-(--mat-sys-secondary-container) text-(--mat-sys-on-secondary-container) rounded-xl flex items-center justify-center">
+        <mat-icon class="scale-110">article</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-on-surface m-0">
+          {{ editMode() ? 'Editar Cotización' : 'Nueva Cotización' }}
+        </h2>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-6 bg-surface-variant/20 dark:bg-surface-variant/10 p-3 rounded-xl border border-outline-variant/50 self-start md:self-auto">
+
+      <div class="flex flex-col pr-6 border-r border-outline-variant">
+        <span class="text-xs font-semibold tracking-wider uppercase text-on-surface-variant/70">Estado</span>
+        <span class="text-sm font-bold mt-0.5 flex items-center gap-1.5"
+              [class.text-amber-700]="status() === 'pendiente'"
+              [class.text-emerald-700]="status() === 'facturada'">
+        <span class="h-2 w-2 rounded-full"
+              [class.bg-amber-500]="status() === 'pendiente'"
+              [class.animate-pulse]="status() === 'pendiente'"
+              [class.bg-emerald-500]="status() === 'facturada'"></span>
+        {{ status() === 'facturada' ? 'Facturada' : 'Sin surtir' }}
+      </span>
+      </div>
+
+      <button type="button"
+              class="flex items-center gap-2 text-left group hover:bg-surface-variant/40 p-1.5 px-3 rounded-lg transition-colors duration-200">
+
+        <div class="flex items-center justify-center p-1.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
+          <mat-icon class="text-base h-5 w-5 flex items-center justify-center">
+            {{ readOnly() ? 'lock' : 'lock_open' }}
+          </mat-icon>
+        </div>
+
+        <div class="flex flex-col">
+          <span class="text-xs font-semibold tracking-wider uppercase text-on-surface-variant/70">Edición</span>
+          <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-0.5">
+            {{ readOnly() ? 'Sólo lectura' : 'Abierta' }}
+          </span>
+        </div>
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+
+    <div class="w-full md:w-1/3">
+      <agente-autocomplete (agenteSeleccionado)="onAgenteSeleccionado($event)"></agente-autocomplete>
+    </div>
+
+    <label class="inline-flex items-center cursor-pointer gap-3">
+      <span class="text-sm font-medium"
+            [class.text-primary]="form.controls.isPersonaMoral.value"
+            [class.text-on-teritary]="!form.controls.isPersonaMoral.value">
+        {{ form.controls.isPersonaMoral.value ? 'Persona Moral' : 'Persona Física' }}
+      </span>
+
+      <input type="checkbox" formControlName="isPersonaMoral" class="sr-only peer">
+
+      <div class="relative w-9 h-5 bg-surface-container-high peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-outline after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-surface after:border-outline after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary">
+      </div>
+    </label>
+  </div>
+
+  <div class="flex flex-row justify-end items-center gap-4">
+
+    <div class="input-group w-36">
+      <label for="fecha" class="label-form">Fecha</label>
+      <date-input formControlName="fecha"></date-input>
+    </div>
+
+    <div class="input-group w-28">
+      <label for="serie" class="label-form">Serie</label>
+      <input id="serie" type="text" formControlName="serie" class="input-form">
+    </div>
+
+    <div class="input-group w-28">
+      <label for="folio" class="label-form">Folio</label>
+      <input id="folio" type="text" formControlName="folio" class="input-form">
+    </div>
+
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+    <div class="input-group md:col-span-4">
+      <label for="cliente" class="label-form">Cliente</label>
+      <input id="cliente" type="text" maxlength="50" formControlName="cliente" class="input-form"
+             [class.border-error]="form.controls.cliente.invalid && form.controls.cliente.touched"
+             [attr.aria-invalid]="form.controls.cliente.invalid && form.controls.cliente.touched ? 'true' : null">
+
+      @if (form.controls.cliente.invalid && form.controls.cliente.touched) {
+        <span class="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
+        @if (form.controls.cliente.errors?.['required']) { El nombre del cliente es obligatorio. }
+          @if (form.controls.cliente.errors?.['maxlength']) { Máximo 50 caracteres. }
+      </span>
+      }
+
+    </div>
+
+    <div class="input-group md:col-span-3">
+      <label for="contacto" class="label-form">Contacto</label>
+      <input id="contacto" type="text" maxlength="50" formControlName="contacto" class="input-form"
+             [class.border-error]="form.controls.contacto.invalid && form.controls.contacto.touched"
+             [attr.aria-invalid]="form.controls.contacto.invalid && form.controls.contacto.touched ? 'true' : null">
+
+      @if (form.controls.contacto.invalid && form.controls.contacto.touched) {
+        <span class="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
+          @if (form.controls.contacto.errors?.['maxlength']) { Máximo 20 caracteres. }
+      </span>
+      }
+    </div>
+
+    <div class="input-group md:col-span-3">
+      <label for="email" class="label-form">Email</label>
+      <input id="email" type="text" maxlength="50" formControlName="email" class="input-form">
+    </div>
+
+    <div class="input-group md:col-span-2">
+      <label for="telefono" class="label-form">Teléfono</label>
+      <input id="telefono" type="text" maxlength="50" formControlName="telefono" class="input-form">
+    </div>
+
+  </div>
+
+  <section class="overflow-hidden rounded-lg border border-outline-variant bg-surface">
+    <button type="button"
+            class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-variant/40"
+            (click)="toggleObservaciones()"
+            [attr.aria-expanded]="observacionesAbiertas()"
+            aria-controls="observaciones-cotizacion">
+      <mat-icon class="text-primary">notes</mat-icon>
+
+      <span class="flex flex-1 flex-col">
+        <span class="text-sm font-semibold text-on-surface">Observaciones</span>
+        <span class="text-xs text-on-surface-variant">
+          {{ form.controls.observaciones.value ? 'Observaciones capturadas' : '' }}
+        </span>
+      </span>
+
+      <mat-icon>{{ observacionesAbiertas() ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+
+    @if (observacionesAbiertas()) {
+      <div id="observaciones-cotizacion" class="border-t border-outline-variant p-4 pt-3">
+        <textarea id="observaciones"
+                  formControlName="observaciones"
+                  maxlength="3000"
+                  rows="4"
+                  class="input-form min-h-24 resize-y whitespace-pre-wrap"></textarea>
+
+      </div>
+    }
+  </section>
+
+</fieldset>

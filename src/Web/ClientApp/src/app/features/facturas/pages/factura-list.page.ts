@@ -1,0 +1,225 @@
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal} from '@angular/core';
+import {FacturaList} from '../components/factura-list/factura-list';
+import {ActivatedRoute, Router} from '@angular/router';
+import {catchError, distinctUntilChanged, map, of, switchMap, tap} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FacturaApi} from '../data-acces/factura.api';
+import {
+  DEFAULT_DOCUMENTO_LIST_QUERY,
+  DocumentoListAction,
+  DocumentoListQuery,
+  DocumentoStatus,
+  PaginatedResponse,
+  DocumentoListItem,
+  SortDirection
+} from '../../../shared/models/documento-list.model';
+import {SnackbarService} from '../../../shared/services/snackbar.service';
+import {MatDialog} from '@angular/material/dialog';
+import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
+import {FacturaPreview} from '../components/factura-preview/factura-preview';
+import {FacturaReadModel} from '../data-acces/factura.model';
+import {FacturaPreviewData} from '../components/factura-preview/factura-preview.model';
+
+
+@Component({
+  selector: 'app-factura-list-page',
+  imports:[FacturaList],
+  template:`
+    <app-factura-list
+      [items]="response().items"
+      [totalCount]="response().totalCount"
+      [query]="query()"
+      [loading]="loading()"
+      (queryChange)="onQueryChange($event)"
+      (itemAction)="onItemAction($event)">
+    </app-factura-list>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+export class FacturaListPage {
+  private readonly api = inject(FacturaApi);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly snackbar = inject(SnackbarService);
+  private readonly dialog = inject(MatDialog);
+  private readonly auth = inject(AuthFacade);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly query = signal<DocumentoListQuery>(this.parseQuery());
+  readonly loading = signal(false);
+  readonly response = signal<PaginatedResponse<DocumentoListItem>>({
+    items: [],
+    pageNumber: 1,
+    pageSize: 25,
+    totalPages: 0,
+    totalCount: 0,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  });
+
+  constructor() {
+    this.route.queryParamMap.pipe(
+      map(() => this.parseQuery()),
+      distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current)),
+      tap(query => {
+        this.query.set(query);
+        this.loading.set(true);
+      }),
+      switchMap(query => this.api.list(query).pipe(
+        catchError(() => {
+          this.snackbar.error('No fue posible consultar las cotizaciones');
+          return of({...this.response(), items: [], totalCount: 0, totalPages: 0});
+        })
+      )),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(response => {
+      this.response.set(response);
+      this.loading.set(false);
+    });
+  }
+
+  onQueryChange(query: DocumentoListQuery): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      replaceUrl: true,
+      queryParams: {
+        page: query.page === 1 ? null : query.page,
+        pageSize: query.pageSize === 25 ? null : query.pageSize,
+        search: query.search || null,
+        sortBy: query.sortBy === 'fecha' ? null : query.sortBy,
+        sortDirection: query.sortDirection === 'desc' ? null : query.sortDirection,
+        dateFrom: query.dateFrom || null,
+        dateTo: query.dateTo || null,
+        status: query.status || null,
+      },
+    });
+  }
+
+  onItemAction(event: DocumentoListAction): void {
+    switch (event.action) {
+      case 'edit':
+        this.router.navigate(['/cotizaciones', event.item.id]);
+        break;
+      case 'duplicate':
+        this.snackbar.info('Esta acción requiere definir las reglas de modificación del documento');
+        break;
+      case 'delete':
+        this.deleteCotizacion(event.item);
+        break;
+      case 'preview':
+        this.openStoredCotizacion(event.item.id, false);
+        break;
+      case 'pdf':
+        this.openStoredCotizacion(event.item.id, true);
+        break;
+    }
+  }
+
+  private deleteCotizacion(item: DocumentoListItem): void {
+    const folio = `${item.serie}${item.folio}`;
+    if (!confirm(`¿Eliminar la cotización ${folio}? Esta acción no se puede deshacer.`)) return;
+
+    this.api.delete(item.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.response.update(response => ({
+            ...response,
+            items: response.items.filter(current => current.id !== item.id),
+            totalCount: Math.max(0, response.totalCount - 1),
+          }));
+          this.snackbar.success('Cotización eliminada correctamente');
+        },
+        error: () => this.snackbar.error('No se puede eliminar una cotización facturada'),
+      });
+  }
+
+  private openStoredCotizacion(id: number, descargarAlAbrir: boolean): void {
+    this.api.getById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: cotizacion => this.openPreview(cotizacion, descargarAlAbrir),
+        error: () => this.snackbar.error('No fue posible cargar la cotización'),
+      });
+  }
+
+  private openPreview(factura: FacturaReadModel, descargarAlAbrir: boolean): void {
+    const usuario = this.auth.user();
+    const resumen = factura.productos.reduce((total, producto) => ({
+      productos: total.productos + 1,
+      subtotal: total.subtotal + producto.neto,
+      descuento: total.descuento + producto.descuento,
+      iva: total.iva + producto.iva,
+      isr: total.isr + producto.isr,
+      total: total.total + producto.total,
+    }), {productos: 0, subtotal: 0, descuento: 0, iva: 0, isr: 0, total: 0});
+    const data: FacturaPreviewData = {
+      header: {
+        isPersonaMoral: factura.isPersonaMoral,
+        idAgente: factura.idAgente,
+        agente: '',
+        cliente: factura.cliente,
+        fecha: this.formatDate(factura.fecha),
+        serie: factura.serie,
+        folio: String(factura.folio),
+        contacto: factura.contacto,
+        email: factura.email,
+        telefono: factura.telefono,
+        observaciones: factura.observaciones,
+      },
+      detalles: factura.productos,
+      resumen,
+      usuarioNombre: factura.usuarioNombre,
+      usuarioEmail: usuario?.email ?? '',
+      usuarioTelefono: usuario?.telefono ?? '',
+      descargarAlAbrir,
+    };
+
+    this.dialog.open(FacturaPreview, {
+      data,
+      width: 'min(1180px, 96vw)',
+      maxWidth: '96vw',
+      height: '92vh',
+      maxHeight: '92vh',
+      autoFocus: false,
+      restoreFocus: true,
+      panelClass: descargarAlAbrir
+        ? ['cotizacion-preview-dialog', 'cotizacion-pdf-render-dialog']
+        : 'cotizacion-preview-dialog',
+      hasBackdrop: !descargarAlAbrir,
+      disableClose: descargarAlAbrir,
+    });
+  }
+
+  private formatDate(value: string): string {
+    const [year, month, day] = value.slice(0, 10).split('-');
+    return year && month && day ? `${day}/${month}/${year}` : value;
+  }
+
+  private parseQuery(): DocumentoListQuery {
+    const params = this.route.snapshot.queryParamMap;
+    const page = this.positiveInteger(params.get('page'), DEFAULT_DOCUMENTO_LIST_QUERY.page);
+    const requestedPageSize = this.positiveInteger(params.get('pageSize'), DEFAULT_DOCUMENTO_LIST_QUERY.pageSize);
+    const pageSize = [25, 50, 100].includes(requestedPageSize) ? requestedPageSize : 25;
+    const direction = params.get('sortDirection') === 'asc' ? 'asc' : 'desc';
+    const status = params.get('status');
+
+    return {
+      page,
+      pageSize,
+      search: params.get('search')?.trim() ?? '',
+      sortBy: params.get('sortBy') || DEFAULT_DOCUMENTO_LIST_QUERY.sortBy,
+      sortDirection: direction as SortDirection,
+      dateFrom: params.get('dateFrom') ?? '',
+      dateTo: params.get('dateTo') ?? '',
+      status: status === 'pendiente' || status === 'facturada' ? status as DocumentoStatus : '',
+    };
+  }
+
+  private positiveInteger(value: string | null, fallback: number): number {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+  }
+
+}
