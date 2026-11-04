@@ -1,5 +1,6 @@
 using MainApi.Application;
 using MainApi.Infrastructure;
+using MainApi.Infrastructure.Data;
 using MainApi.Web;
 
 var builder = WebApplication.CreateBuilder(args);
