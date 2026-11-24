@@ -1,6 +1,5 @@
 using System.Data.Common;
 using MainApi.Application.Common.Interfaces;
-using Microsoft.Data.SqlClient;
 
 namespace MainApi.Application.CONTPAQi.Cotizaciones.Commands.CreateCotizacion;
 
@@ -42,7 +41,6 @@ public record CreateCotizacionMovto
 public class CreateCotizacionCommandHandler : IRequestHandler<CreateCotizacionCommand, int>
 {
     private const int MaximoIntentos = 3;
-    private static readonly HashSet<int> ErroresReintentables = [1205, 2601, 2627];
 
     private readonly IContpaqiSqlConnection _sqlConnection;
     private readonly IDocumentoContpaqiService _documentoService;
@@ -80,8 +78,8 @@ public class CreateCotizacionCommandHandler : IRequestHandler<CreateCotizacionCo
                 await transaction.CommitAsync(cancellationToken);
                 return idDocumento;
             }
-            catch (SqlException exception)
-                when (EsErrorReintentable(exception) && intento < MaximoIntentos)
+            catch (DbException exception)
+                when (_sqlConnection.EsErrorReintentable(exception) && intento < MaximoIntentos)
             {
                 await RollbackSeguroAsync(transaction, cancellationToken);
 
@@ -97,14 +95,6 @@ public class CreateCotizacionCommandHandler : IRequestHandler<CreateCotizacionCo
 
         // El ciclo siempre regresa o lanza la excepción del último intento.
         throw new InvalidOperationException("No fue posible terminar la creación de la cotización.");
-    }
-
-    private static bool EsErrorReintentable(SqlException exception)
-    {
-        // 1205: deadlock. 2601 y 2627: llave o índice duplicado.
-        return exception.Errors
-            .Cast<SqlError>()
-            .Any(error => ErroresReintentables.Contains(error.Number));
     }
 
     private static async Task RollbackSeguroAsync(
