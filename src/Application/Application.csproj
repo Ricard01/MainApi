@@ -9,7 +9,6 @@
         <PackageReference Include="Dapper" />
         <PackageReference Include="Ardalis.GuardClauses"/>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-        <PackageReference Include="Microsoft.Data.SqlClient" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
     </ItemGroup>
     
