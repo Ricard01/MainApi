@@ -16,16 +16,15 @@ public class ContpaqiConnectionStringFactory
 
     public string BuildConnectionString(ContpaqiConexion conexion)
     {
-        
         var isHomeSetup = Environment.GetEnvironmentVariable("WORK_IN_HOME") == "true";
-        
-        
+
+
         var builder = new SqlConnectionStringBuilder
         {
             DataSource = isHomeSetup ? "localhost,1433" : $"{conexion.Servidor},{conexion.Puerto}",
-            InitialCatalog = isHomeSetup ? "adANY" : conexion.BaseDatos,
+            InitialCatalog = isHomeSetup ? "adSDK" : conexion.BaseDatos,
             UserID = isHomeSetup ? "sa" : conexion.SqlUser,
-            Password = isHomeSetup ? "Nolose99" : _encryptionService.Decrypt(conexion.PasswordEncrypted),
+            Password = isHomeSetup ? "nolose99" : _encryptionService.Decrypt(conexion.PasswordEncrypted),
             TrustServerCertificate = true,
             MultipleActiveResultSets = true
         };

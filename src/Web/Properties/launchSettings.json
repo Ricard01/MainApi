@@ -1,16 +1,6 @@
 ﻿{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "http": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5036",
-      "environmentVariables": {
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
     "MainApi.Web": {
       "commandName": "Project",
       "dotnetRunMessages": true,
@@ -21,7 +11,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Web.Home": {
+    "MainApi.Home": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
