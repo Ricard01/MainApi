@@ -66,6 +66,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           errorMessages = [problem?.detail || problem?.title || 'El recurso solicitado no fue encontrado.'];
           break;
 
+        case 409:
+          // Conflict: la operación no está permitida por una regla de negocio
+          errorMessages = [problem?.detail || problem?.title || 'La operación no está permitida.'];
+          break;
+
+        case 502:
+          // Bad Gateway: un servicio externo (p. ej. SDK de CONTPAQi) rechazó la operación
+          errorMessages = [problem?.detail || problem?.title || 'Un servicio externo rechazó la operación.'];
+          break;
+
         case 500:
         default:
           // Errores Internos Críticos (NullReferenceException, Base de datos caída, etc.)

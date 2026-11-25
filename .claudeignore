@@ -1,0 +1,49 @@
+# ==========================================
+# Archivos de dependencias y compilación
+# ==========================================
+**/node_modules/
+**/dist/
+**/.angular/
+**/bin/
+**/obj/
+**/packages/
+package-lock.json
+
+# ==========================================
+# Caches de IDEs y editores
+# ==========================================
+.idea/
+.vs/
+.vscode/
+*.DotSettings.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+_ReSharper.Caches/
+
+# ==========================================
+# EF Core: Migraciones autogeneradas y Snapshots
+# ==========================================
+src/Infrastructure/Data/Migrations/*.Designer.cs
+src/Infrastructure/Data/Migrations/AppDbContextModelSnapshot.cs
+
+# ==========================================
+# Assets pesados e imágenes binarias
+# ==========================================
+src/Web/ClientApp/src/assets/imgs/
+src/Web/ClientApp/public/*.ico
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+
+# ==========================================
+# Logs y reportes
+# ==========================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+**/coverage/

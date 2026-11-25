@@ -2,7 +2,12 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {API_BASE_URL} from '../../../app.config';
 import {Folio} from '../../../shared/models/folio.model';
-import {CotizacionReadModel, CreateCotizacionCommand} from './cotizacion.model';
+import {
+  CotizacionFacturada,
+  CotizacionReadModel,
+  CreateCotizacionCommand,
+  FacturarCotizacionCommand
+} from './cotizacion.model';
 import {HttpParams} from '@angular/common/http';
 import {
   DocumentoListItem,
@@ -21,7 +26,7 @@ export class CotizacionApi {
     return this.http.get<Folio>(`${this.baseUrl}/folio`);
   }
 
-  create( command: CreateCotizacionCommand){
+  create(command: CreateCotizacionCommand) {
     return this.http.post<number>(this.baseUrl, command);
   }
 
@@ -50,6 +55,11 @@ export class CotizacionApi {
 
   getById(id: number) {
     return this.http.get<CotizacionReadModel>(`${this.baseUrl}/${id}`);
+  }
+
+  /** Convierte la cotización (total o parcialmente) en una factura sin timbrar. */
+  facturar(command: FacturarCotizacionCommand) {
+    return this.http.post<CotizacionFacturada>(`${this.baseUrl}/${command.idCotizacion}/facturar`, command);
   }
 
 }

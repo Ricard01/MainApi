@@ -15,6 +15,9 @@ public sealed record CotizacionDetailDto
     public string AgenteCodigo { get; init; } = string.Empty;
     public string AgenteNombre { get; init; } = string.Empty;
     public bool IsPersonaMoral { get; init; }
+    public int IdCliente { get; init; }
+    public string ClienteCodigo { get; init; } = string.Empty;
+    public string ClienteRazonSocial { get; init; } = string.Empty;
     public string Cliente { get; init; } = string.Empty;
     public string Contacto { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
@@ -27,6 +30,8 @@ public sealed record CotizacionDetailDto
 
 public sealed record CotizacionMovimientoDto
 {
+    public int IdMovimiento { get; init; }
+    public decimal Pendiente { get; init; }
     public int IdProducto { get; init; }
     public string Codigo { get; init; } = string.Empty;
     public string Producto { get; init; } = string.Empty;
@@ -60,20 +65,28 @@ public sealed class GetCotizacionQueryHandler(IContpaqiSqlConnection sqlConnecti
                                                          COALESCE(a.CCODIGOAGENTE, '') AS AgenteCodigo,
                                                          COALESCE(a.CNOMBREAGENTE, '') AS AgenteNombre,
                                                          CAST(CASE WHEN d.CIDCLIENTEPROVEEDOR = 338 THEN 1 ELSE 0 END AS bit) AS IsPersonaMoral,
+                                                         d.CIDCLIENTEPROVEEDOR AS IdCliente,
+                                                         COALESCE(c.CCODIGOCLIENTE, '') AS ClienteCodigo,
+                                                         COALESCE(c.CRAZONSOCIAL, '') AS ClienteRazonSocial,
                                                          d.CTEXTOEXTRA1 AS Cliente,
                                                          d.CREFERENCIA AS Contacto,
                                                          d.CTEXTOEXTRA2 AS Email,
                                                          d.CTEXTOEXTRA3 AS Telefono,
                                                          COALESCE(d.COBSERVACIONES, '') AS Observaciones,
                                                          d.CDESTINATARIO AS UsuarioNombre,
-                                                         CASE WHEN d.CUNIDADESPENDIENTES = 0 THEN 'facturada' ELSE 'pendiente' END AS Estado
+                                                         CASE WHEN d.CUNIDADESPENDIENTES = 0 THEN 'facturada'
+                                                              WHEN d.CUNIDADESPENDIENTES < d.CTOTALUNIDADES THEN 'parcial'
+                                                              ELSE 'pendiente' END AS Estado
                                                      FROM admDocumentos d
                                                      LEFT JOIN admAgentes a ON a.CIDAGENTE = d.CIDAGENTE
+                                                     LEFT JOIN admClientes c ON c.CIDCLIENTEPROVEEDOR = d.CIDCLIENTEPROVEEDOR
                                                      WHERE d.CIDDOCUMENTO = @Id 
                                                        AND d.CIDDOCUMENTODE = 1
                                                        AND d.CIDCONCEPTODOCUMENTO = 1;
-                           
+
                                                      SELECT
+                                                         m.CIDMOVIMIENTO AS IdMovimiento,
+                                                         m.CUNIDADESPENDIENTES AS Pendiente,
                                                          m.CIDPRODUCTO AS IdProducto,
                                                          COALESCE(p.CCODIGOPRODUCTO, '') AS Codigo,
                                                          COALESCE(p.CNOMBREPRODUCTO, '') AS Producto,
@@ -99,7 +112,7 @@ public sealed class GetCotizacionQueryHandler(IContpaqiSqlConnection sqlConnecti
         await using var connection = await sqlConnection.CreateAsync();
         using var result = await connection.QueryMultipleAsync(new CommandDefinition(
             sql,
-            new {request.Id},
+            new { request.Id },
             cancellationToken: cancellationToken));
 
         var cotizacion = await result.ReadSingleOrDefaultAsync<CotizacionDetailDto>();

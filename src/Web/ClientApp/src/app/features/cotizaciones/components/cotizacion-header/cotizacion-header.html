@@ -20,12 +20,18 @@
         <span class="text-xs font-semibold tracking-wider uppercase text-on-surface-variant/70">Estado</span>
         <span class="text-sm font-bold mt-0.5 flex items-center gap-1.5"
               [class.text-amber-700]="status() === 'pendiente'"
+              [class.text-blue-700]="status() === 'parcial'"
               [class.text-emerald-700]="status() === 'facturada'">
         <span class="h-2 w-2 rounded-full"
               [class.bg-amber-500]="status() === 'pendiente'"
               [class.animate-pulse]="status() === 'pendiente'"
+              [class.bg-blue-500]="status() === 'parcial'"
               [class.bg-emerald-500]="status() === 'facturada'"></span>
-        {{ status() === 'facturada' ? 'Facturada' : 'Sin surtir' }}
+        @switch (status()) {
+          @case ('facturada') { Facturada }
+          @case ('parcial') { Facturada parcial }
+          @default { Sin surtir }
+        }
       </span>
       </div>
 

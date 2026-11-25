@@ -4,6 +4,13 @@ using MainApi.Application.Common.Interfaces;
 
 namespace MainApi.Application.CONTPAQi.Clientes.Queries.GetAllClientes;
 
+/// <summary>
+/// Obtiene el catálogo de clientes activos.
+/// </summary>
+/// <remarks>
+/// Filtra únicamente registros activos (<c>cestatus = 1</c>) cuyo tipo corresponda a 
+/// Cliente (<c>1</c>) o Cliente/Proveedor (<c>2</c>), excluyendo proveedores (<c>3</c>).
+/// </remarks>
 public class GetAllClientesQuery : IRequest<IEnumerable<ClienteDto>>
 {
 }

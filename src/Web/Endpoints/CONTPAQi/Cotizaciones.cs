@@ -1,6 +1,7 @@
 using MainApi.Application.CONTPAQi.Cotizaciones.Commands.CreateCotizacion;
 using MainApi.Application.CONTPAQi.Cotizaciones.Commands.UpdateCotizacion;
 using MainApi.Application.CONTPAQi.Cotizaciones.Commands.DeleteCotizacion;
+using MainApi.Application.CONTPAQi.Cotizaciones.Commands.FacturarCotizacion;
 using MainApi.Application.CONTPAQi.Cotizaciones.Queries;
 using MainApi.Application.CONTPAQi.Cotizaciones.Queries.GetCotizacion;
 using MainApi.Application.Common.Models;
@@ -19,16 +20,30 @@ public class Cotizaciones : EndpointGroupBase
             .MapPost(CreateCotizacion)
             .MapPut(UpdateCotizacion, "{id:int}")
             .MapDelete(DeleteCotizacion, "{id:int}")
+            .MapPost(FacturarCotizacion, "{id:int}/facturar")
             .MapGet(GetCotizaciones)
             .MapGet(GetCotizacion, "{id:int}")
             .MapGet("folio", GetFolio);
+    }
+
+    private Task<CotizacionFacturada> FacturarCotizacion(ISender sender, int id, FacturarCotizacionCommand command)
+    {
+        if (id != command.IdCotizacion)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(command.IdCotizacion),
+                    "El ID no coincide con la ruta.")
+            ]);
+        }
+
+        return sender.Send(command);
     }
 
     private Task<FolioCotizacion> GetFolio(ISender sender)
     {
         return sender.Send(new GetFolioCotizacionQuery());
     }
-    
+
     private Task<int> CreateCotizacion(ISender sender, CreateCotizacionCommand command)
     {
         return sender.Send(command);

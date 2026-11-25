@@ -250,6 +250,11 @@ table {
   background: #dcf6e8;
 }
 
+.status-badge.partial {
+  color: #1d4f91;
+  background: #dceafc;
+}
+
 .empty-cell {
   height: 180px;
   color: var(--mat-sys-on-surface-variant);

@@ -12,17 +12,30 @@ public class CustomExceptionHandler : IExceptionHandler
     {
         // Register known exception types and handlers.
         _exceptionHandlers = new()
-            {
-                { typeof(ValidationException), HandleValidationException },
-                { typeof(NotFoundException), HandleNotFoundException },
-                { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
-                { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
-                { typeof(ConflictException), HandleConflictException },
-                { typeof(KeyNotFoundException), HandleKeyNotFoundException },
-            };
+        {
+            { typeof(ValidationException), HandleValidationException },
+            { typeof(NotFoundException), HandleNotFoundException },
+            { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
+            { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+            { typeof(ConflictException), HandleConflictException },
+            { typeof(KeyNotFoundException), HandleKeyNotFoundException },
+            { typeof(ComercialSdkException), HandleComercialSdkException },
+        };
     }
 
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+    private async Task HandleComercialSdkException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status502BadGateway;
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status502BadGateway,
+            Title = "Error en el servicio SDK de CONTPAQi.",
+            Detail = ex.Message
+        });
+    }
+
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+        CancellationToken cancellationToken)
     {
         var exceptionType = exception.GetType();
 

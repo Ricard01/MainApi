@@ -87,9 +87,13 @@ public sealed class GetDocumentosQueryHandler(IContpaqiSqlConnection sqlConnecti
         {
             where.Append("\n AND d.CUNIDADESPENDIENTES = 0");
         }
+        else if (request.Status?.Equals("parcial", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            where.Append("\n AND d.CUNIDADESPENDIENTES <> 0 AND d.CUNIDADESPENDIENTES < d.CTOTALUNIDADES");
+        }
         else if (request.Status?.Equals("pendiente", StringComparison.OrdinalIgnoreCase) == true)
         {
-            where.Append("\n AND d.CUNIDADESPENDIENTES <> 0");
+            where.Append("\n AND d.CUNIDADESPENDIENTES <> 0 AND d.CUNIDADESPENDIENTES >= d.CTOTALUNIDADES");
         }
 
         var secondaryOrder = request.SortBy.Equals("fecha", StringComparison.OrdinalIgnoreCase)
@@ -112,7 +116,9 @@ public sealed class GetDocumentosQueryHandler(IContpaqiSqlConnection sqlConnecti
                        d.CREFERENCIA AS Contacto,
                        d.CDESTINATARIO AS Usuario,
                        d.CTOTAL AS Total,
-                       CASE WHEN d.CUNIDADESPENDIENTES = 0 THEN 'facturada' ELSE 'pendiente' END AS Estado
+                       CASE WHEN d.CUNIDADESPENDIENTES = 0 THEN 'facturada'
+                            WHEN d.CUNIDADESPENDIENTES < d.CTOTALUNIDADES THEN 'parcial'
+                            ELSE 'pendiente' END AS Estado
                    FROM admDocumentos d
                    {where}
                    ORDER BY {sortColumn} {direction}{secondaryOrder}

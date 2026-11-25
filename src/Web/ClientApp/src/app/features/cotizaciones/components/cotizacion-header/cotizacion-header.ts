@@ -19,7 +19,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {CotizacionApi} from '../../data-acces/cotizacion.api';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CotizacionHeaderValue, CotizacionReadModel} from '../../data-acces/cotizacion.model';
+import {CotizacionEstado, CotizacionHeaderValue, CotizacionReadModel} from '../../data-acces/cotizacion.model';
 
 @Component({
   selector: 'app-cotizacion-header',
@@ -36,7 +36,7 @@ export class CotizacionHeader implements OnInit {
   readonly observacionesAbiertas = signal(false);
   readonly editMode = input(false);
   readonly readOnly = input(false);
-  readonly status = input<'pendiente' | 'facturada'>('pendiente');
+  readonly status = input<CotizacionEstado>('pendiente');
   private readonly agenteAutocomplete = viewChild(AgenteAutocomplete);
 
 

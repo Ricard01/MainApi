@@ -1,10 +1,12 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, viewChild} from '@angular/core';
 import {CotizacionHeader} from '../components/cotizacion-header/cotizacion-header';
 import {CotizacionDetail} from '../components/cotizacion-detail/cotizacion-detail';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatIcon} from '@angular/material/icon';
 import {CotizacionApi} from '../data-acces/cotizacion.api';
-import {CreateCotizacionCommand} from '../data-acces/cotizacion.model';
+import {CotizacionEstado, CotizacionReadModel, CreateCotizacionCommand} from '../data-acces/cotizacion.model';
+import {MatButton} from '@angular/material/button';
+import {CotizacionFacturar, CotizacionFacturarData} from '../components/cotizacion-facturar/cotizacion-facturar';
 import {SnackbarService} from '../../../shared/services/snackbar.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatDialog} from '@angular/material/dialog';
@@ -15,9 +17,9 @@ import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
 
 @Component({
   selector: 'app-cotizacion-page',
-  imports: [CotizacionHeader, CotizacionDetail, MatIcon],
+  imports: [CotizacionHeader, CotizacionDetail, MatIcon, MatButton],
   template: `
-    <div class="mb-3">
+    <div class="mb-3 flex items-center justify-between gap-3">
       <button type="button" (click)="onRegresar()"
         class="inline-flex items-center gap-1.5 text-sm font-medium text-on-surface-variant/75 hover:text-primary transition-colors duration-250 bg-transparent border-none p-0 cursor-pointer group">
         <mat-icon class="text-base h-5 w-5 flex items-center justify-center transform group-hover:-translate-x-0.5 transition-transform">
@@ -25,6 +27,13 @@ import {AuthFacade} from '../../../core/auth/data-access/state/auth.facade';
         </mat-icon>
           Cotizaciones
       </button>
+
+      @if (puedeFacturar()) {
+        <button mat-flat-button type="button" (click)="onFacturar()">
+          <mat-icon>receipt_long</mat-icon>
+          Convertir a factura
+        </button>
+      }
     </div>
 
     <app-cotizacion-header
@@ -52,7 +61,13 @@ export class CotizacionPage {
   readonly isPersonaMoral = signal(true);
   readonly currentId = signal<number | null>(null);
   readonly readOnly = signal(false);
-  readonly status = signal<'pendiente' | 'facturada'>('pendiente');
+  readonly status = signal<CotizacionEstado>('pendiente');
+  /** Última versión guardada de la cotización; es la que se convierte en factura. */
+  readonly cotizacion = signal<CotizacionReadModel | null>(null);
+  readonly puedeFacturar = computed(() => {
+    const cotizacion = this.cotizacion();
+    return cotizacion !== null && cotizacion.estado !== 'facturada';
+  });
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly cotizacionApi = inject(CotizacionApi);
@@ -132,6 +147,25 @@ export class CotizacionPage {
           this.router.navigate(['/cotizaciones']);
         },
         error: () => this.snackbar.error('No se puede eliminar una cotización facturada'),
+      });
+  }
+
+  onFacturar(): void {
+    const cotizacion = this.cotizacion();
+    if (cotizacion === null) return;
+
+    this.dialog.open<CotizacionFacturar, CotizacionFacturarData>(CotizacionFacturar, {
+      data: {cotizacion},
+      width: 'min(560px, 96vw)',
+      maxWidth: '96vw',
+      autoFocus: false,
+      disableClose: true,
+    }).afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(factura => {
+        if (!factura) return;
+        this.snackbar.success(`Factura ${factura.serie}-${factura.folio} creada sin timbrar`);
+        this.loadCotizacion(cotizacion.id);
       });
   }
 
@@ -221,8 +255,10 @@ export class CotizacionPage {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: cotizacion => {
+          this.cotizacion.set(cotizacion);
           this.status.set(cotizacion.estado);
-          this.readOnly.set(cotizacion.estado === 'facturada');
+          // Con unidades facturadas (aunque sea parcial) ya no se puede editar: rompería la liga con la factura.
+          this.readOnly.set(cotizacion.estado !== 'pendiente');
           this.isPersonaMoral.set(cotizacion.isPersonaMoral);
           this.header()?.setValue(cotizacion);
           this.detail().setDetallesValue(cotizacion.productos.map(producto => ({

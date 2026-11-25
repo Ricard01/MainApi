@@ -87,7 +87,7 @@ public sealed class DocumentoContpaqiService(
             connection, transaction, idDocumento, cancellationToken);
 
         if (existente is null) return DocumentoMutationResult.NotFound;
-        if (existente.Documento.CUNIDADESPENDIENTES == 0) return DocumentoMutationResult.Facturada;
+        if (existente.TieneUnidadesFacturadas) return DocumentoMutationResult.Facturada;
 
         var documentoAnterior = existente.Documento;
         var movimientosAnteriores = existente.Movimientos;
@@ -143,7 +143,7 @@ public sealed class DocumentoContpaqiService(
             connection, transaction, idDocumento, cancellationToken);
 
         if (existente is null) return DocumentoMutationResult.NotFound;
-        if (existente.Documento.CUNIDADESPENDIENTES == 0) return DocumentoMutationResult.Facturada;
+        if (existente.TieneUnidadesFacturadas) return DocumentoMutationResult.Facturada;
 
         await acumuladosService.RetirarCotizacionDeAcumuladosAsync(
             connection,
@@ -306,7 +306,16 @@ public sealed class DocumentoContpaqiService(
 
     private sealed record DocumentoParaMutacion(
         AdmDocumentos Documento,
-        IReadOnlyCollection<AdmMovimientos> Movimientos);
+        IReadOnlyCollection<AdmMovimientos> Movimientos)
+    {
+        /// <summary>
+        /// Verdadero si alguna unidad ya se facturó, aunque sea parcialmente. Editar o borrar la cotización
+        /// en ese caso rompería la liga de la factura (<c>CIDMOVTOORIGEN</c>) y reiniciaría sus pendientes.
+        /// </summary>
+        public bool TieneUnidadesFacturadas =>
+            Documento.CUNIDADESPENDIENTES == 0
+            || Movimientos.Any(m => m.CUNIDADESPENDIENTES < m.CUNIDADES);
+    }
 
     /// <summary>
     /// Obtiene el Ultimo Id de AdmDocumentos para utilizar en el insert ya que CIDDOCUMENTO no es Autoincrement 
