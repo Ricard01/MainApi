@@ -53,7 +53,7 @@ export class FacturaPage {
   readonly isPersonaMoral = signal(true);
   readonly currentId = signal<number | null>(null);
   readonly readOnly = signal(false);
-  readonly status = signal<'pendiente' | 'facturada'>('pendiente');
+  readonly status = signal<'pendiente' | 'parcial' | 'facturada'>('pendiente');
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly cotizacionApi = inject(FacturaApi);

@@ -1,6 +1,8 @@
 ﻿using MainApi.Application.Common.Interfaces;
 using MainApi.Application.CONTPAQi.Acumulados;
 using MainApi.Application.CONTPAQi.Bitacoras;
+using MainApi.Application.CONTPAQi.Cotizaciones.Commands.FacturarCotizacion;
+using MainApi.Infrastructure.CONTPAQi.ComercialSdk;
 using MainApi.Infrastructure.CONTPAQi.Config;
 using MainApi.Infrastructure.CONTPAQi.Database;
 using MainApi.Infrastructure.CONTPAQi.Security;
@@ -43,9 +45,21 @@ public static class DependencyInjection
         services.AddScoped<IContpaqiSqlConnection, ContpaqiSqlConnection>();
         services.AddScoped<IBitacoraContpaqiService, BitacoraContpaqiService>();
         services.AddScoped<IAcumuladosContpaqiService, AcumuladosContpaqiService>();
+        services.AddScoped<ICotizacionFacturacionService, CotizacionFacturacionContpaqiService>();
+
+        // Servicio SDK de CONTPAQi (proceso x86 aparte): crea las facturas con MGWServicios.dll.
+        var opcionesSdk = configuration.GetSection(ComercialSdkClientOptions.Seccion).Get<ComercialSdkClientOptions>()
+                          ?? new ComercialSdkClientOptions();
+        services.AddHttpClient<IComercialSdkClient, ComercialSdkClient>(client =>
+        {
+            client.BaseAddress = new Uri(opcionesSdk.BaseUrl.TrimEnd('/') + "/");
+            client.Timeout = opcionesSdk.Timeout;
+        });
         services.AddScoped<IDocumentoContpaqiService, DocumentoContpaqiService>();
 
-        services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
+        services
+            .AddSingleton<IPasswordHasher<object>,
+                PasswordHasher<object>>(); // singleton cuando no dependes de DbContext/HttpContext.
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IIdentityService, IdentityService>();
 

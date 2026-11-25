@@ -20,7 +20,7 @@ export interface Productos {
   idUnidadMedida: number;
   cantidad: number;
   precio: number;
-  observaciones:string;
+  observaciones: string;
   descuentoPorcentaje: number;
   descuento: number;
   neto: number;
@@ -58,11 +58,20 @@ export interface CotizacionReadModel {
   telefono: string;
   observaciones: string;
   usuarioNombre: string;
-  estado: 'pendiente' | 'facturada';
+  estado: CotizacionEstado;
+  idCliente: number;
+  clienteCodigo: string;
+  clienteRazonSocial: string;
   productos: CotizacionReadMovimiento[];
 }
 
+/** 'parcial': ya se facturó una parte de las unidades; la cotización queda sólo para consulta. */
+export type CotizacionEstado = 'pendiente' | 'parcial' | 'facturada';
+
 export interface CotizacionReadMovimiento {
+  idMovimiento: number;
+  /** Unidades que aún no se facturan. */
+  pendiente: number;
   idProducto: number;
   codigo: string;
   producto: string;
@@ -77,4 +86,16 @@ export interface CotizacionReadMovimiento {
   iva: number;
   isr: number;
   total: number;
+}
+
+export interface FacturarCotizacionCommand {
+  idCotizacion: number;
+  /** Nulo: se factura al cliente de la cotización. */
+  idCliente: number | null;
+}
+
+export interface CotizacionFacturada {
+  idFactura: number;
+  serie: string;
+  folio: number;
 }

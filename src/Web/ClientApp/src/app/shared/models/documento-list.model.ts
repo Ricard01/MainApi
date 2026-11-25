@@ -1,6 +1,6 @@
 export type DocumentoColumnType = 'text' | 'number' | 'currency' | 'date' | 'status';
 export type SortDirection = 'asc' | 'desc';
-export type DocumentoStatus = '' | 'pendiente' | 'facturada';
+export type DocumentoStatus = '' | 'pendiente' | 'parcial' | 'facturada';
 
 export interface DocumentoListItem {
   id: number;

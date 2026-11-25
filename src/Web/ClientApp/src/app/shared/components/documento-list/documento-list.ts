@@ -161,7 +161,8 @@ export class DocumentoList {
   }
 
   statusLabel(status: DocumentoListItem['estado']): string {
-    return status === 'facturada' ? 'Facturada' : 'Pendiente';
+    if (status === 'facturada') return 'Facturada';
+    return status === 'parcial' ? 'Facturada parcial' : 'Pendiente';
   }
 
   private emitQuery(patch: Partial<DocumentoListQuery>): void {

@@ -42,6 +42,7 @@
         <select formControlName="status">
           <option value="">Todos</option>
           <option value="pendiente">Pendiente</option>
+          <option value="parcial">Facturada parcial</option>
           <option value="facturada">Facturada</option>
         </select>
       </label>
@@ -101,7 +102,7 @@
                   {{ value(item, column) | number:'1.0-2' }}
                 }
                 @case ('status') {
-                  <span class="status-badge" [class.invoiced]="item.estado === 'facturada'">
+                  <span class="status-badge" [class.invoiced]="item.estado === 'facturada'" [class.partial]="item.estado === 'parcial'">
                     {{ statusLabel(item.estado) }}
                   </span>
                 }

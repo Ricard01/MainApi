@@ -36,7 +36,7 @@ export class FacturaHeader implements OnInit {
   readonly observacionesAbiertas = signal(false);
   readonly editMode = input(false);
   readonly readOnly = input(false);
-  readonly status = input<'pendiente' | 'facturada'>('pendiente');
+  readonly status = input<'pendiente' | 'parcial' | 'facturada'>('pendiente');
   private readonly agenteAutocomplete = viewChild(AgenteAutocomplete);
 
 
