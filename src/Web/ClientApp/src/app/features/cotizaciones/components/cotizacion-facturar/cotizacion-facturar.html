@@ -1,17 +1,21 @@
-<h2 mat-dialog-title class="flex items-center gap-2">
-  <mat-icon>receipt_long</mat-icon>
-  Convertir a factura
-  <span class="text-sm font-normal text-on-surface-variant">
-    · Cotización {{ cotizacion.serie }} {{ cotizacion.folio }}
-  </span>
-</h2>
+<h2 mat-dialog-title>Convertir a factura</h2>
 
-<mat-dialog-content class="flex flex-col gap-4">
+<mat-dialog-content class="flex flex-col gap-4 !pt-2">
 
-  <section class="flex flex-col gap-1">
+  <div class="flex items-center gap-2 text-sm text-on-surface">
+    <mat-icon class="shrink-0 text-primary">receipt_long</mat-icon>
+    <span>Cotización</span>
+    <span class="rounded-md bg-primary-container px-2 py-0.5 font-semibold text-on-primary-container">
+      {{ cotizacion.serie }} {{ cotizacion.folio }}
+    </span>
+  </div>
+
+  <section class="flex flex-col gap-1 pt-2">
     <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
       <mat-label>Cliente de la factura</mat-label>
       <input matInput
+             class="!text-base !text-on-surface"
+             [title]="nombreCliente(clienteSeleccionado())"
              [matAutocomplete]="autoCliente"
              [value]="nombreCliente(clienteSeleccionado())"
              (input)="onBuscarCliente($any($event.target).value)"
@@ -30,14 +34,14 @@
       </mat-autocomplete>
     </mat-form-field>
     @if (clienteSeleccionado().id !== cotizacion.idCliente) {
-      <span class="text-xs text-on-surface-variant">
-        La cotización es de {{ cotizacion.clienteRazonSocial }}; la factura se emitirá a este cliente.
+      <span class="text-xs text-on-surface">
+        La cotización es de <strong>{{ cotizacion.clienteRazonSocial }}</strong>; la factura se emitirá a este cliente.
       </span>
     }
   </section>
 
   @if (error()) {
-    <div class="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300"
+    <div class="flex items-start gap-2 rounded-lg bg-error-container p-3 text-sm text-on-error-container"
          role="alert">
       <mat-icon class="shrink-0">error</mat-icon>
       <span>{{ error() }}</span>

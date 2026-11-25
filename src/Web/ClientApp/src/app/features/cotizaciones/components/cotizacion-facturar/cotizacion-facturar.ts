@@ -88,9 +88,9 @@ export class CotizacionFacturar {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: factura => this.dialogRef.close(factura),
-        error: (respuesta: HttpErrorResponse) => {
+        error: (errores: string[] | HttpErrorResponse) => {
           this.guardando.set(false);
-          this.error.set(this.mensajeError(respuesta));
+          this.error.set(this.mensajeError(errores));
         },
       });
   }
@@ -99,7 +99,12 @@ export class CotizacionFacturar {
     this.dialogRef.close();
   }
 
-  private mensajeError(respuesta: HttpErrorResponse): string {
+  /** El errorInterceptor global entrega los mensajes ya resueltos como string[]. */
+  private mensajeError(respuesta: string[] | HttpErrorResponse): string {
+    if (Array.isArray(respuesta)) {
+      return respuesta.length > 0 ? respuesta.join(' ') : 'No fue posible convertir la cotización en factura.';
+    }
+
     const problema = respuesta.error as { detail?: string; title?: string; errors?: Record<string, string[]> } | null;
     const validaciones = Object.values(problema?.errors ?? {}).flat();
     if (validaciones.length > 0) return validaciones.join(' ');
